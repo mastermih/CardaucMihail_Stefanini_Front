@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BasicTable from './BasicTable';
-import { fetchLastDate, fetchData } from './dataService';
+import { fetchLastDate, fetchData, fetchDataByDateAndStatus } from './dataService';
 
 const Orders = () => {
   const [data, setData] = useState([]);
@@ -23,6 +23,19 @@ const Orders = () => {
       setLoading(false);
     }
   };
+  const handleFetchDataByDateAndStatus = async () => {
+    setLoading(true);
+    try{
+        const result = await fetchDataByDateAndStatus(selectedDate, selectedStatus, 5, 1);
+        setData(result.data);
+        setTotalPages(result.totalPages);
+        setCurrentPage(1);
+    } catch (error) {
+        console.error('Error fetching data by date and status:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const handleFetchData = async () => { // bazat pe Data
     setLoading(true);
@@ -79,7 +92,7 @@ const Orders = () => {
             {/* Add other statuses as needed */}
           </select>
         </label>
-        <button onClick={handleFetchData}>Fetch Data</button>
+        <button onClick={handleFetchDataByDateAndStatus}>Click me</button>
       </div>
       {loading ? (
         <div>Loading...</div>
