@@ -1,20 +1,27 @@
 import axios from 'axios';
 
-const fetchData = async (createdDate, status, numberOfOrders, page) => {
+export const fetchLastDate = async () => {
   try {
-    const response = await axios.get('http://localhost:8080/orders/status-createDate', {
+    const response = await axios.get('http://localhost:8080/orders/lastCreatedDate');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching last created date:', error);
+    throw error;
+  }
+};
+
+export const fetchData = async (createdDate, numberOfOrders, page) => {
+  try {
+    const response = await axios.get('http://localhost:8080/orders/createDate', {
       params: {
         createdDate,
-        status,
         numberOfOrders,
         page
       }
     });
 
-    // Log the raw response to ensure we are getting the data
     console.log('Raw response data:', response.data);
 
-    // Transform the nested structure into a flat structure
     const flattenedData = response.data.items.map(item => ({
       id: item.orderId.id,
       user_id: item.userId.userId.id,
@@ -23,14 +30,11 @@ const fetchData = async (createdDate, status, numberOfOrders, page) => {
       order_status: item.orderStatus,
     }));
 
-    // Log the transformed data to verify
     console.log('Flattened data:', flattenedData);
 
-    return flattenedData;
+    return { data: flattenedData, totalPages: response.data.totalPages };
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
   }
 };
-
-export default fetchData;

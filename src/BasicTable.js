@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
-import { COLUMNS } from './columns';
 import './table.css';
+import { COLUMNS } from './columns';
 
 const BasicTable = ({ data }) => {
   const columns = useMemo(() => COLUMNS, []);
@@ -23,9 +23,9 @@ const BasicTable = ({ data }) => {
     <table {...getTableProps()} className="data-table">
       <thead>
         {headerGroups.map(headerGroup => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
+          <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
             {headerGroup.headers.map(column => (
-              <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+              <th {...column.getHeaderProps()} key={column.id}>{column.render('Header')}</th>
             ))}
           </tr>
         ))}
@@ -34,9 +34,9 @@ const BasicTable = ({ data }) => {
         {rows.map(row => {
           prepareRow(row);
           return (
-            <tr {...row.getRowProps()}>
+            <tr {...row.getRowProps()} key={row.id}>
               {row.cells.map(cell => (
-                <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                <td {...cell.getCellProps()} key={cell.id}>{cell.render('Cell')}</td>
               ))}
             </tr>
           );
