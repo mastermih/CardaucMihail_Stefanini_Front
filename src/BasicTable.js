@@ -5,7 +5,9 @@ import { COLUMNS } from './columns';
 
 const BasicTable = ({ data }) => {
   const columns = useMemo(() => COLUMNS, []);
-  
+
+  console.log('Data received by BasicTable:', data);
+
   const tableInstance = useTable({
     columns,
     data,
@@ -36,7 +38,7 @@ const BasicTable = ({ data }) => {
           return (
             <tr {...row.getRowProps()} key={row.id}>
               {row.cells.map(cell => (
-                <td {...cell.getCellProps()} key={cell.id}>{cell.render('Cell')}</td>
+                <td {...cell.getCellProps()} key={cell.column.id}>{cell.render('Cell')}</td>
               ))}
             </tr>
           );
