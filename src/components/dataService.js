@@ -3,9 +3,7 @@ import axios from 'axios';
 export const fetchDataByLastOrders = async (limit) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/lastCreated', {
-      params: {
-        limit
-      }
+      params: { limit }
     });
 
     console.log('Raw response data:', response.data);
@@ -32,13 +30,7 @@ export const fetchDataByLastOrders = async (limit) => {
 export const fetchDataByDateAndStatus = async (startDate, endDate, status, numberOfOrders, page) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/status-createDate', {
-      params: {
-        startDate,
-        endDate,
-        status,
-        numberOfOrders,
-        page
-      }
+      params: { startDate, endDate, status, numberOfOrders, page }
     });
     console.log('Raw response data:', response.data);
 
@@ -63,12 +55,7 @@ export const fetchDataByDateAndStatus = async (startDate, endDate, status, numbe
 export const fetchDataByDateInterval = async (startDate, endDate, numberOfOrders, page) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/createDate', {
-      params: {
-        startDate,
-        endDate,
-        numberOfOrders,
-        page
-      }
+      params: { startDate, endDate, numberOfOrders, page }
     });
 
     console.log('Raw response data:', response.data);

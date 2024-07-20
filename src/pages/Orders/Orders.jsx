@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import BasicTable from './BasicTable';
-import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders } from './dataService';
+import BasicTable from '../../components/BasicTable';
+import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders } from '../../components/dataService';
 
 const Orders = () => {
   const [data, setData] = useState([]);
@@ -64,49 +64,51 @@ const Orders = () => {
     }
   };
 
-  const formatDateTimeInput = (date, setSecondsTo) => {
+  const formatDate = (date) => {
     if (!date) return '';
     const d = new Date(date);
-    d.setSeconds(setSecondsTo);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${month}-${day}`;
   };
 
-  const handleDateChange = (setter, setSecondsTo) => (e) => {
+  const handleDateChange = (setter) => (e) => {
     const value = e.target.value;
-    const formattedValue = formatDateTimeInput(value, setSecondsTo);
-    setter(formattedValue);
+    setter(value);
   };
 
   return (
     <div className="container">
       <h1>Orders</h1>
       <div className="controls">
-        <label>
-          Start Date:
+        <div className="form-group">
+          <label>Start Date:</label>
           <input
-            type="datetime-local"
-            value={formatDateTimeInput(startDate, 59)}
-            onChange={handleDateChange(setStartDate, 59)}
+            type="date"
+            value={startDate}
+            onChange={handleDateChange(setStartDate, 0)}
+            className="form-control"
           />
-        </label>
-        <label>
-          End Date:
+        </div>
+        <div className="form-group">
+          <label>End Date:</label>
           <input
-            type="datetime-local"
-            value={formatDateTimeInput(endDate, 59)}
-            onChange={handleDateChange(setEndDate, 59)}
+            type="date"
+            value={endDate}
+            onChange={handleDateChange(setEndDate, 0)}
+            className="form-control"
           />
-        </label>
-        <label>
-          Status:
-          <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)}>
+        </div>
+        <div className="form-group">
+          <label>Status:</label>
+          <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="form-control">
             <option value="">Select Status</option>
             <option value="CLOSED">Closed</option>
             <option value="OPEN">Open</option>
             <option value="PENDING">Pending</option>
           </select>
-        </label>
-        <button onClick={handleFetchData}>Filter</button>
+        </div>
+        <button onClick={handleFetchData} className="btn btn-primary">Filter</button>
       </div>
       {loading ? (
         <div>Loading...</div>
@@ -115,11 +117,11 @@ const Orders = () => {
           <BasicTable data={data} />
           {totalPages > 1 && (
             <div className="pagination">
-              <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              <button className="btn btn-secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
                 Previous
               </button>
               <span>Page {currentPage} of {totalPages}</span>
-              <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+              <button className="btn btn-secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
                 Next
               </button>
             </div>

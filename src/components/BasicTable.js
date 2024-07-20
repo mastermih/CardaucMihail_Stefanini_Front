@@ -1,12 +1,10 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
-import './table.css';
+import '../assets/styles/table.css';
 import { COLUMNS } from './columns';
 
 const BasicTable = ({ data }) => {
   const columns = useMemo(() => COLUMNS, []);
-
-  console.log('Data received by BasicTable:', data);
 
   const tableInstance = useTable({
     columns,
@@ -22,7 +20,7 @@ const BasicTable = ({ data }) => {
   } = tableInstance;
 
   return (
-    <table {...getTableProps()} className="data-table">
+    <table {...getTableProps()} className="table table-striped">
       <thead>
         {headerGroups.map(headerGroup => (
           <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
