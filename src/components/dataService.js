@@ -1,5 +1,56 @@
 import axios from 'axios';
 
+
+export const fetchProductPageById = async (productId) => {
+  try {
+      const response = await axios.get(`http://localhost:8080/catalog/product/${productId}`);
+      console.log('Raw response data:', response.data);
+
+      const item = response.data;
+
+      const flattenedData = {
+          id: item.productId.id,
+          productName: item.productName.productName,
+          image_path: item.path.path,
+          description: item.description.description,
+          electricityConsumption: item.electricityConsumption.kWh,
+          productBrand: item.productBrand.productBrand,
+          price: item.price.price,
+      };
+      console.log('Flattened data:', flattenedData);
+
+      return { data: flattenedData };
+  } catch (error) {
+      console.error('Error fetching product data:', error);
+      throw error;
+  }
+};
+
+export const fetchProductByCategory = async (limit, categoryId) => {
+  try{
+    const response = await axios.get('http://localhost:8080/catalog/catalog', {
+      params: {limit, categoryId}
+    })
+  console.log('Raw response data:', response.data);
+
+  const items = response.data || [];
+    const flattenedData = items.map(item => ({
+      id: item.productId.id,
+      productName: item.productName.productName,
+      image_path: item.path.path, 
+      description: item.description.description,
+      electricityConsumption: item.electricityConsumption.kWh,
+      productBrand: item.productBrand.productBrand,
+      price: item.price.price,
+    }));
+    console.log('Flattened data:', flattenedData);
+
+    return { data: flattenedData, totalPages: 1 };
+  } catch (error) {
+    console.error('Error fetching product data:', error);
+    throw error;
+  }
+};
 export const fetchDataByLastOrders = async (limit) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/lastCreated', {

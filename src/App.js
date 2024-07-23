@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home/Home';
 import Orders from './pages/Orders/Orders';
 import Catalog from './pages/Catalog/Catalog';
+import ProductPage from './pages/ProductPage/ProductPage';
+
 
 
 function App() {
@@ -14,7 +16,8 @@ function App() {
           {/* Va trebui sa fie scoasa*/}
           <Route path="/orders" element={<Orders />} />
           <Route path="/catalog" element={<Catalog />} />
-        </Routes>
+          <Route path="/product/:id" element={<ProductPage/>} />
+          </Routes>
       </div>
     </Router>
   );

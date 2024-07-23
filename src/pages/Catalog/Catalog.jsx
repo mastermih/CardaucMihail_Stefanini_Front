@@ -1,89 +1,108 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
-import { NavLink } from 'react-router-dom';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
+import { fetchProductByCategory } from '../../components/dataService';
 import Row from 'react-bootstrap/Row';
+import { Link } from 'react-router-dom';
 import './Catalog.css';
-import '@fortawesome/fontawesome-free/css/all.min.css'; // Import FontAwesome
+import Col from 'react-bootstrap/Col';
 
 const Catalog = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [price, setPrice] = useState([]);
+  const [selectedPrice, setSelectedPrice] = useState('');
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const { data } = await fetchProductByCategory(1, 5);
+        setProducts(data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
   return (
     <>
-      <header className="top-header">
+      <Header />
+      <div className="catalog-content">
         <Container>
-          <div className="brand-search-contact">
-            <div className="brand">
-              <img src="/path/to/logo.png" alt="Logo" className="logo" />
-            </div>
-            <div className="search-bar">
-              <input type="text" placeholder="Search model" />
-              <button><i className="fas fa-search"></i></button>
-            </div>
-            <div className="contact-info">
-              <p>Need Some Help<br /> or mood</p>
-              <p>045-151-48-220</p>
-              <Nav className="ml-auto">
-                <Nav.Link href="#sign-up"><i className="fas fa-user-plus"></i> Sign Up</Nav.Link>
-                <Nav.Link href="#log-in"><i className="fas fa-sign-in-alt"></i> Log In</Nav.Link>
-              </Nav>
-            </div>
-          </div>
-        </Container>
-      </header>
-      <Navbar expand="lg" className="custom-navbar">
-        <Container>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <NavLink to="/" className="nav-link">HOME</NavLink>
-              <NavLink to="/catalog" className="nav-link">CATALOG</NavLink>
-              <Nav.Link href="#brands">BRANDS</Nav.Link>
-              <Nav.Link href="#in-stock">IN STOCK</Nav.Link>
-              <Nav.Link href="#elevator-components">ELEVATOR COMPONENTS</Nav.Link>
-              <Nav.Link href="#how-to-find-us">HOW TO FIND US</Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-      <div className="personal-info-form">
-        <Container>
-          
-          <Form>
-            <Row>
-            <Form.Group as={Col} xs={10} sm={6} md={4} lg={2} controlId="formGridCompany">
-            <Form.Control type="text" placeholder="Enter company name" />
-              </Form.Group>
+          <Row>
+            <Col md={9}>
+              <div className="row">
+                {products.map(product => {
 
-              <Form.Group as={Col} xs={10} sm={6} md={4} lg={2} controlId="formGridCompany">
-              <Form.Control type="text" placeholder="Enter name" />
-              </Form.Group>
+                  const price = product.price && typeof product.price === 'number' ? product.price : 0;
+                  const productBrand = product.productBrand && typeof product.productBrand === 'string' ? product.productBrand : 'No brand available';
+                  const productName = product.productName && typeof product.productName === 'string' ? product.productName : 'No name available';
+                  const electricityConsumption = product.electricityConsumption && typeof product.electricityConsumption === 'number' ? product.electricityConsumption : 0;
+                  const imagePath = product.image_path && typeof product.image_path === 'string' ? product.image_path : '';
 
-              <Form.Group as={Col} xs={10} sm={6} md={4} lg={2} controlId="formGridCompany">
-              <Form.Control type="email" placeholder="Enter email" />
-              </Form.Group>
+                  //debug
+                  console.log('imagePath:', imagePath);
 
-              <Form.Group as={Col} xs={10} sm={6} md={4} lg={2} controlId="formGridCompany">
-              <Form.Control type="text" placeholder="Enter phone number" />
-              </Form.Group>
-
-              <Form.Group as={Col} xs={10} sm={6} md={4} lg={2} controlId="formGridCompany"> 
-              <Form.Control type="text" placeholder="Enter service" />
-              </Form.Group>
-               <Form.Group as={Col} xs={12} sm={6} md={4} lg={2} controlId="formGridContact">
-                <Button variant="primary" type="submit" className="contact-us-button">
-                  Contact Us
-                </Button>
-              </Form.Group>
-            </Row>
-          </Form>
+                  return (
+                    <div key={product.id} className="col-md-4 mb-4">
+                      <div className="card">
+                        <img className="card-img-top" src={'images/' + imagePath} />
+                        <div className="card-body">
+                          <h5 className="card-text">{productName}</h5>
+                          <p className='card-text'>Brand: {productBrand}</p>
+                          <p className="card-text">Electricity Consumption: {electricityConsumption}kWh</p>
+                          <p className="card-text">Price: ${price.toFixed(2)}</p>
+                          <Link to={`/product/${product.id}`} className="btn btn-primary">View Details</Link>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </Col>
+            <Col md={3}>
+              <div className="search-filter">
+                <div className="search-bar custom-margin">
+                  <select className="form-control" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+                    <option value="" disabled selected hidden>Select Category ...</option>
+                    <option value="">HESOYAM</option>
+                    <option value="">JUMBJET</option>
+                    <option value="">AEZAKMY</option>
+                  </select>
+                </div>
+                <div className="search-bar custom-margin">
+                  <input type="text" placeholder="Name" className="form-control" />
+                </div>
+                <div className="search-bar custom-margin">
+                  <input type="text" placeholder="Brand" className="form-control" />
+                </div>
+                <div className="price-bar custom-marginZ">
+                  <select className="form-control" value={selectedPrice} onChange={(e) => setSelectedPrice(e.target.value)}>
+                    <option value="" disabled selected hidden>Price (min/max)</option>
+                    <option value="">MIN</option>
+                    <option value="">MAX</option>
+                  </select>
+                </div>
+                <div className="filter-options">
+                </div>
+              </div>
+              <button type="button" class="btn btn-secondary">Submit</button>
+            </Col>
+          </Row>
         </Container>
       </div>
     </>
   );
-}
+};
 
 export default Catalog;

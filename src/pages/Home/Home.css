@@ -2,99 +2,112 @@
     background-color: #7d8fa1;
     padding: 30px 0;
     border-bottom: 1px solid #dee2e6;
-  }
-  
-  .brand-search-contact {
+}
+
+.brand-search-contact {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-  
-  .brand {
-    display: flex;
-    align-items: center;
-  }
-  
-  .brand .logo {
+}
+
+.brand .logo {
     height: 50px;
     margin-right: 10px;
-  }
-  
-  .search-bar {
+}
+
+.search-bar {
     display: flex;
     align-items: center;
-    margin-top: 80px; /* Added margin to lower the search bar */
-  }
-  .search-bar input {
+    margin-top: 80px;
+}
+
+.search-bar input {
     padding: 5px 10px;
     border: 1px solid #ced4da;
     border-radius: 4px 0 0 4px;
-  }
-  
-  .search-bar button {
+}
+
+.search-bar button {
     padding: 5px 10px;
     border: 1px solid #ced4da;
     border-left: 0;
     background-color: #343a40;
     color: #ffffff;
     border-radius: 0 4px 4px 0;
-  }
-  
-  .contact-info {
+}
+
+.contact-info {
     text-align: right;
-  }
-  
-  .contact-info p {
+}
+
+.contact-info p {
     margin: 0;
-  }
-  
-  .custom-navbar {
-    background-color: #343a40; /* Dark background color */
-  }
-  
-  .custom-navbar .navbar-nav .nav-link {
-    color: #ffffff; /* White text for links */
-    font-size: 16px; /* Adjust the font size as needed */
-    margin-right: 145px; /* Add space between nav links */
-  }
-  
-  .custom-navbar .navbar-nav .nav-link:hover {
-    color: #cccccc; /* Light grey on hover */
-  }
-  
-  .personal-info-form {
+}
+
+.custom-navbar {
+    background-color: #343a40;
+}
+
+.custom-navbar .navbar-nav .nav-link {
+    color: #ffffff;
+    font-size: 16px;
+    margin-right: 100px;
+}
+
+.custom-navbar .navbar-nav .nav-link:hover {
+    color: #cccccc;
+}
+
+.personal-info-form {
     background-color: #253442;
     padding: 15px 0;
-    
     border-top: 1px solid #dee2e6;
-  }
-  
-  .personal-info-form .form-group {
+}
+
+.personal-info-form .form-group {
     margin-bottom: 1rem;
-    border-left: 10;
-  }
-  
-  .personal-info-form .form-control {
+}
+
+.personal-info-form .form-control {
     border-radius: 10px;
-  }
-  
-  .personal-info-form .btn-primary {
+}
+
+.personal-info-form .btn-primary {
     background-color: #343a40;
     border-color: #343a40;
-    
-  }
-  .personal-info-form .contact-us-button {
+}
+
+.personal-info-form .contact-us-button {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
-    
-  }
+}
 
-.personal-info-group {
-    margin-right: 20px; /* Adjust this value to increase space between fields */
-  }
+.content-section {
+    padding: 30px 0;
+}
 
-  .company-name {
-    text-align: right;
-  }
+.description-section {
+    background-color: #f5f5f5; /* Adjust the background color as needed */
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.partners-section {
+    background-color: #ffffff;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+}
+
+.partners-logos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.partner-logo {
+    margin: 10px;
+    max-width: 100px; /* Adjust the size as needed */
+}
