@@ -1,13 +1,21 @@
-// src/components/Header.jsx
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import Dropdown from 'react-bootstrap/Dropdown'; // Import Dropdown from React Bootstrap
 import '@fortawesome/fontawesome-free/css/all.min.css'; // Import FontAwesome
+import { CartContext } from './cartContext'; // Correct import path
 import './Header.css'; // Common CSS for Header
 
 const Header = () => {
+  const { cartItems, removeFromCart } = useContext(CartContext);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+
   return (
     <>
       <header className="top-header">
@@ -26,9 +34,23 @@ const Header = () => {
               <Nav className="ml-auto">
                 <Nav.Link href="#sign-up"><i className="fas fa-user-plus"></i> Sign Up</Nav.Link>
                 <Nav.Link href="#log-in"><i className="fas fa-sign-in-alt"></i> Log In</Nav.Link>
-                <Nav.Link href="#cart">
-                  <i className="fas fa-shopping-cart"></i> Cart
-                </Nav.Link>
+                <Dropdown show={showDropdown} onToggle={toggleDropdown}>
+                  <Dropdown.Toggle as={Nav.Link} onClick={toggleDropdown}>
+                    <i className="fas fa-shopping-cart"></i> Cart ({cartItems.length})
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    {cartItems.length > 0 ? (
+                      cartItems.map((item) => (
+                        <Dropdown.Item key={item.id}>
+                          {item.productName} - ${item.price.toFixed(2)}
+                          <button onClick={() => removeFromCart(item.id)}>Remove</button>
+                        </Dropdown.Item>
+                      ))
+                    ) : (
+                      <Dropdown.Item>No items in cart</Dropdown.Item>
+                    )}
+                  </Dropdown.Menu>
+                </Dropdown>
               </Nav>
             </div>
           </div>
@@ -51,6 +73,6 @@ const Header = () => {
       </Navbar>
     </>
   );
-}
+};
 
 export default Header;

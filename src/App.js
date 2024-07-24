@@ -4,6 +4,8 @@ import Home from './pages/Home/Home';
 import Orders from './pages/Orders/Orders';
 import Catalog from './pages/Catalog/Catalog';
 import ProductPage from './pages/ProductPage/ProductPage';
+import Cart from './pages/Cart/Cart';
+
 
 
 
@@ -17,6 +19,9 @@ function App() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductPage/>} />
+          <Route path="/cart" element={<Cart />} /> {/* Ensure this route is correct */}
+
+          
           </Routes>
       </div>
     </Router>
