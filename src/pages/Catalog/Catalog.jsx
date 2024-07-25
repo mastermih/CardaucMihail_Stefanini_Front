@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import { Link } from 'react-router-dom';
 import './Catalog.css';
 import Col from 'react-bootstrap/Col';
+import Footer from '../../components/Footer';
 
 const Catalog = () => {
   const [products, setProducts] = useState([]);
@@ -56,7 +57,7 @@ const Catalog = () => {
                   return (
                     <div key={product.id} className="col-md-4 mb-4">
                       <div className="card">
-                        <img className="card-img-top" src={'images/' + imagePath} />
+                        <img className="card-img-top" src={imagePath} />
                         <div className="card-body">
                           <h5 className="card-text">{productName}</h5>
                           <p className='card-text'>Brand: {productBrand}</p>
@@ -101,6 +102,7 @@ const Catalog = () => {
           </Row>
         </Container>
       </div>
+      <Footer/>
     </>
   );
 };

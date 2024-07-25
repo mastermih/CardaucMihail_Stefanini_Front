@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
-import { fetchProductPageById } from '../../components/dataService';
+import { fetchProductPageById, postOrder } from '../../components/dataService';
 import { useParams } from 'react-router-dom';
 import { CartContext } from '../../components/cartContext';
+import Footer from '../../components/Footer';
 import './ProductPage.css';
 
 const ProductPage = () => {
@@ -41,6 +42,22 @@ const ProductPage = () => {
     price,
   } = product;
 
+  const handleAddOrder = async () => {
+    const order = {
+        userId: { id:2 },
+        productId: product.id,
+        orderStatus: "INITIALISED"
+    };
+    try {
+        const result  = await postOrder(order); // assuming postOrder returns the order ID directly
+        console.log('Order successfully created:', result );
+        addToCart(product, result ); // Store the created order ID in the cart
+      } catch (error) {
+        console.log('Error creating order', error);
+      }
+    }
+  
+
   return (
     <>
       <Header />
@@ -49,7 +66,7 @@ const ProductPage = () => {
           <div className="row">
             <div className="col-md-4 mb-4">
               <div className="card">
-                <img className="card-img-top" src={`/images/${image_path}`} alt={productName} />
+                <img className="card-img-top" src={`${image_path}`} alt={productName} />
                 <div className="card-body">
                   <h5 className="card-text">{productName}</h5>
                   <p className="card-text">Brand: {productBrand}</p>
@@ -58,7 +75,9 @@ const ProductPage = () => {
                   <p className="card-text">Price: ${price.toFixed(2)}</p>
                   <button
                     className="btn btn-primary"
-                    onClick={() => addToCart(product)}>
+                    onClick={() => {
+                    addToCart(product); 
+                    handleAddOrder();}}>   
                     Add to Cart
                   </button>
                 </div>
@@ -67,6 +86,7 @@ const ProductPage = () => {
           </div>
         </Container>
       </div>
+      <Footer/>
     </>
   );
 };

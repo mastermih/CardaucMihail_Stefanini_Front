@@ -1,12 +1,25 @@
+import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 import axios from 'axios';
 
-export const postOrder = async(order) => {
+export const updateOrderStatus = async(order) =>{
+  try{
+    const response = await axios.put(`http://localhost:8080/MakeOrder/${order.productId}`, order);
+    console.log('Order created:', response.data);
+    return response.data;
+  }catch(error){
+    console.error('Error posting order:', error);
+    throw error;
+  }
+}
+
+export const postOrder = async (order) => {
   try {
+    console.log('Sending request to create order:', order);
     const response = await axios.post(`http://localhost:8080/MakeOrder/${order.productId}`, order);
     console.log('Order created:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error posting order:', error);
+    console.error('Error creating order:', error);
     throw error;
   }
 };
