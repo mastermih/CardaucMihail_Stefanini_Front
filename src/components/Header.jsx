@@ -3,14 +3,17 @@ import { NavLink } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import Dropdown from 'react-bootstrap/Dropdown'; // Import Dropdown from React Bootstrap
-import '@fortawesome/fontawesome-free/css/all.min.css'; // Import FontAwesome
-import { CartContext } from './cartContext'; // Correct import path
-import './Header.css'; // Common CSS for Header
+import Dropdown from 'react-bootstrap/Dropdown'; 
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import { CartContext } from './cartContext';
+import './Header.css';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
+
 
 const Header = () => {
   const { cartItems, removeFromCart } = useContext(CartContext);
   const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -44,7 +47,8 @@ const Header = () => {
                         <Dropdown.Item key={item.id}>
                           {item.productName} - ${item.price.toFixed(2)}
                           <button onClick={() => removeFromCart(item.id)}>Remove</button>
-                        </Dropdown.Item>
+                          <button onClick={() => navigate(`/MakeOrder/${item.id}`)}>Make Orders</button>
+                          </Dropdown.Item>
                       ))
                     ) : (
                       <Dropdown.Item>No items in cart</Dropdown.Item>

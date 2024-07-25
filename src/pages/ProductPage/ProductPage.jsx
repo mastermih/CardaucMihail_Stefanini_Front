@@ -3,7 +3,7 @@ import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
 import { fetchProductPageById } from '../../components/dataService';
 import { useParams } from 'react-router-dom';
-import { CartContext } from '../../components/cartContext'; // Correct import path
+import { CartContext } from '../../components/cartContext';
 import './ProductPage.css';
 
 const ProductPage = () => {
@@ -11,7 +11,7 @@ const ProductPage = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { addToCart } = useContext(CartContext); // Get addToCart function from context
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
     const loadProduct = async () => {

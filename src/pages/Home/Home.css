@@ -96,7 +96,7 @@
 
 .partners-section {
     background-color: #ffffff;
-    padding: 20px;
+    padding: px;
     border: 1px solid #dee2e6;
     border-radius: 8px;
 }
@@ -109,5 +109,5 @@
 
 .partner-logo {
     margin: 10px;
-    max-width: 100px; /* Adjust the size as needed */
+    max-width: 200px; /* Adjust the size as needed */
 }
