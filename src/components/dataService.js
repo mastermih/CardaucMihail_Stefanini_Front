@@ -1,29 +1,15 @@
 import axios from 'axios';
 
-export const postOrder = async(productId) =>{
-  try{
-    const response = await axios.post(`http://localhost:8080/MakeOrder/${productId}`);
-    console.log('Raw response data:', response.data);
-
-    const item = response.data;
-    const flattenedData = {
-        id: item.productId.id,
-        productName: item.productName.productName,
-        image_path: item.path.path,
-        description: item.description.description,
-        electricityConsumption: item.electricityConsumption.kWh,
-        productBrand: item.productBrand.productBrand,
-        price: item.price.price,
-    };
-    console.log('Flattened data:', flattenedData);
-
-    return { data: flattenedData };
-} catch (error) {
-    console.error('Error fetching product data:', error);
+export const postOrder = async(order) => {
+  try {
+    const response = await axios.post(`http://localhost:8080/MakeOrder/${order.productId}`, order);
+    console.log('Order created:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error posting order:', error);
     throw error;
-}
+  }
 };
-
 
 export const fetchProductPageById = async (productId) => {
   try {
