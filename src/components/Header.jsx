@@ -46,7 +46,7 @@ const Header = () => {
                       cartItems.map((item) => (
                         <Dropdown.Item key={item.id}>
                           {item.productName} - ${item.price.toFixed(2)}
-                          <button onClick={() => removeFromCart(item.id)}>Remove</button>
+                          <button onClick={() => removeFromCart(item.orderId)}>Remove</button>
                           <button onClick={() => navigate(`/MakeOrder/${item.id}`)}>Make Orders</button>
                           </Dropdown.Item>
                       ))

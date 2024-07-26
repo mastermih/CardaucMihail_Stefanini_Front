@@ -11,7 +11,7 @@ import Footer from '../../components/Footer';
 
 const MakeOrder = () => {
   const { id } = useParams();
-  const { cartItems } = useCart();
+  const { cartItems, removeFromCartAproved } = useCart(); // Include removeFromCart
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,10 +39,10 @@ const MakeOrder = () => {
   const { productName, image_path, price } = product;
 
   const handleConfirmOrder = async () => {
-    console.log('Cart Items:', cartItems); // Log the cart items to check their content
+    console.log('Cart Items:', cartItems);
 
     const orderItem = cartItems.find(item => item.id === product.id);
-    console.log('Order Item:', orderItem); // Log the order item to check if it is found
+    console.log('Order Item:', orderItem);
 
     if (!orderItem || !orderItem.orderId) {
       console.error('Order ID is 0, cannot update order status.');
@@ -58,6 +58,7 @@ const MakeOrder = () => {
     try {
       const result = await updateOrderStatus(order);
       console.log('Order status updated:', result);
+      removeFromCartAproved(orderItem.orderId);
     } catch (error) {
       console.log('Error updating order status:', error);
     }
