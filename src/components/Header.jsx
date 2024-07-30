@@ -14,9 +14,21 @@ const Header = () => {
   const { cartItems, removeFromCart } = useContext(CartContext);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
-
+  
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
+  };
+  const handleMouseEnter = () => {
+    setShowDropdown(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowDropdown(false);
+  };
+
+  const handleRemoveFromCart = (event, orderId) => {
+    event.stopPropagation();
+    removeFromCart(orderId);
   };
 
   return (
@@ -38,15 +50,20 @@ const Header = () => {
                 <Nav.Link href="#sign-up"><i className="fas fa-user-plus"></i> Sign Up</Nav.Link>
                 <Nav.Link href="#log-in"><i className="fas fa-sign-in-alt"></i> Log In</Nav.Link>
                 <Dropdown show={showDropdown} onToggle={toggleDropdown}>
-                  <Dropdown.Toggle as={Nav.Link} onClick={toggleDropdown}>
+                  <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter}>
                     <i className="fas fa-shopping-cart"></i> Cart ({cartItems.length})
                   </Dropdown.Toggle>
                   <Dropdown.Menu>
                     {cartItems.length > 0 ? (
                       cartItems.map((item) => (
-                        <Dropdown.Item key={item.id}>
+                        <Dropdown.Item key={item.id} onClick={() => navigate(`/MakeOrder/${item.id}`)}>
+                          <img className="card-img-top"  src={item.image_path}  style={{ width: '100px', height: '100px', marginRight: '10px' } }  />
                           {item.productName} - ${item.price.toFixed(2)}
-                          <button onClick={() => removeFromCart(item.orderId)}>Remove</button>
+                          <br></br>
+                          <hr></hr>
+                          {item.description}
+                          <br></br>
+                          <button onClick={(event) => handleRemoveFromCart(event, item.orderId)}>Remove</button>
                           <button onClick={() => navigate(`/MakeOrder/${item.id}`)}>Make Orders</button>
                           </Dropdown.Item>
                       ))

@@ -1,8 +1,68 @@
-.price-section {
+  .productPageText-content{
+    margin-top: 50px;
+    margin-left: 1000px;
+
+  }
+
+  .mb-go{
+    margin-top: -200px;
+  }
+  .ordeter_square{
+    margin-left: 1000px;
+    margin-top: 10px;
+    
+  }
+  .cardMakeOrder-text{
+    margin-top: -70px;
+  }
+  .productPage-content {
     padding: 20px;
-     margin-left: 500px;
-     margin-top: 100px;
-
-
+  }
+  
+  .productPageText-content {
+    margin-bottom: 20px;
+  }
+  
+  .product-options-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .product-option {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+  }
+  
+  .product-option:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .product-option-image {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .product-option-details {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .product-option-details h5,
+  .product-option-details p {
+    margin: 0;
+  }
+  
+  .product-image {
+    width: 100%;
+    height: auto;
+  }
+  
+  .product-details {
+    margin-top: 10px;
   }
   

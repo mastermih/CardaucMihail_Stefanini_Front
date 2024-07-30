@@ -49,9 +49,9 @@ const ProductPage = () => {
         orderStatus: "INITIALISED"
     };
     try {
-        const result  = await postOrder(order); // assuming postOrder returns the order ID directly
+        const result  = await postOrder(order); 
         console.log('Order successfully created:', result );
-        addToCart(product, result ); // Store the created order ID in the cart
+        addToCart(product, result ); 
       } catch (error) {
         console.log('Error creating order', error);
       }
@@ -90,5 +90,4 @@ const ProductPage = () => {
     </>
   );
 };
-
 export default ProductPage;
