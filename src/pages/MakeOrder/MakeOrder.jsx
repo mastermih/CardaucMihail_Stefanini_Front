@@ -64,6 +64,24 @@ const MakeOrder = () => {
     }
   };
 
+
+  const ProductDetailsCard = ({ product }) => (
+    <div className="product-cardo">
+      {product.path && (
+                <img 
+                src={product.path.path} 
+                alt={product.productName.productName} 
+                style={{ width: '50px', height: '50px' }} 
+                />
+      )}
+      <div className="product-details">
+        <h5>{product.productName ? product.productName.productName : 'No name available'}</h5>
+        <p>{product.description ? product.description.description : 'No description available'}</p>
+        <p>Price: ${product.price ? product.price.price.toFixed(2) : 'N/A'}</p>
+      </div>
+    </div>
+  );
+
   const handleProductSelect = (selectedProduct) => {
     console.log('Selected product data:', selectedProduct); 
     setSelectedProduct(selectedProduct);
@@ -171,14 +189,6 @@ const MakeOrder = () => {
 
           {selectedProduct && (
             <div className="product-card">
-              {/* {selectedProduct.path && (
-                <img src={selectedProduct.path.path} alt={selectedProduct.productName.productName} className="product-image" />
-              )} */}
-              {/* <div className="product-details">
-                <h5>{selectedProduct.productName ? selectedProduct.productName.productName : 'No name available'}</h5>
-                <p>{selectedProduct.description ? selectedProduct.description.description : 'No description available'}</p> */}
-                {/* <p>Price: ${selectedProduct.price ? selectedProduct.price.price.toFixed(2) : 'N/A'}</p> */}
-              {/* </div> */}
             </div>
           )}
 
@@ -207,14 +217,19 @@ const MakeOrder = () => {
           </Col>
           <hr />
           <Col>
+        
             <div className="order_square">
               <h3>Order Summary</h3>
+              {selectedProduct && (
+            <ProductDetailsCard product={selectedProduct} />
+          )}
               <p>
                 Total Price: ${(
                   (selectedProduct && selectedProduct.price ? selectedProduct.price.price : 0) + (product.price || 0)
                 ) * quantity}
               </p> 
-                         </div>
+               </div>
+              
           </Col>
 
           <Row>
