@@ -14,7 +14,7 @@ const MakeOrder = () => {
   const { cartItems, removeFromCartAproved } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProducts, setSelectedProducts] = useState([]); // Changed to array
   const [error, setError] = useState(null);
   const [productOptions, setProductOptions] = useState([]);
   const [inputName, setInputName] = useState('');
@@ -84,30 +84,32 @@ const MakeOrder = () => {
 
   const handleProductSelect = (selectedProduct) => {
     console.log('Selected product data:', selectedProduct); 
-    setSelectedProduct(selectedProduct);
+    setSelectedProducts([...selectedProducts, selectedProduct]); // Add to list of selected products
     setQuantity(1); 
     setTotalPrice(selectedProduct.price.price.toFixed(2));
   };
 
   const handleConfirmOrder = async () => {
-    if (!selectedProduct) return;
+    if (selectedProducts.length === 0) return;
 
-    const orderItem = cartItems.find(item => item.id === selectedProduct.id);
+    const orderItems = selectedProducts.map(product => {
+      const orderItem = cartItems.find(item => item.id === product.id);
 
-    if (!orderItem || !orderItem.orderId) {
-      console.error('Order ID is 0, cannot update order status.');
-      return;
-    }
+      if (!orderItem || !orderItem.orderId) {
+        console.error('Order ID is 0, cannot update order status.');
+        return null;
+      }
 
-    const order = {
-      orderId: { id: orderItem.orderId },
-      orderStatus: "NEW",
-      productId: selectedProduct.id
-    };
+      return {
+        orderId: { id: orderItem.orderId },
+        orderStatus: "NEW",
+        productId: product.id
+      };
+    }).filter(order => order !== null);
 
     try {
-      const result = await updateOrderStatus(order);
-      removeFromCartAproved(orderItem.orderId);
+      const results = await Promise.all(orderItems.map(order => updateOrderStatus(order)));
+      orderItems.forEach(order => removeFromCartAproved(order.orderId.id));
     } catch (error) {
       console.log('Error updating order status:', error);
     }
@@ -116,8 +118,8 @@ const MakeOrder = () => {
   const handleQuantityChange = (e) => {
     const value = parseInt(e.target.value, 10);
     setQuantity(value);
-    if (selectedProduct) {
-      setTotalPrice((selectedProduct.price.price * value).toFixed(2));
+    if (selectedProducts.length > 0) {
+      setTotalPrice((selectedProducts.reduce((total, product) => total + product.price.price, 0) * value).toFixed(2));
     }
   };
 
@@ -187,11 +189,6 @@ const MakeOrder = () => {
             )}
           </div>
 
-          {selectedProduct && (
-            <div className="product-card">
-            </div>
-          )}
-
           <Col md={5} className="mb-3">
             <h3 className="cardMakeOrder-text">{product.productName ? product.productName.productName : 'No name available'}</h3>
             <div className="card">
@@ -211,26 +208,24 @@ const MakeOrder = () => {
                     min="1"
                   />
                 </div>
-                <p className="card-text">Total Price: ${(selectedProduct && selectedProduct.price ? selectedProduct.price.price : product.price) * quantity}</p>
+                <p className="card-text">Total Price: ${selectedProducts.reduce((total, product) => total , product.price) * quantity}</p>
               </div>
             </div>
           </Col>
           <hr />
           <Col>
-        
             <div className="order_square">
-              <h3>Order Summary</h3>
-              {selectedProduct && (
-            <ProductDetailsCard product={selectedProduct} />
-          )}
-              <p>
-                Total Price: ${(
-                  (selectedProduct && selectedProduct.price ? selectedProduct.price.price : 0) + (product.price || 0)
-                ) * quantity}
-              </p> 
-               </div>
-              
+              <h3>Extra product</h3>
+              <Row>
+                {selectedProducts.map((product, index) => (
+                  <Col key={index} md={4}>
+                    <ProductDetailsCard product={product} />
+                  </Col>
+                ))}
+              </Row>
+            </div>
           </Col>
+          <p>Total Price: ${(selectedProducts.reduce((total, product) => total + product.price.price, product.price) * quantity).toFixed(2)}</p>
 
           <Row>
             <Col>
