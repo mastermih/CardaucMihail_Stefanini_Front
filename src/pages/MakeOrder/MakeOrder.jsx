@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
 import { fetchProductPageById, fetchProductPageByProductName, updateOrderStatus } from '../../components/dataService';
@@ -23,6 +23,7 @@ const MakeOrder = () => {
   const [fetchClicked, setFetchClicked] = useState(false);
   const [totalPrice, setTotalPrice] = useState('0.00');
   const [showDropdown, setShowDropdown] = useState(false);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -39,40 +40,53 @@ const MakeOrder = () => {
     loadProduct();
   }, [id]);
 
+  useEffect(() => {
+    if (inputName.length >= 2) {
+      handleGetProduct();
+    }
+  }, [inputName]);
+
+  useEffect(() => {
+    if (showInputForm && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [showInputForm]);
+
   const handleGetProduct = async () => {
+    if (inputName.length < 2) {
+      console.log('Input name must be at least 2 characters long');
+      return;
+    }
+
     setFetchClicked(true);
-    setLoading(true);
     try {
       const productNameObj = { productId: id, name: inputName };
       const response = await fetchProductPageByProductName(productNameObj);
-      console.log('Fetched product by name:', response); 
+      console.log('Fetched product by name:', response);
 
       if (Array.isArray(response)) {
-        setProductOptions(response);
+        setProductOptions(response.slice(0, 5)); // Limit to 5 products
       } else if (response && typeof response === 'object') {
         setProductOptions([response]);
       } else {
         setProductOptions([]);
       }
       console.log('Product options set:', response);
-      setShowDropdown(true); 
+      setShowDropdown(true);
     } catch (error) {
       console.error('Error fetching product names:', error);
       setProductOptions([]);
-    } finally {
-      setLoading(false);
     }
   };
-
 
   const ProductDetailsCard = ({ product }) => (
     <div className="product-cardo">
       {product.path && (
-                <img 
-                src={product.path.path} 
-                alt={product.productName.productName} 
-                style={{ width: '50px', height: '50px' }} 
-                />
+        <img 
+          src={product.path.path} 
+          alt={product.productName.productName} 
+          style={{ width: '50px', height: '50px' }} 
+        />
       )}
       <div className="product-details">
         <h5>{product.productName ? product.productName.productName : 'No name available'}</h5>
@@ -83,9 +97,9 @@ const MakeOrder = () => {
   );
 
   const handleProductSelect = (selectedProduct) => {
-    console.log('Selected product data:', selectedProduct); 
+    console.log('Selected product data:', selectedProduct);
     setSelectedProducts([...selectedProducts, selectedProduct]); // Add to list of selected products
-    setQuantity(1); 
+    setQuantity(1);
     setTotalPrice(selectedProduct.price.price.toFixed(2));
   };
 
@@ -151,6 +165,7 @@ const MakeOrder = () => {
                   placeholder="Enter product name"
                   value={inputName}
                   onChange={(e) => setInputName(e.target.value)}
+                  ref={inputRef}
                 />
                 <div className="input-group-append">
                   <button
@@ -171,7 +186,7 @@ const MakeOrder = () => {
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                   {productOptions.length > 0 ? (
-                    productOptions.map((option) => (
+                    productOptions.slice(0, 5).map((option) => ( // Limit to 5 products
                       <Dropdown.Item key={option.productId.id} onClick={() => handleProductSelect(option)}>
                         <img src={option.path.path} alt={option.productName.productName} className="product-option-image" />
                         <div className="product-option-details">
@@ -208,7 +223,7 @@ const MakeOrder = () => {
                     min="1"
                   />
                 </div>
-                <p className="card-text">Total Price: ${selectedProducts.reduce((total, product) => total , product.price) * quantity}</p>
+                <p className="card-text">Total Price: ${(selectedProducts.reduce((total, product) => total , product.price) * quantity)}</p>
               </div>
             </div>
           </Col>

@@ -49,10 +49,12 @@ const Header = () => {
               <Nav className="ml-auto">
                 <Nav.Link href="#sign-up"><i className="fas fa-user-plus"></i> Sign Up</Nav.Link>
                 <Nav.Link href="#log-in"><i className="fas fa-sign-in-alt"></i> Log In</Nav.Link>
-                <Dropdown show={showDropdown} onToggle={toggleDropdown}>
+              
+                <Dropdown show={showDropdown} onToggle={toggleDropdown} onClick={() => navigate(`/MakeOrder/2`)}>
                   <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter}>
                     <i className="fas fa-shopping-cart"></i> Cart ({cartItems.length})
                   </Dropdown.Toggle>
+                  
                   <Dropdown.Menu>
                     {cartItems.length > 0 ? (
                       cartItems.map((item) => (
