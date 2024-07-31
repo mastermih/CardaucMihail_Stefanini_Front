@@ -46,6 +46,7 @@ const ProductPage = () => {
     const order = {
         userId: { id:2 },
         productId: product.id,
+        price: product.price,
         orderStatus: "INITIALISED"
     };
     try {

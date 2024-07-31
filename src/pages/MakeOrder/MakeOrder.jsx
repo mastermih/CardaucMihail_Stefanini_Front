@@ -14,7 +14,7 @@ const MakeOrder = () => {
   const { cartItems, removeFromCartAproved } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedProducts, setSelectedProducts] = useState([]); // Changed to array
+  const [selectedProducts, setSelectedProducts] = useState([]);
   const [error, setError] = useState(null);
   const [productOptions, setProductOptions] = useState([]);
   const [inputName, setInputName] = useState('');
@@ -104,28 +104,38 @@ const MakeOrder = () => {
   };
 
   const handleConfirmOrder = async () => {
-    if (selectedProducts.length === 0) return;
+    if (!product) return;
 
-    const orderItems = selectedProducts.map(product => {
-      const orderItem = cartItems.find(item => item.id === product.id);
+    // Log cartItems to ensure it contains the expected data
+    console.log('Cart items:', cartItems);
 
-      if (!orderItem || !orderItem.orderId) {
-        console.error('Order ID is 0, cannot update order status.');
-        return null;
-      }
+    // Find the order item that matches the product
+    const orderItem = cartItems.find(item => item.id === product.id);
 
-      return {
-        orderId: { id: orderItem.orderId },
-        orderStatus: "NEW",
-        productId: product.id
-      };
-    }).filter(order => order !== null);
+    // Log orderItem to ensure it's found correctly
+    console.log('Order item:', orderItem);
 
+    // Ensure the order ID is valid
+    if (!orderItem || !orderItem.orderId || orderItem.orderId === 0) {
+      console.error('Order ID is 0 or undefined, cannot update order status.');
+      return;
+    }
+
+    // Prepare the order update object
+    const orderUpdate = {
+      orderId: { id: orderItem.orderId },  // Adjusting to the expected structure
+      orderStatus: "NEW",
+      productId: id  // Ensuring productId is correctly structured
+    };
+
+    // Attempt to update the order status
     try {
-      const results = await Promise.all(orderItems.map(order => updateOrderStatus(order)));
-      orderItems.forEach(order => removeFromCartAproved(order.orderId.id));
+      const result = await updateOrderStatus(orderUpdate);
+      console.log(result);
+      removeFromCartAproved(product.id);
+      console.log('Order status updated:', orderUpdate);
     } catch (error) {
-      console.log('Error updating order status:', error);
+      console.error('Error updating order status:', error);
     }
   };
 
@@ -186,7 +196,7 @@ const MakeOrder = () => {
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                   {productOptions.length > 0 ? (
-                    productOptions.slice(0, 5).map((option) => ( // Limit to 5 products
+                    productOptions.slice(0, 5).map((option) => (
                       <Dropdown.Item key={option.productId.id} onClick={() => handleProductSelect(option)}>
                         <img src={option.path.path} alt={option.productName.productName} className="product-option-image" />
                         <div className="product-option-details">

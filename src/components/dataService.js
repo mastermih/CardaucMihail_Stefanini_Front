@@ -1,18 +1,18 @@
 import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 import axios from 'axios';
 
-
-export const fetchProductPageByProductName = async (productName) => {
+export const fetchProductPageByProductName = async (productNameObj) => {
   try {
-    const response = await axios.get(`http://localhost:8080/catalog/MakeOrder/${productName.productId}`, {
-      params: { product_name: productName.name }
+    const response = await axios.get(`http://localhost:8080/MakeOrder/${productNameObj.productId}`, {
+      params: { product_name: productNameObj.name }
     });
     return response.data;
   } catch (error) {
-    console.error('Error fetching product page:', error);
+    console.error('Error fetching product by name:', error);
     throw error;
   }
 };
+
 
 export const updateOrderStatus = async(order) =>{
   try{
