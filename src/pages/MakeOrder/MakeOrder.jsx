@@ -57,13 +57,10 @@ const MakeOrder = () => {
       console.log('Input name must be at least 2 characters long');
       return;
     }
-
     setFetchClicked(true);
     try {
-      const productNameObj = { productId: id, name: inputName };
-      const response = await fetchProductPageByProductName(productNameObj);
+      const response = await fetchProductPageByProductName(id, inputName); // Fetches by name with product ID
       console.log('Fetched product by name:', response);
-
       if (Array.isArray(response)) {
         setProductOptions(response.slice(0, 5)); // Limit to 5 products
       } else if (response && typeof response === 'object') {
@@ -78,23 +75,23 @@ const MakeOrder = () => {
       setProductOptions([]);
     }
   };
-
-  const ProductDetailsCard = ({ product }) => (
-    <div className="product-cardo">
-      {product.path && (
-        <img 
-          src={product.path.path} 
-          alt={product.productName.productName} 
-          style={{ width: '50px', height: '50px' }} 
-        />
-      )}
-      <div className="product-details">
-        <h5>{product.productName ? product.productName.productName : 'No name available'}</h5>
-        <p>{product.description ? product.description.description : 'No description available'}</p>
-        <p>Price: ${product.price ? product.price.price.toFixed(2) : 'N/A'}</p>
-      </div>
+  
+const ProductDetailsCard = ({ product }) => (
+  <div className="product-cardo">
+    {product.path && (
+      <img 
+        src={product.path.path} 
+        alt={product.productName.productName} 
+        style={{ width: '50px', height: '50px' }} 
+      />
+    )}
+    <div className="product-details">
+      <h5>{product.productName ? product.productName.productName : 'No name available'}</h5>
+      <p>{product.description ? product.description.description : 'No description available'}</p>
+      <p>Price: ${product.price ? product.price.price.toFixed(2) : 'N/A'}</p>
     </div>
-  );
+  </div>
+);
 
   const handleProductSelect = (selectedProduct) => {
     console.log('Selected product data:', selectedProduct);
