@@ -74,13 +74,17 @@
   
 }
 .order_square{
-  border-top: 2px solid #ddd;    /* Top border */
-  border-right: 4px solid #ddd;  /* Right border */
-  border-bottom: 2px solid #ddd; /* Bottom border */
-  border-left: 4px solid #ddd;   /* Left border */
-  padding: 20px;                 /* Padding inside the border */
-  border-radius: 8px;            /* Rounding corners */
-  margin-left: 10px;             /* Space on the left side */
-  margin-right: 100px;  
+  border-top: 2px solid #ddd;   
+  border-right: 4px solid #ddd; 
+  border-bottom: 2px solid #ddd; 
+  border-left: 4px solid #ddd;  
+  padding: 20px;
+  border-radius: 8px;
+  margin-left: 10px;
+  margin-right: 100px;
 }
   
+.mb-3{
+  margin-top: 100px;
+
+}
