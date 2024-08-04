@@ -20,7 +20,7 @@ const Catalog = () => {
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const { data } = await fetchProductByCategory(1, 5);
+        const { data } = await fetchProductByCategory(5, "Elevator");
         setProducts(data);
       } catch (err) {
         setError(err);

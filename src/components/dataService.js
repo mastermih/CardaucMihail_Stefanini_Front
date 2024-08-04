@@ -13,7 +13,6 @@ export const fetchProductPageByProductName = async (productId, name) => {
   }
 };
 
-
 export const updateOrderStatus = async(order) =>{
   try{
     const response = await axios.put(`http://localhost:8080/MakeOrder/${order.productId}`, order);
@@ -61,10 +60,10 @@ export const fetchProductPageById = async (productId) => {
   }
 };
 
-export const fetchProductByCategory = async (limit, categoryId) => {
+export const fetchProductByCategory = async (limit, categoryType) => {
   try{
     const response = await axios.get('http://localhost:8080/catalog/catalog', {
-      params: {limit, categoryId}
+      params: {limit, categoryType}
     })
   console.log('Raw response data:', response.data);
 
@@ -86,6 +85,7 @@ export const fetchProductByCategory = async (limit, categoryId) => {
     throw error;
   }
 };
+
 export const fetchDataByLastOrders = async (limit) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/lastCreated', {
