@@ -24,11 +24,28 @@ export const updateOrderStatus = async(order) =>{
   }
 }
 
+
+export const postOrderProduct = async (orderProduct) => {
+  try {
+    console.log('Sending request to create orderProduct:', orderProduct);
+    const response = await axios.post('http://localhost:8080/MakeOrder/ProductOrder', orderProduct, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    console.log('OrderProduct created:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating orderProduct:', error);
+    throw error;
+  }
+};
+
 export const postOrder = async (order) => {
   try {
     console.log('Sending request to create order:', order);
     const response = await axios.post(`http://localhost:8080/MakeOrder/${order.productId}`, order);
-    console.log('Order created:', response.data);
+    console.log('Order created:', response.data); // Debug: Check response data
     return response.data;
   } catch (error) {
     console.error('Error creating order:', error);

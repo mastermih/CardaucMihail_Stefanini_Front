@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
-import { fetchProductPageById, postOrder } from '../../components/dataService';
+import { fetchProductPageById, postOrder, postOrderProduct } from '../../components/dataService';
 import { useParams } from 'react-router-dom';
 import { CartContext } from '../../components/cartContext';
 import Footer from '../../components/Footer';
@@ -40,24 +40,47 @@ const ProductPage = () => {
     electricityConsumption,
     image_path,
     price,
+    quatity,
   } = product;
 
   const handleAddOrder = async () => {
     const order = {
-        userId: { id:2 },
+        userId: {id: 2},
+        orderStatus: "INITIALISED",
         productId: product.id,
-        price: product.price,
-        orderStatus: "INITIALISED"
     };
+
     try {
-        const result  = await postOrder(order); 
-        console.log('Order successfully created:', result );
-        addToCart(product, result ); 
-      } catch (error) {
-        console.log('Error creating order', error);
-      }
+      const result = await postOrder(order);
+      console.log("Order API Response:", result);
+      const orderId = result.id; 
+      console.log("Extracted Order ID:", orderId);
+
+      const orderProduct = [
+        {
+          order: {
+            orderId: { id: result }
+          },
+          product: {
+            productId: { id: product.id }
+          },
+          quantity: {
+            quantity: 1
+          },
+          priceOrder: {
+            price: product.price
+          }
+        }
+      ];
+
+      console.log("OrderProduct to be sent:", orderProduct);
+      const result2 = await postOrderProduct(orderProduct);
+      console.log('OrderProduct successfully created:', result2);
+      addToCart(product, result); 
+    } catch (error) {
+      console.log('Error creating order or orderProduct or both:', error);
     }
-  
+  };
 
   return (
     <>
