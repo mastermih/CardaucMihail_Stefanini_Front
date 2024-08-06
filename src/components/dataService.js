@@ -103,6 +103,31 @@ export const fetchProductByCategory = async (limit, categoryType) => {
   }
 };
 
+export const fetchDataByLastOrderProducts = async(limit) => {
+  try {
+    const response = await axios.get('http://localhost:8080/orderProduct', {
+      params: { limit }
+    });
+    console.log('Raw response data:', response.data);
+
+    const items = response.data || [];
+    const flattenedData = items.map(item => ({
+      id: item.order.orderId.id,
+      product_id: item.product.productId.id,
+      quantity: item.quantity.quantity,
+      price_product: item.priceOrder.price,
+    }));
+    console.log('Flattened data:', flattenedData);
+
+    return { data: flattenedData, totalPages: 1 };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+};
+
+
+
 export const fetchDataByLastOrders = async (limit) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/lastCreated', {

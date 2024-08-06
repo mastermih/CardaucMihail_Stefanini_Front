@@ -1,10 +1,17 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
 import '../assets/styles/table.css';
-import { COLUMNS } from './columns';
+import { COLUMNS, COLUMNS2 } from './columns';
 
-const BasicTable = ({ data }) => {
-  const columns = useMemo(() => COLUMNS, []);
+const BasicTable = ({ data, columnsType }) => {
+  const columns = useMemo(() => {
+    if (columnsType === 'COLUMNS') {
+      return COLUMNS;
+    } else if (columnsType === 'COLUMNS2') {
+      return COLUMNS2;
+    }
+    return [];
+  }, [columnsType]);
 
   const tableInstance = useTable({
     columns,

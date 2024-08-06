@@ -114,7 +114,7 @@ const Orders = () => {
         <div>Loading...</div>
       ) : (
         <>
-          <BasicTable data={data} />
+          <BasicTable data={data} columnsType="COLUMNS" />
           {totalPages > 1 && (
             <div className="pagination">
               <button className="btn btn-secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>

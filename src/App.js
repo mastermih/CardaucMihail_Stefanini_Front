@@ -5,6 +5,7 @@ import Orders from './pages/Orders/Orders';
 import Catalog from './pages/Catalog/Catalog';
 import ProductPage from './pages/ProductPage/ProductPage';
 import MakeOrder from './pages/MakeOrder/MakeOrder';
+import OrderProducts from './pages/OrderProducts/OrderProducts';
 
 
 
@@ -20,6 +21,7 @@ function App() {
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductPage/>} />
           <Route path="/MakeOrder/:id" element={<MakeOrder />} />
+          <Route path="/orderProduct" element={<OrderProducts />} />
 
           </Routes>
       </div>
