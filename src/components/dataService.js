@@ -180,6 +180,31 @@ export const fetchDataByDateAndStatus = async (startDate, endDate, status, numbe
   }
 };
 
+export const fetchOrderProductByPriceInterval = async (startPrice, endPrice, totalOrderProducts, page) => {
+  try{
+    const response = await axios.get('http://localhost:8080/orderProduct/price', {
+      params: { startPrice, endPrice, page, totalOrderProducts }
+    });
+    console.log('Raw response data:', response.data);
+    const items = response.data.items || [];
+
+    const flattenedData = items.map(item => ({
+      id: item.order.orderId.id,
+      product_id: item.product.productId.id,
+      quantity: item.quantity.quantity,
+      price_product: item.priceOrder.price,
+    }));
+
+    console.log('Flattened data:', flattenedData);
+
+    return { data: flattenedData, totalPages: response.data.totalPages };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+};
+
+
 export const fetchDataByDateInterval = async (startDate, endDate, numberOfOrders, page) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/createDate', {
