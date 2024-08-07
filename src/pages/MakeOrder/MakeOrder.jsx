@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
-import { fetchProductPageById, fetchProductPageByProductName, updateOrderStatus } from '../../components/dataService';
+import { fetchProductPageById, fetchProductPageByProductName, updateOrderStatus, postOrderProduct } from '../../components/dataService';
 import { Row, Col, Dropdown, Nav } from 'react-bootstrap';
 import { useCart } from '../../components/cartContext';
 import Footer from '../../components/Footer';
@@ -22,6 +22,8 @@ const MakeOrder = () => {
   const [showInputForm, setShowInputForm] = useState(false);
   const [fetchClicked, setFetchClicked] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [newProducts, setNewProducts] = useState([]); // State to track newly added products
+
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -109,6 +111,7 @@ const MakeOrder = () => {
     const price = parseFloat(selectedProduct.price.price);
     
     setProducts([...products, { ...selectedProduct, price }]);
+    setNewProducts([...newProducts, { ...selectedProduct, price }]); // Add to newProducts state
     setQuantity(1);
     setTotalPrice(
       (products.reduce((total, product) => total + product.price, 0)).toFixed(2)
@@ -130,10 +133,38 @@ const MakeOrder = () => {
         productId: product.id
       };
 
+      const orderProduct = [
+        {
+          order: {
+            orderId: { id: orderItem.orderId }
+          },
+          product: {
+            productId: { id: product.id }
+          },
+          quantity: {
+            quantity: 1
+          },
+          priceOrder: {
+            price: product.price
+          }
+        }
+      ];
+
       try {
         const result = await updateOrderStatus(orderUpdate);
         console.log(result);
         console.log('Order status updated:', orderUpdate);
+        // Post each newly added product
+        for (const newProduct of newProducts) {
+          const newOrderProduct = [{
+            order: { orderId: { id: orderItem.orderId } },
+            product: { productId: { id: product.id } },
+            quantity: { quantity: 1 },
+            priceOrder: { price: newProduct.price }
+          }];
+          const result2 = await postOrderProduct(newOrderProduct);
+          console.log('New product added:', newOrderProduct);
+        }
       } catch (error) {
         console.error('Error updating order status:', error);
       }
@@ -268,4 +299,3 @@ const MakeOrder = () => {
 };
 
 export default MakeOrder;
-
