@@ -40,12 +40,12 @@ const ProductPage = () => {
     electricityConsumption,
     image_path,
     price,
-    quatity,
+    quantity,
   } = product;
 
   const handleAddOrder = async () => {
     const order = {
-        userId: {id: 2},
+        userId: { id: 2 },
         orderStatus: "INITIALISED",
         productId: product.id,
     };
@@ -53,7 +53,7 @@ const ProductPage = () => {
     try {
       const result = await postOrder(order);
       console.log("Order API Response:", result);
-      const orderId = result.id; 
+      const orderId = result.id;
       console.log("Extracted Order ID:", orderId);
 
       const orderProduct = [
@@ -76,7 +76,7 @@ const ProductPage = () => {
       console.log("OrderProduct to be sent:", orderProduct);
       const result2 = await postOrderProduct(orderProduct);
       console.log('OrderProduct successfully created:', result2);
-      addToCart(product, result); 
+      addToCart(product, result);
     } catch (error) {
       console.log('Error creating order or orderProduct or both:', error);
     }
@@ -90,28 +90,39 @@ const ProductPage = () => {
           <div className="row">
             <div className="col-md-4 mb-4">
               <div className="card">
-                <img className="card-img-top" src={`${image_path}`} alt={productName} />
+                <img className="card-img-top" src={`${image_path}`} alt={productName} style={{ width: '350px', height: '400px', objectFit: 'cover' }} />
                 <div className="card-body">
                   <h5 className="card-text">{productName}</h5>
                   <p className="card-text">Brand: {productBrand}</p>
-                  <p className="card-text">Description: {description}</p>
                   <p className="card-text">Electricity Consumption: {electricityConsumption} kWh</p>
                   <p className="card-text">Price: ${price.toFixed(2)}</p>
                   <button
                     className="btn btn-primary"
                     onClick={() => {
-                    addToCart(product); 
-                    handleAddOrder();}}>   
+                      addToCart(product);
+                      handleAddOrder();
+                    }}>
                     Add to Cart
                   </button>
+                </div>
+              </div>
+            </div>
+            <div className="col-md-8">
+              <div className="card">
+                <div className="card-body-description">
+                  <h5 className="card-title">Description</h5>
+                  <p className="card-text">{description}</p>
+                  <p className="pacanele-mici">The final price is going to include extra expenses like delivery and installation 
+                  (you can get a discount if you have the premium version). </p>
                 </div>
               </div>
             </div>
           </div>
         </Container>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 };
+
 export default ProductPage;

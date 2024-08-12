@@ -24,7 +24,6 @@ export const updateOrderStatus = async(order) =>{
   }
 }
 
-
 export const postOrderProduct = async (orderProduct) => {
   try {
     console.log('Sending request to create orderProduct:', orderProduct);
@@ -45,13 +44,48 @@ export const postOrder = async (order) => {
   try {
     console.log('Sending request to create order:', order);
     const response = await axios.post(`http://localhost:8080/MakeOrder/${order.productId}`, order);
-    console.log('Order created:', response.data); // Debug: Check response data
+    console.log('Order created:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error creating order:', error);
     throw error;
   }
 };
+
+export const confirmOrderEmail = async (orderId) => {
+  try {
+    console.log('Sending request to confirm email:', orderId);
+
+    // The request payload should be a JSON object
+    const response = await axios.post(
+      `http://localhost:8080/sendMail/confirm/${orderId}`,
+      { id: orderId }, // Pass the ID in the request body as a JSON object
+      {
+        headers: {
+          'Content-Type': 'application/json' // Set Content-Type to application/json
+        }
+      }
+    );
+
+    console.log('Order confirmation response:', response.data); 
+    return response.data;
+  } catch (error) {
+    console.error('Error confirming order:', error);
+    throw error; 
+  }
+};
+
+export const sendOrderEmail = async (emailDetails) => {
+  try{
+    console.log('Sending request to confirm order:', emailDetails);
+    const response = await axios.post(`http://localhost:8080/sendMail/OrderId`, emailDetails);
+    console.log('Order confirmed:', response.data); 
+    return response.date;
+  }catch (error){
+    console.error('Error confirming order:', error);
+    throw error;
+  }
+}
 
 export const fetchProductPageById = async (productId) => {
   try {
@@ -125,8 +159,6 @@ export const fetchDataByLastOrderProducts = async(limit) => {
     throw error;
   }
 };
-
-
 
 export const fetchDataByLastOrders = async (limit) => {
   try {

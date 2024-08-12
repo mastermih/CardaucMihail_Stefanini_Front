@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
-import { fetchProductPageById, fetchProductPageByProductName, updateOrderStatus, postOrderProduct } from '../../components/dataService';
+import { fetchProductPageById, fetchProductPageByProductName, updateOrderStatus, postOrderProduct, sendOrderEmail} from '../../components/dataService';
 import { Row, Col, Dropdown, Nav } from 'react-bootstrap';
 import { useCart } from '../../components/cartContext';
 import Footer from '../../components/Footer';
@@ -149,9 +149,18 @@ const MakeOrder = () => {
           }
         }
       ];
+      const confirmationLink = `http://localhost:3000/sendMail/confirm/${orderItem.orderId}`;
 
+      const sendOrderEmailConfirm = {
+        recipient: "cardaucmihai@gmail.com",
+        msgBody: `This is a test email from Spring Boot. Please confirm your order by clicking the link below:\n\n${confirmationLink}`,
+        subject: "Order Confirmation",
+        orderId: orderItem.orderId
+      };
       try {
         const result = await updateOrderStatus(orderUpdate);
+        const resultEmail = await sendOrderEmail(sendOrderEmailConfirm);
+        console.log(resultEmail);
         console.log(result);
         console.log('Order status updated:', orderUpdate);
         // Post each newly added product
@@ -196,7 +205,7 @@ const MakeOrder = () => {
                 <h3 className="cardMakeOrder-text">{product.productName ? product.productName.productName : 'No name available'}</h3>
                 <div className="card">
                   {product.image_path && (
-                    <img className="card-img-top" src={product.image_path} alt={product.productName} />
+                    <img className="card-img-top" src={product.image_path} alt={product.productName} style={{ width: '350px', height: '400px', objectFit: 'cover' }} />
                   )}
                   <div className="card-body">
                     <p className="card-text">Price: ${product.price ? product.price.toFixed(2) : 'N/A'}</p>

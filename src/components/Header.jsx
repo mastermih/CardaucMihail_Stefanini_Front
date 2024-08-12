@@ -42,7 +42,7 @@ const Header = () => {
         <Container>
           <div className="brand-search-contact">
             <div className="brand">
-              <img src="/path/to/logo.png" alt="Logo" className="logo" />
+              <img src="/images/Logo.jpg" alt="Logo" className="logo" style={{ width: '200px', height: '200px', marginRight: '10px' }}  />
             </div>
             <div className="search-bar">
               <input type="text" placeholder="Search model" />

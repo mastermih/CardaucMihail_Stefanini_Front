@@ -14,13 +14,15 @@ const Home = () => {
         <Container>
           <Row>
             <Col md={8} className="description-section">
-              <h2>Description</h2>
-              <p>FAEFAFEAF ANCAOBCa ACAOSCbac CACACsac ADsad</p>
-              <p>In a quiet village nestled between rolling hills...</p>
-              <p>In a quiet village nestled between rolling hills...</p>
-              <p>In a quiet village nestled between rolling hills...</p>
-              <p>In a quiet village nestled between rolling hills...</p>
-              <p>In a quiet village nestled between rolling hills...</p>
+
+           <h3>Welcome to Elevate Solutions Inc</h3>
+Your Trusted Partner in Elevator Excellence
+
+At Elevate Solutions Inc., we are dedicated to providing top-tier elevator systems and components, tailored to meet the unique needs of our clients. With a rich legacy of innovation and a commitment to quality, we ensure that every product we deliver stands up to the highest standards of safety, reliability, and performance.
+
+Our Products
+Elevators: State-of-the-art elevators designed for residential, commercial, and industrial use. Our range includes passenger elevators, freight elevators, and customized solutions to fit specific requirements.
+Components: A comprehensive selection of high-quality elevator components including motors, control panels, doors, and safety systems. Our components are engineered to enhance the efficiency and longevity of your elevator systems.
             </Col>
             <Col md={4} className="partners-section">
               <h2>Partners</h2>

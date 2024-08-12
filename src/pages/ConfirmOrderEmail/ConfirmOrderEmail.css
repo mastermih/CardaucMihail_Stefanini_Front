@@ -1,0 +1,10 @@
+.confirmation-content {
+    width: 100%; /* Adjusts the width to take the full width of the container */
+    min-height: 400px; /* Sets a minimum height */
+    padding: 50px; /* Adds padding to create space inside the content area */
+    margin-top: 20px; /* Adds some space above the content */
+    background-color: #f8f9fa; /* Optional: Light background color for better visibility */
+    border-radius: 10px; /* Optional: Adds rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for a floating effect */
+  }
+  

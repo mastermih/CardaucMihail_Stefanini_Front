@@ -6,6 +6,7 @@ import Catalog from './pages/Catalog/Catalog';
 import ProductPage from './pages/ProductPage/ProductPage';
 import MakeOrder from './pages/MakeOrder/MakeOrder';
 import OrderProducts from './pages/OrderProducts/OrderProducts';
+import ConfirmOrderEmail from './pages/ConfirmOrderEmail/ConfirmOrderEmail';
 
 
 
@@ -22,6 +23,8 @@ function App() {
           <Route path="/product/:id" element={<ProductPage/>} />
           <Route path="/MakeOrder/:id" element={<MakeOrder />} />
           <Route path="/orderProduct" element={<OrderProducts />} />
+          <Route path="/sendMail/confirm/:id" element={<ConfirmOrderEmail />} />
+
           </Routes>
       </div>
     </Router>
