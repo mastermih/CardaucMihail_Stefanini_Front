@@ -68,8 +68,9 @@ const Header = () => {
                           {item.productName} - ${item.price ? item.price.toFixed(2) : 'N/A'}
                           <br />
                           <hr />
-                          {item.description}
-                          <br />
+                          <div className="cart-item-description">
+                         {item.description ? item.description : 'No description available'}
+                           </div>                          <br />
                           <button onClick={(event) => handleRemoveFromCart(event, item.orderId)}>Remove</button>
                           <button onClick={() => navigate(`/MakeOrder/${item.id}`)}>Make Orders</button>
                         </Dropdown.Item>
@@ -94,7 +95,6 @@ const Header = () => {
               <Nav.Link href="#brands">BRANDS</Nav.Link>
               <Nav.Link href="#in-stock">IN STOCK</Nav.Link>
               <Nav.Link href="#elevator-components">ELEVATOR COMPONENTS</Nav.Link>
-              <Nav.Link href="#how-to-find-us">HOW TO FIND US</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

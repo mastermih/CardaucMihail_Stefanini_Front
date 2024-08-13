@@ -112,6 +112,14 @@ const ProductPage = () => {
                 <div className="card-body-description">
                   <h5 className="card-title">Description</h5>
                   <p className="card-text">{description}</p>
+                  <button
+                    className="pricol-button"
+                    onClick={() => {
+                      addToCart(product);
+                      handleAddOrder();
+                    }}>
+                      Add to Cart :/
+                  </button>
                   <p className="pacanele-mici">The final price is going to include extra expenses like delivery and installation 
                   (you can get a discount if you have the premium version). </p>
                 </div>

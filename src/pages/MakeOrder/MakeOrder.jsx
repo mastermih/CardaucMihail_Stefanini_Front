@@ -99,24 +99,29 @@ const MakeOrder = () => {
       <div className="product-details">
         <h5>{product.productName ? product.productName.productName : 'No name available'}</h5>
         <p>{product.description ? product.description.description : 'No description available'}</p>
-        <p>Price: ${product.price ? parseFloat(product.price.price).toFixed(2) : 'N/A'}</p>
+        <p>Price: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
       </div>
     </div>
   );
+  
 
   const handleProductSelect = (selectedProduct) => {
     console.log('Selected product data:', selectedProduct);
-    
-    // Ensure the price is a number
-    const price = parseFloat(selectedProduct.price.price);
-    
+  
+    // Ensure the price is a number, fallback to 0 if it's not a valid number
+    const price = selectedProduct.price && typeof selectedProduct.price.price === 'number'
+      ? parseFloat(selectedProduct.price.price)
+      : 0;
+  
     setProducts([...products, { ...selectedProduct, price }]);
     setNewProducts([...newProducts, { ...selectedProduct, price }]); // Add to newProducts state
     setQuantity(1);
     setTotalPrice(
-      (products.reduce((total, product) => total + product.price, 0)).toFixed(2)
+      (products.reduce((total, product) => total + (product.price || 0), 0)).toFixed(2)
     );
   };
+
+  
 
   const handleConfirmOrder = async () => {
     for (const product of products) {
@@ -208,8 +213,8 @@ const MakeOrder = () => {
                     <img className="card-img-top" src={product.image_path} alt={product.productName} style={{ width: '350px', height: '400px', objectFit: 'cover' }} />
                   )}
                   <div className="card-body">
-                    <p className="card-text">Price: ${product.price ? product.price.toFixed(2) : 'N/A'}</p>
-                    <div className="form-group">
+                  <p>Price: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
+                  <div className="form-group">
                       <label htmlFor="quantity">Quantity:</label>
                       <input
                         type="number"
@@ -267,14 +272,18 @@ const MakeOrder = () => {
               <Dropdown.Menu>
                 {productOptions.length > 0 ? (
                   productOptions.map((option) => (
-                    <Dropdown.Item key={option.productId.id} onClick={() => handleProductSelect(option)}>
-                      <img src={option.path.path} alt={option.productName.productName} className="product-option-image" />
-                      <div className="product-option-details">
-                        <h5>{option.productName.productName}</h5>
-                        <p>{option.description.description}</p>
-                        <p>Price: ${option.price ? option.price.price.toFixed(2) : 'N/A'}</p>
-                      </div>
-                    </Dropdown.Item>
+<Dropdown.Item key={option.productId.id} onClick={() => handleProductSelect(option)}>
+  <img src={option.path.path} alt={option.productName.productName} className="product-option-image" />
+  <div className="product-option-details">
+    <h5>{option.productName.productName}</h5>
+    <div className="Mihailll-item-description">
+      <p>{option.description.description}</p>
+    </div>
+    <p>Price: ${typeof option.price.price === 'number' ? option.price.price.toFixed(2) : 'N/A'}</p>
+  </div>
+</Dropdown.Item>
+
+
                   ))
                 ) : (
                   <Dropdown.Item>No products found.</Dropdown.Item>
