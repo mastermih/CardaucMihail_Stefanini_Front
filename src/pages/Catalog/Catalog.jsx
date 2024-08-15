@@ -35,74 +35,6 @@ const Catalog = () => {
     loadProducts();
   }, []);
 
-  const handleFilterProductByCategory = async () => {
-    try {
-      const params = {
-        category_type: selectedCategory
-      };
-
-      // Sending a GET request with query parameters
-      const response = await filterProductByCategory(params); // Pass the params object
-      setProducts(response.data);
-      console.log("Filtered Products Response:", response.data);
-    } catch (error) {
-      console.error("Error filtering products:", error);
-    }
-  };
-
-  const handleFilterProductByName = async () => {
-    try {
-      const params = {
-        name: productName,
-      };
-
-      // Sending a GET request with query parameters
-      const response = await filterProductByName(params); // Pass the params object
-      setProducts(response.data);
-      console.log("Filtered Products Response:", response.data);
-    } catch (error) {
-      console.error("Error filtering products:", error);
-    }
-  };
- ///WAAAAAAAAAAAAAAAAAAAAAAAAAAA
-  const handleFilterProducts = async () => {
-    try {
-      let params = {};
-  
-      // Determine which filters have been applied
-      if (selectedCategory) {
-        params.category_type  = selectedCategory;
-      }
-      if (productName) {
-        params.name = productName;
-      }
-      if (productBrand) {
-        params.brand = productBrand;
-      }
-      if (selectedPrice.min || selectedPrice.max) {
-        params.priceMin = selectedPrice.min || '';
-        params.priceMax = selectedPrice.max || '';
-      }
-  
-      // Call the appropriate filter function based on which parameters are present
-      let response;
-      if (params.category_type) {
-        response = await filterProductByCategory(params);
-      } else if (params.name) {
-        response = await filterProductByName(params);
-      } else {
-        // Default case if no specific filters are applied (or add additional logic here)
-        response = await fetchProductByCategory(); // Or another fallback function
-      }
-  
-      // Set the products to the response data
-      setProducts(response.data);
-      console.log("Filtered Products Response:", response.data);
-    } catch (error) {
-      console.error("Error filtering products:", error);
-    }
-  };
-  
   const haldleBigFilter = async () => {
     setLoading(true);
     try {
@@ -110,9 +42,9 @@ const Catalog = () => {
         category_type: selectedCategory,
         product_name: productName,
         product_brand: productBrand,
-        priceMin: selectedPrice.min,
-        priceMax: selectedPrice.max,
-        electricity_consumption: electricityConsumption, // Example value, update according to your UI
+        minPrice: selectedPrice.min,
+        maxPrice: selectedPrice.max,
+        electricity_consumption: electricityConsumption
       };
       params = Object.fromEntries(Object.entries(params).filter(([key, value]) => value));
 
@@ -126,6 +58,13 @@ const Catalog = () => {
     }
   };
 
+  const handleRefresh = () => {
+    setSelectedCategory('');
+    setProductName('');
+    setProductBrand('');
+    setElectricityConsumption('');
+    setSelectedPrice({ min: '', max: '' });
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -191,6 +130,17 @@ const Catalog = () => {
                     onChange={(e) => setProductBrand(e.target.value)} 
                   />
                 </div>
+
+                <div className="search-bar custom-margin">
+                  <input 
+                    type="text" 
+                    placeholder="Electricity Consumption" 
+                    className="form-control" 
+                    value={electricityConsumption}
+                    onChange={(e) => setElectricityConsumption(e.target.value)} 
+                  />
+                </div>
+
                 <div className="price-bar custom-marginZ">
                   <input 
                     type="number" 
@@ -208,6 +158,8 @@ const Catalog = () => {
                   />
                 </div>
                 <button type="button" className="btn btn-secondary mt-3" onClick={haldleBigFilter}>Submit</button>
+                <button type="button" className="btn btn-secondary mt-3" onClick={handleRefresh}>Refresh</button>
+
               </div>
             </Col>
           </Row>
