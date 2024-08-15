@@ -1,21 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
-import { fetchProductByCategory } from '../../components/dataService';
+import { fetchProductByCategory,filterProductByCategory, filterProductByName, filterProducts} from '../../components/dataService';
 import Row from 'react-bootstrap/Row';
 import { Link } from 'react-router-dom';
 import './Catalog.css';
+import { useParams } from 'react-router-dom';
 import Col from 'react-bootstrap/Col';
 import Footer from '../../components/Footer';
+import axios from 'axios';
 
 const Catalog = () => {
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [productName, setProductName] = useState('');
+  const [productBrand, setProductBrand] = useState('');
+  const [electricityConsumption, setElectricityConsumption] = useState('');
+  const [selectedPrice, setSelectedPrice] = useState({ min: '', max: '' });
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [price, setPrice] = useState([]);
-  const [selectedPrice, setSelectedPrice] = useState('');
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -31,6 +34,98 @@ const Catalog = () => {
 
     loadProducts();
   }, []);
+
+  const handleFilterProductByCategory = async () => {
+    try {
+      const params = {
+        category_type: selectedCategory
+      };
+
+      // Sending a GET request with query parameters
+      const response = await filterProductByCategory(params); // Pass the params object
+      setProducts(response.data);
+      console.log("Filtered Products Response:", response.data);
+    } catch (error) {
+      console.error("Error filtering products:", error);
+    }
+  };
+
+  const handleFilterProductByName = async () => {
+    try {
+      const params = {
+        name: productName,
+      };
+
+      // Sending a GET request with query parameters
+      const response = await filterProductByName(params); // Pass the params object
+      setProducts(response.data);
+      console.log("Filtered Products Response:", response.data);
+    } catch (error) {
+      console.error("Error filtering products:", error);
+    }
+  };
+ ///WAAAAAAAAAAAAAAAAAAAAAAAAAAA
+  const handleFilterProducts = async () => {
+    try {
+      let params = {};
+  
+      // Determine which filters have been applied
+      if (selectedCategory) {
+        params.category_type  = selectedCategory;
+      }
+      if (productName) {
+        params.name = productName;
+      }
+      if (productBrand) {
+        params.brand = productBrand;
+      }
+      if (selectedPrice.min || selectedPrice.max) {
+        params.priceMin = selectedPrice.min || '';
+        params.priceMax = selectedPrice.max || '';
+      }
+  
+      // Call the appropriate filter function based on which parameters are present
+      let response;
+      if (params.category_type) {
+        response = await filterProductByCategory(params);
+      } else if (params.name) {
+        response = await filterProductByName(params);
+      } else {
+        // Default case if no specific filters are applied (or add additional logic here)
+        response = await fetchProductByCategory(); // Or another fallback function
+      }
+  
+      // Set the products to the response data
+      setProducts(response.data);
+      console.log("Filtered Products Response:", response.data);
+    } catch (error) {
+      console.error("Error filtering products:", error);
+    }
+  };
+  
+  const haldleBigFilter = async () => {
+    setLoading(true);
+    try {
+      let  params = {
+        category_type: selectedCategory,
+        product_name: productName,
+        product_brand: productBrand,
+        priceMin: selectedPrice.min,
+        priceMax: selectedPrice.max,
+        electricity_consumption: electricityConsumption, // Example value, update according to your UI
+      };
+      params = Object.fromEntries(Object.entries(params).filter(([key, value]) => value));
+
+      const { data } = await filterProducts(params);
+      setProducts(data);
+    } catch (error) {
+      console.error('Error filtering products:', error);
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -50,9 +145,6 @@ const Catalog = () => {
                   const productName = product.productName && typeof product.productName === 'string' ? product.productName : 'No name available';
                   const electricityConsumption = product.electricityConsumption && typeof product.electricityConsumption === 'number' ? product.electricityConsumption : 0;
                   const imagePath = product.image_path && typeof product.image_path === 'string' ? product.image_path : '';
-
-                  //debug
-                  console.log('imagePath:', imagePath);
 
                   return (
                     <div key={product.id} className="col-md-4 mb-4">
@@ -75,34 +167,53 @@ const Catalog = () => {
               <div className="search-filter">
                 <div className="search-bar custom-margin">
                   <select className="form-control" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
-                    <option value="" disabled selected hidden>Select Category ...</option>
-                    <option value="">HESOYAM</option>
-                    <option value="">JUMBJET</option>
-                    <option value="">AEZAKMY</option>
+                    <option value="" disabled>Select Category ...</option>
+                    <option value="Elevator">Elevator</option>
+                    <option value="AirSystem">Air System</option>
+                    <option value="EmergensySystem">Emergency System</option>
                   </select>
                 </div>
                 <div className="search-bar custom-margin">
-                  <input type="text" placeholder="Name" className="form-control" />
+                  <input 
+                    type="text" 
+                    placeholder="Name" 
+                    className="form-control" 
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)} 
+                  />
                 </div>
                 <div className="search-bar custom-margin">
-                  <input type="text" placeholder="Brand" className="form-control" />
+                  <input 
+                    type="text" 
+                    placeholder="Brand" 
+                    className="form-control" 
+                    value={productBrand}
+                    onChange={(e) => setProductBrand(e.target.value)} 
+                  />
                 </div>
                 <div className="price-bar custom-marginZ">
-                  <select className="form-control" value={selectedPrice} onChange={(e) => setSelectedPrice(e.target.value)}>
-                    <option value="" disabled selected hidden>Price (min/max)</option>
-                    <option value="">MIN</option>
-                    <option value="">MAX</option>
-                  </select>
+                  <input 
+                    type="number" 
+                    placeholder="Min Price" 
+                    className="form-control" 
+                    value={selectedPrice.min}
+                    onChange={(e) => setSelectedPrice({ ...selectedPrice, min: e.target.value })} 
+                  />
+                  <input 
+                    type="number" 
+                    placeholder="Max Price" 
+                    className="form-control mt-2" 
+                    value={selectedPrice.max}
+                    onChange={(e) => setSelectedPrice({ ...selectedPrice, max: e.target.value })} 
+                  />
                 </div>
-                <div className="filter-options">
-                </div>
+                <button type="button" className="btn btn-secondary mt-3" onClick={haldleBigFilter}>Submit</button>
               </div>
-              <button type="button" class="btn btn-secondary">Submit</button>
             </Col>
           </Row>
         </Container>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 };
