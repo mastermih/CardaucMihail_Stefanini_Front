@@ -112,23 +112,29 @@ export const fetchProductPageById = async (productId) => {
 };
 //Ma boy here
 export const filterProducts = async (params) => {
-  try{
+  try {
     const response = await axios.get(`http://localhost:8080/catalog/catalog/filter`, {
-      params
+      params,
     });
 
-    const items = response.data || [];
-    const flattenedData = items.map(item => ({
-      id: item.productId.id,
-      productName: item.productName.productName,
-      image_path: item.path.path, 
-      description: item.description.description,
-      electricityConsumption: item.electricityConsumption.kWh,
-      productBrand: item.productBrand.productBrand,
-      price: item.price.price,
-    }));
-    
-    return { data: flattenedData, totalPages: 1 };
+    // Ensure that response.data is an object with the correct structure
+    const data = response.data;
+
+    if (data && Array.isArray(data.items)) {
+      const flattenedData = data.items.map((item) => ({
+        id: item.productId.id,
+        productName: item.productName.productName,
+        image_path: item.path.path,
+        description: item.description.description,
+        electricityConsumption: item.electricityConsumption.kWh,
+        productBrand: item.productBrand.productBrand,
+        price: item.price.price,
+      }));
+
+      return { data: flattenedData, totalPages: data.totalPages || 1 };
+    } else {
+      throw new Error('Expected an array of items but received something else.');
+    }
   } catch (error) {
     console.error('Error fetching product data:', error);
     throw error;

@@ -7,6 +7,8 @@ import ProductPage from './pages/ProductPage/ProductPage';
 import MakeOrder from './pages/MakeOrder/MakeOrder';
 import OrderProducts from './pages/OrderProducts/OrderProducts';
 import ConfirmOrderEmail from './pages/ConfirmOrderEmail/ConfirmOrderEmail';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 

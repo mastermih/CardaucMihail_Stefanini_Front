@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import Header from '../../components/Header';
 import Container from 'react-bootstrap/Container';
-import { fetchProductByCategory,filterProductByCategory, filterProductByName, filterProducts} from '../../components/dataService';
+import { fetchProductByCategory, filterProducts } from '../../components/dataService';
 import Row from 'react-bootstrap/Row';
 import { Link } from 'react-router-dom';
 import './Catalog.css';
-import { useParams } from 'react-router-dom';
 import Col from 'react-bootstrap/Col';
 import Footer from '../../components/Footer';
-import axios from 'axios';
+import Pagination from 'react-bootstrap/Pagination';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
 const Catalog = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -19,12 +20,17 @@ const Catalog = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
-        const { data } = await fetchProductByCategory(5, "Elevator");
-        setProducts(data);
+        const result = await fetchProductByCategory(pageSize, "Elevator");
+        setProducts(result.data);
+      //  setTotalPages(result.totalPages || 1);
+        setCurrentPage(1);
       } catch (err) {
         setError(err);
       } finally {
@@ -33,23 +39,29 @@ const Catalog = () => {
     };
 
     loadProducts();
-  }, []);
+  }, [pageSize]);
 
-  const haldleBigFilter = async () => {
+  const handleBigFilter = async (page = 1) => {
     setLoading(true);
     try {
-      let  params = {
+      let params = {
+        page: page,
+        pageSize: pageSize,
         category_type: selectedCategory,
         product_name: productName,
         product_brand: productBrand,
         minPrice: selectedPrice.min,
         maxPrice: selectedPrice.max,
-        electricity_consumption: electricityConsumption
+        electricity_consumption: electricityConsumption,
       };
       params = Object.fromEntries(Object.entries(params).filter(([key, value]) => value));
-
-      const { data } = await filterProducts(params);
-      setProducts(data);
+  
+      const result = await filterProducts(params);
+      
+      // Ensure that totalPages is being correctly set from the API response
+      setProducts(result.data);
+      setTotalPages(result.totalPages || 1);  // Use the totalPages from the API response
+      setCurrentPage(page);
     } catch (error) {
       console.error('Error filtering products:', error);
       setError(error);
@@ -57,6 +69,20 @@ const Catalog = () => {
       setLoading(false);
     }
   };
+  
+
+  const handlePageChange = async (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      await handleBigFilter(newPage);
+      setCurrentPage(newPage);
+    }
+  };
+  
+
+  // const handlePageSizeChange = (e) => {
+  //   setPageSize(Number(e.target.value));
+  //   handleBigFilter(1);
+  // };
 
   const handleRefresh = () => {
     setSelectedCategory('');
@@ -64,6 +90,7 @@ const Catalog = () => {
     setProductBrand('');
     setElectricityConsumption('');
     setSelectedPrice({ min: '', max: '' });
+    handleBigFilter(1);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -78,7 +105,6 @@ const Catalog = () => {
             <Col md={9}>
               <div className="row">
                 {products.map(product => {
-
                   const price = product.price && typeof product.price === 'number' ? product.price : 0;
                   const productBrand = product.productBrand && typeof product.productBrand === 'string' ? product.productBrand : 'No brand available';
                   const productName = product.productName && typeof product.productName === 'string' ? product.productName : 'No name available';
@@ -88,7 +114,7 @@ const Catalog = () => {
                   return (
                     <div key={product.id} className="col-md-4 mb-4">
                       <div className="card">
-                        <img className="card-img-top" src={imagePath} />
+                        <img className="card-img-top" src={imagePath} alt={productName} />
                         <div className="card-body">
                           <h5 className="card-text">{productName}</h5>
                           <p className='card-text'>Brand: {productBrand}</p>
@@ -130,7 +156,6 @@ const Catalog = () => {
                     onChange={(e) => setProductBrand(e.target.value)} 
                   />
                 </div>
-
                 <div className="search-bar custom-margin">
                   <input 
                     type="text" 
@@ -140,8 +165,7 @@ const Catalog = () => {
                     onChange={(e) => setElectricityConsumption(e.target.value)} 
                   />
                 </div>
-
-                <div className="price-bar custom-marginZ">
+                <div className="price-bar custom-margin">
                   <input 
                     type="number" 
                     placeholder="Min Price" 
@@ -157,14 +181,42 @@ const Catalog = () => {
                     onChange={(e) => setSelectedPrice({ ...selectedPrice, max: e.target.value })} 
                   />
                 </div>
-                <button type="button" className="btn btn-secondary mt-3" onClick={haldleBigFilter}>Submit</button>
-                <button type="button" className="btn btn-secondary mt-3" onClick={handleRefresh}>Refresh</button>
-
+                <Button type="button" className="btn btn-secondary mt-3" onClick={() => handleBigFilter(1)}>Submit</Button>
+                <Button type="button" className="btn btn-secondary mt-3" onClick={handleRefresh}>Refresh</Button>
               </div>
             </Col>
           </Row>
         </Container>
       </div>
+      {/* Isolated Pagination and Form Controls */}
+      <h1></h1>
+      {totalPages > 1 && (
+  <div className="pagination-controls mt-4 d-flex justify-content-between" style={{ padding: '20px 0', textAlign: 'center' }}>
+    <Pagination>
+      <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+      <Form.Control
+        type="number"
+        value={currentPage}
+        onChange={(e) => handlePageChange(Number(e.target.value))}
+        style={{ width: '75px', display: 'inline-block', margin: '0 10px' }}
+      />
+      <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+    </Pagination>
+          {/* <div>
+            <span>of {totalPages}</span>
+            <Form.Control
+              as="select"
+              value={pageSize}
+              onChange={handlePageSizeChange}
+              style={{ width: '100px', display: 'inline-block', marginLeft: '10px' }}
+            >
+              <option value={5}>5 per page</option>
+              <option value={10}>10 per page</option>
+              <option value={20}>20 per page</option>
+            </Form.Control>
+          </div> */}
+        </div>
+      )}
       <Footer />
     </>
   );
