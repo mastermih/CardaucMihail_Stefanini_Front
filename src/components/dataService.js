@@ -1,7 +1,7 @@
 import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 import axios from 'axios';
 
-export const fetchProductPageByProductName = async (productId, name) => {
+export const fetchProductPageByProductName = async (productId = 42, name) => {
   try {
     const response = await axios.get(`http://localhost:8080/catalog/MakeOrder/${productId}`, {
       params: { product_name: name }

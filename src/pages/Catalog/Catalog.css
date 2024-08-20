@@ -46,7 +46,7 @@
     transform: rotateY(180deg);
   }
   .custom-marginZ{
-    margin-top: 80px;
+    margin-top: 70px;
   }
 .btnRefresh {
    margin-top: -20px;
@@ -77,4 +77,25 @@
 
 .pagination-btn:hover:not(:disabled) {
   background-color: #0056b3;
+}
+.custom-margin{
+  margin-top: 30px;
+}
+.search-bar-custom-margin1 {
+  margin-top: 20px;
+
+}
+.search-bar-custom-margin2{
+  margin-top: 20px;
+
+}
+.search-bar-custom-margin3{
+  margin-top: 20px;
+}
+.search-bar-custom-margin4{
+  margin-top: 20px;
+
+}
+.price-bar-custom-margin5{
+  margin-top: 20px;
 }

@@ -22,14 +22,13 @@ const Catalog = () => {
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(6);
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
         const result = await fetchProductByCategory(pageSize, "Elevator");
         setProducts(result.data);
-      //  setTotalPages(result.totalPages || 1);
         setCurrentPage(1);
       } catch (err) {
         setError(err);
@@ -58,7 +57,6 @@ const Catalog = () => {
   
       const result = await filterProducts(params);
       
-      // Ensure that totalPages is being correctly set from the API response
       setProducts(result.data);
       setTotalPages(result.totalPages || 1);  // Use the totalPages from the API response
       setCurrentPage(page);
@@ -77,12 +75,6 @@ const Catalog = () => {
       setCurrentPage(newPage);
     }
   };
-  
-
-  // const handlePageSizeChange = (e) => {
-  //   setPageSize(Number(e.target.value));
-  //   handleBigFilter(1);
-  // };
 
   const handleRefresh = () => {
     setSelectedCategory('');
@@ -130,7 +122,7 @@ const Catalog = () => {
             </Col>
             <Col md={3}>
               <div className="search-filter">
-                <div className="search-bar custom-margin">
+                <div className="search-bar-custom-margin1">
                   <select className="form-control" value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
                     <option value="" disabled>Select Category ...</option>
                     <option value="Elevator">Elevator</option>
@@ -138,7 +130,7 @@ const Catalog = () => {
                     <option value="EmergensySystem">Emergency System</option>
                   </select>
                 </div>
-                <div className="search-bar custom-margin">
+                <div className="search-bar-custom-margin2">
                   <input 
                     type="text" 
                     placeholder="Name" 
@@ -147,7 +139,7 @@ const Catalog = () => {
                     onChange={(e) => setProductName(e.target.value)} 
                   />
                 </div>
-                <div className="search-bar custom-margin">
+                <div className="search-bar-custom-margin3">
                   <input 
                     type="text" 
                     placeholder="Brand" 
@@ -156,7 +148,7 @@ const Catalog = () => {
                     onChange={(e) => setProductBrand(e.target.value)} 
                   />
                 </div>
-                <div className="search-bar custom-margin">
+                <div className="search-bar-custom-margin4">
                   <input 
                     type="text" 
                     placeholder="Electricity Consumption" 
@@ -165,7 +157,7 @@ const Catalog = () => {
                     onChange={(e) => setElectricityConsumption(e.target.value)} 
                   />
                 </div>
-                <div className="price-bar custom-margin">
+                <div className="price-bar-custom-margin5">
                   <input 
                     type="number" 
                     placeholder="Min Price" 
@@ -202,19 +194,6 @@ const Catalog = () => {
       />
       <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
     </Pagination>
-          {/* <div>
-            <span>of {totalPages}</span>
-            <Form.Control
-              as="select"
-              value={pageSize}
-              onChange={handlePageSizeChange}
-              style={{ width: '100px', display: 'inline-block', marginLeft: '10px' }}
-            >
-              <option value={5}>5 per page</option>
-              <option value={10}>10 per page</option>
-              <option value={20}>20 per page</option>
-            </Form.Control>
-          </div> */}
         </div>
       )}
       <Footer />

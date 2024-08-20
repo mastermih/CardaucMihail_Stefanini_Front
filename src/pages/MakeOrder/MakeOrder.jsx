@@ -7,6 +7,7 @@ import { Row, Col, Dropdown, Nav } from 'react-bootstrap';
 import { useCart } from '../../components/cartContext';
 import Footer from '../../components/Footer';
 import { FaPlus } from 'react-icons/fa';
+
 import './MakeOrder.css';
 
 const MakeOrder = () => {
@@ -17,11 +18,13 @@ const MakeOrder = () => {
   const [totalPrice, setTotalPrice] = useState('0.00');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentProductId, setCurrentProductId] = useState(null);
   const [productOptions, setProductOptions] = useState([]);
   const [inputName, setInputName] = useState('');
   const [showInputForm, setShowInputForm] = useState(false);
   const [fetchClicked, setFetchClicked] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [extraProducts, setExtraProducts] = useState({});
   const [newProducts, setNewProducts] = useState([]); // State to track newly added products
 
   const inputRef = useRef(null);
@@ -59,19 +62,23 @@ const MakeOrder = () => {
   }, [showInputForm]);
 
   useEffect(() => {
-    setTotalPrice(
-      (products.reduce((total, product) => total + (product.price || 0), 0) * quantity).toFixed(2)
-    );
+    const total = products.reduce((total, product) => {
+      const quantityer = quantity[product.id] || 1; // Default quantity to 1 if not set
+      return total + (quantityer * (product.price || 0));
+    }, 0);
+  
+    setTotalPrice(total.toFixed(2));
   }, [products, quantity]);
-
+  
   const handleGetProduct = async () => {
+    const productId = id === 'cart' ? 42 : id; // Use 42 if id is 'cart'
     if (inputName.length < 2) {
       console.log('Input name must be at least 2 characters long');
       return;
     }
     setFetchClicked(true);
     try {
-      const response = await fetchProductPageByProductName(id, inputName);
+      const response = await fetchProductPageByProductName(productId, inputName);
       console.log('Fetched product by name:', response);
       if (Array.isArray(response)) {
         setProductOptions(response.slice(0, 5));
@@ -96,6 +103,7 @@ const MakeOrder = () => {
           style={{ width: '50px', height: '50px' }} 
         />
       )}
+      {/* Nu uita sa stergi asta  */}
       <div className="product-details">
         <h5>{product.productName ? product.productName.productName : 'No name available'}</h5>
         <p>{product.description ? product.description.description : 'No description available'}</p>
@@ -103,9 +111,25 @@ const MakeOrder = () => {
       </div>
     </div>
   );
+
+  const ExtraItemForMainProdct = ({ product }) => (
+    <div className="extraItemForMain">
+
+      <img src={product.path.path} 
+      alt={product.productName.productName}
+      style={{ width: '50px', height: '50px' }}/> 
+      <div className="extra-item-details">
+       <p>Price: $ {product.price}</p>
+      <h6>{product.productName ? product.productName.productName : 'No name available'}</h6>
+      <br></br>
+          <hr></hr>
+         </div>
+      <hr></hr>
+    </div>
+  )
   
 
-  const handleProductSelect = (selectedProduct) => {
+  const handleProductSelect = (productId, selectedProduct) => {
     console.log('Selected product data:', selectedProduct);
   
     // Ensure the price is a number, fallback to 0 if it's not a valid number
@@ -113,15 +137,14 @@ const MakeOrder = () => {
       ? parseFloat(selectedProduct.price.price)
       : 0;
   
-    setProducts([...products, { ...selectedProduct, price }]);
-    setNewProducts([...newProducts, { ...selectedProduct, price }]); // Add to newProducts state
-    setQuantity(1);
+    setExtraProducts(prevExtraProducts => ({
+      ...prevExtraProducts,
+      [productId]: [...(prevExtraProducts[productId] || []), { ...selectedProduct, price }]
+    }));
     setTotalPrice(
       (products.reduce((total, product) => total + (product.price || 0), 0)).toFixed(2)
     );
   };
-
-  
 
   const handleConfirmOrder = async () => {
     for (const product of products) {
@@ -187,61 +210,87 @@ const MakeOrder = () => {
     navigate('/');
   };
 
-  const handleQuantityChange = (e) => {
-    const value = parseInt(e.target.value, 10);
-    setQuantity(value);
+  const handleQuantityChange = (productId, value) => {
+    setQuantity(prevQuantities => ({
+      ...prevQuantities,
+      [productId]: value
+    }));
+  
+    // Update the total price for that product
     setTotalPrice(
-      (products.reduce((total, product) => total + (product.price || 0), 0) * value).toFixed(2)
+      (products.reduce((total, product) => 
+        total + ((quantity[product.id] || 1) * (product.price || 0)), 0)
+      ).toFixed(2)
     );
   };
-
+  
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
   if (!products || products.length === 0) return <p>No product found.</p>;
 
+
+  
   return (
     <>
       <Header />
       <div className="productPage-content">
+           
         <Container>
-          <Row>
-            {products.map((product, index) => (
-              <Col key={index} md={5} className="mb-3">
-                <h3 className="cardMakeOrder-text">{product.productName ? product.productName.productName : 'No name available'}</h3>
-                <div className="card">
-                  {product.image_path && (
-                    <img className="card-img-top" src={product.image_path} alt={product.productName} style={{ width: '350px', height: '400px', objectFit: 'cover' }} />
-                  )}
-                  <div className="card-body">
-                  <p>Price: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
-                  <div className="form-group">
-                      <label htmlFor="quantity">Quantity:</label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        id="quantity"
-                        value={quantity}
-                        onChange={handleQuantityChange}
-                        min="1"
-                      />
-                    </div>
-                    <p className="card-text">Total Price: ${(product.price ? product.price * quantity : 0).toFixed(2)}</p>
-                  </div>
-                </div>
-              </Col>
-            ))}
-          </Row>
+        <Row>
+  {products
+    .filter(product => product.image_path) // Filter out products without an image_path
+    .map((product, index) => (
+      <Col key={index} md={5} className="mb-3">
+        <h3>{product.productName}</h3> 
 
-          <div className="product-actions mt-3">
+        <div className="card custom-card">
+          {product.image_path && (
+            <img 
+              className="card-img-top" 
+              src={product.image_path} 
+              alt={product.productName} 
+              style={{ width: '350px', height: '400px', objectFit: 'cover' }} 
+            />
+          )}
+          <div className="card-body">
+            <p>Price: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
+            <div className="form-group">
+            <label htmlFor={`quantity-${product.id}`}>Quantity:</label>
+              <input
+                type="number"
+                className="form-control short-input" 
+                id={`quantity-${product.id}`}
+                value={quantity[product.id] || 1}
+                onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value))}
+                min="1"
+              />
+            </div>
+            <p className="card-text">Total Price: ${(product.price ? product.price * (quantity[product.id] || 1) : 0).toFixed(2)}</p>
+            <h5>Extra options</h5>
+            <div className="FacemRama">
+            {extraProducts[product.id]?.map((extraProduct, extraIndex) => (
+              <ExtraItemForMainProdct key={extraIndex} product={extraProduct}/>
+            ))}
+            </div>
             <button
               className="btn btn-outline-secondary mb-3"
               type="button"
-              onClick={() => setShowInputForm(!showInputForm)}
-            >
+              onClick={() => {
+                setShowInputForm(!showInputForm);
+                setCurrentProductId(product.id);
+              }}>
+                
               <FaPlus /> Add option
             </button>
+          </div>
+        </div>
+      </Col>
+    ))}
+</Row>
 
-            {showInputForm && (
+
+          <div className="product-actions mt-3">
+             {showInputForm && (
               <div className="input-group mb-3">
                 <input
                   type="text"
@@ -272,7 +321,7 @@ const MakeOrder = () => {
               <Dropdown.Menu>
                 {productOptions.length > 0 ? (
                   productOptions.map((option) => (
-<Dropdown.Item key={option.productId.id} onClick={() => handleProductSelect(option)}>
+<Dropdown.Item key={option.productId.id} onClick={() => handleProductSelect(currentProductId, option)}>
   <img src={option.path.path} alt={option.productName.productName} className="product-option-image" />
   <div className="product-option-details">
     <h5>{option.productName.productName}</h5>
@@ -282,7 +331,6 @@ const MakeOrder = () => {
     <p>Price: ${typeof option.price.price === 'number' ? option.price.price.toFixed(2) : 'N/A'}</p>
   </div>
 </Dropdown.Item>
-
 
                   ))
                 ) : (
@@ -302,12 +350,12 @@ const MakeOrder = () => {
           <div className="order_square mt-5">
             <h3>Extra products</h3>
             <Row>
-              {products.slice(1).map((product, index) => (
-                <Col key={index} md={4}>
+            {newProducts.map((product, index) => (
+                  <Col key={index} md={4}>
                   <ProductDetailsCard product={product} />
                 </Col>
               ))}
-            </Row>
+            </Row>     
           </div>
         </Container>
       </div>

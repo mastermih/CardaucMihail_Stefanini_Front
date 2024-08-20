@@ -42,14 +42,14 @@ const Header = () => {
         <Container>
           <div className="brand-search-contact">
             <div className="brand">
-              <img src="/images/Logo.jpg" alt="Logo" className="logo" style={{ width: '200px', height: '200px', marginRight: '10px' }}  />
+              <img src="/images/Logo.jpg" alt="Logo" className="logo" style={{ width: '100px', height: '100px', marginRight: '10px' }}  />
             </div>
             <div className="search-bar">
               <input type="text" placeholder="Search model" />
               <button><i className="fas fa-search"></i></button>
             </div>
             <div className="contact-info">
-              <p>Need Some Help<br /> or mood</p>
+              <p>Need Some Help<br />or mood  </p>
               <p>045-151-48-220</p>
               <Nav className="ml-auto">
                 <Nav.Link href="#sign-up"><i className="fas fa-user-plus"></i> Sign Up</Nav.Link>
@@ -97,6 +97,27 @@ const Header = () => {
               <Nav.Link href="#elevator-components">ELEVATOR COMPONENTS</Nav.Link>
             </Nav>
           </Navbar.Collapse>
+        </Container>
+      </Navbar>
+            <Navbar expand="lg" className="custom-navbarZZZ">
+              
+        <Container>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+    <Nav className="me-auto">
+        <input type="text" placeholder="Company Name" />              
+        <input type="text" placeholder="Name" />              
+        <input type="text" placeholder="Email" />              
+        <input type="text" placeholder="Phone Number" />
+        <select>
+            <option value="" >Select Category ...</option>
+            <option value="Elevator">Elevator</option>
+            <option value="AirSystem">Air System</option>
+            <option value="EmergensySystem">Emergency System</option>
+        </select>
+        <button type="button" class="boton_message">Send</button>
+        </Nav>
+</Navbar.Collapse>
         </Container>
       </Navbar>
     </>

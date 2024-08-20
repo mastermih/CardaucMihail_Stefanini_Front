@@ -25,7 +25,10 @@ Elevators: State-of-the-art elevators designed for residential, commercial, and 
 Components: A comprehensive selection of high-quality elevator components including motors, control panels, doors, and safety systems. Our components are engineered to enhance the efficiency and longevity of your elevator systems.
             </Col>
             <Col md={4} className="partners-section">
+            <dir className = "Partners">
               <h2>Partners</h2>
+              </dir>
+              <br></br>
               <div className="partners-logos">
                 <img src="\partnerImages\McNally-Elevator.png" alt="Partner 1" className="partner-logo" />
                 <img src="\partnerImages\e9_AEG_Logo__Square_MASTER_MAIN_LOGO_Logo.jpg" alt="Partner 2" className="partner-logo" />

@@ -108,7 +108,7 @@ const ProductPage = () => {
               </div>
             </div>
             <div className="col-md-8">
-              <div className="card">
+              <div className="cardZZZ">
                 <div className="card-body-description">
                   <h5 className="card-title">Description</h5>
                   <p className="card-text">{description}</p>
