@@ -147,68 +147,70 @@ const MakeOrder = () => {
   };
 
   const handleConfirmOrder = async () => {
-    for (const product of products) {
-      const orderItem = cartItems.find(item => item.id === product.id);
-
-      if (!orderItem || !orderItem.orderId || orderItem.orderId === 0) {
-        console.error('Order ID is 0 or undefined, cannot update order status.');
-        continue;
-      }
-
-      const orderUpdate = {
-        orderId: { id: orderItem.orderId },
-        orderStatus: "NEW",
-        productId: product.id
-      };
-
-      const orderProduct = [
-        {
-          order: {
-            orderId: { id: orderItem.orderId }
-          },
-          product: {
-            productId: { id: product.id }
-          },
-          quantity: {
-            quantity: 1
-          },
-          priceOrder: {
-            price: product.price
-          }
+    try {
+      for (const product of products) {
+        const orderItem = cartItems.find(item => item.id === product.id);
+  
+        if (!orderItem || !orderItem.orderId || orderItem.orderId === 0) {
+          console.error('Order ID is 0 or undefined, cannot update order status.');
+          continue;
         }
-      ];
-      const confirmationLink = `http://localhost:3000/sendMail/confirm/${orderItem.orderId}`;
-
-      const sendOrderEmailConfirm = {
-        recipient: "cardaucmihai@gmail.com",
-        msgBody: `This is a test email from Spring Boot. Please confirm your order by clicking the link below:\n\n${confirmationLink}`,
-        subject: "Order Confirmation",
-        orderId: orderItem.orderId
-      };
-      try {
+  
+        const orderUpdate = {
+          orderId: { id: orderItem.orderId },
+          orderStatus: "NEW",
+          productId: product.id
+        };
+  
+        const mainOrderProduct = {
+          order: { orderId: { id: orderItem.orderId } },
+          product: { productId: { id: product.id } },
+          quantity: { quantity: quantity[product.id] || 1 },
+          priceOrder: { price: product.price }
+        };
+  
+        const confirmationLink = `http://localhost:3000/sendMail/confirm/${orderItem.orderId}`;
+  
+        const sendOrderEmailConfirm = {
+          recipient: "cardaucmihai@gmail.com",
+          msgBody: `This is a test email from Spring Boot. Please confirm your order by clicking the link below:\n\n${confirmationLink}`,
+          subject: "Order Confirmation",
+          orderId: orderItem.orderId
+        };
+  
+        // Send the order update and email confirmation
         const result = await updateOrderStatus(orderUpdate);
         const resultEmail = await sendOrderEmail(sendOrderEmailConfirm);
+  
         console.log(resultEmail);
         console.log(result);
         console.log('Order status updated:', orderUpdate);
-        // Post each newly added product
-        for (const newProduct of newProducts) {
-          const newOrderProduct = [{
-            order: { orderId: { id: orderItem.orderId } },
-            product: { productId: { id: product.id } },
-            quantity: { quantity: 1 },
-            priceOrder: { price: newProduct.price }
-          }];
-          const result2 = await postOrderProduct(newOrderProduct);
-          console.log('New product added:', newOrderProduct);
+  
+        // Post the main product order
+        await postOrderProduct([mainOrderProduct]);
+        console.log('Main product added:', mainOrderProduct);
+  
+        // Post each associated extra product
+        if (extraProducts[product.id]) {
+          for (const extraProduct of extraProducts[product.id]) {
+            const extraOrderProduct = {
+              order: { orderId: { id: orderItem.orderId } },
+              product: { productId: { id: extraProduct.productId.id } },
+              quantity: { quantity: 1 }, // Assuming a quantity of 1 for extra products
+              priceOrder: { price: extraProduct.price }
+            };
+            await postOrderProduct([extraOrderProduct]);
+            console.log('Extra product added:', extraOrderProduct);
+          }
         }
-      } catch (error) {
-        console.error('Error updating order status:', error);
       }
+      clearCart();
+      navigate('/');
+    } catch (error) {
+      console.error('Error updating order status:', error);
     }
-    clearCart();
-    navigate('/');
   };
+  
 
   const handleQuantityChange = (productId, value) => {
     setQuantity(prevQuantities => ({
