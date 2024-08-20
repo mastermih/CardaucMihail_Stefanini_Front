@@ -187,8 +187,8 @@ const MakeOrder = () => {
         console.log('Order status updated:', orderUpdate);
   
         // Post the main product order
-        await postOrderProduct([mainOrderProduct]);
-        console.log('Main product added:', mainOrderProduct);
+        // await postOrderProduct([mainOrderProduct]);
+        // console.log('Main product added:', mainOrderProduct);
   
         // Post each associated extra product
         if (extraProducts[product.id]) {
@@ -197,7 +197,8 @@ const MakeOrder = () => {
               order: { orderId: { id: orderItem.orderId } },
               product: { productId: { id: extraProduct.productId.id } },
               quantity: { quantity: 1 }, // Assuming a quantity of 1 for extra products
-              priceOrder: { price: extraProduct.price }
+              priceOrder: { price: extraProduct.price },
+              parent: { id: product.id }
             };
             await postOrderProduct([extraOrderProduct]);
             console.log('Extra product added:', extraOrderProduct);
