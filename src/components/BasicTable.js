@@ -3,15 +3,15 @@ import { useTable } from 'react-table';
 import '../assets/styles/table.css';
 import { COLUMNS, COLUMNS2 } from './columns';
 
-const BasicTable = ({ data, columnsType }) => {
+const BasicTable = ({ data, columnsType, handleButtonClick }) => {
   const columns = useMemo(() => {
     if (columnsType === 'COLUMNS') {
-      return COLUMNS;
+      return COLUMNS(handleButtonClick); // Pass handleButtonClick only for COLUMNS
     } else if (columnsType === 'COLUMNS2') {
-      return COLUMNS2;
+      return COLUMNS2; // No action button for COLUMNS2
     }
     return [];
-  }, [columnsType]);
+  }, [columnsType, handleButtonClick]);
 
   const tableInstance = useTable({
     columns,

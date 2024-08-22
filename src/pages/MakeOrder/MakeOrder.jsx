@@ -186,10 +186,14 @@ const isElevator = (product) => {
           for (const extraProduct of extraProducts[product.id]) {
             const extraOrderProduct = {
               order: { orderId: { id: orderItem.orderId } },
-              product:  { productName: extraProduct.productName },
+              product: {
+                productName: { product_name: extraProduct.productName.product_name},
+                productId: { id: extraProduct.productId.id }
+              },
               quantity: { quantity: 1 },
               priceOrder: { price: extraProduct.price },
               parent: { id: product.id }
+
             };
             await postOrderProduct([extraOrderProduct]);
             console.log('Extra product added:', extraOrderProduct);
@@ -320,6 +324,7 @@ const isElevator = (product) => {
                       key={option.productId.id} 
                       onClick={() => handleProductSelect(currentProductId, option)}
                     >
+                      {/* ,  postOrderProduct([option] */}
                       <img 
                         src={option.path.path} 
                         alt={option.productName.productName} 

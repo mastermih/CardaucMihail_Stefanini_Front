@@ -11,6 +11,11 @@ const Orders = () => {
   const [endDate, setEndDate] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
+  const handleButtonClick = (row) => {
+    console.log('Button clicked for row:', row);
+    // Implement your action here, e.g., open a modal, navigate to a page, etc.
+  };
+
   const handlePageChange = async (newPage) => {
     setLoading(true);
     try {
@@ -64,19 +69,6 @@ const Orders = () => {
     }
   };
 
-  const formatDate = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${d.getFullYear()}-${month}-${day}`;
-  };
-
-  const handleDateChange = (setter) => (e) => {
-    const value = e.target.value;
-    setter(value);
-  };
-
   return (
     <div className="container">
       <h1>Orders</h1>
@@ -86,7 +78,7 @@ const Orders = () => {
           <input
             type="date"
             value={startDate}
-            onChange={handleDateChange(setStartDate, 0)}
+            onChange={(e) => setStartDate(e.target.value)}
             className="form-control"
           />
         </div>
@@ -95,7 +87,7 @@ const Orders = () => {
           <input
             type="date"
             value={endDate}
-            onChange={handleDateChange(setEndDate, 0)}
+            onChange={(e) => setEndDate(e.target.value)}
             className="form-control"
           />
         </div>
@@ -114,7 +106,7 @@ const Orders = () => {
         <div>Loading...</div>
       ) : (
         <>
-          <BasicTable data={data} columnsType="COLUMNS" />
+          <BasicTable data={data} columnsType="COLUMNS" handleButtonClick={handleButtonClick} />
           {totalPages > 1 && (
             <div className="pagination">
               <button className="btn btn-secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>

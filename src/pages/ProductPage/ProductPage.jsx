@@ -63,8 +63,10 @@ const ProductPage = () => {
             orderId: { id: result }
           },
           product: {
-            productName: { product_name: productName }
+            productName: { product_name: productName },
+            productId: { id: product.id }
           },
+
           quantity: {
             quantity: 1
           },
