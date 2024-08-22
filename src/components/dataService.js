@@ -95,12 +95,14 @@ export const fetchProductPageById = async (productId) => {
       const item = response.data;
       const flattenedData = {
           id: item.productId.id,
-          productName: item.productName.productName,
+          productName: item.productName.product_name,
           image_path: item.path.path,
           description: item.description.description,
           electricityConsumption: item.electricityConsumption.kWh,
           productBrand: item.productBrand.productBrand,
           price: item.price.price,
+          categoryType: item.categoryType
+
       };
       console.log('Flattened data:', flattenedData);
 
@@ -225,9 +227,10 @@ export const fetchDataByLastOrderProducts = async(limit) => {
     const items = response.data || [];
     const flattenedData = items.map(item => ({
       id: item.order.orderId.id,
-      product_id: item.product.productId.id,
+      product_name: item.product.productName.product_name,
       quantity: item.quantity.quantity,
       price_product: item.priceOrder.price,
+      parent: item.parent.id
     }));
     console.log('Flattened data:', flattenedData);
 
@@ -300,9 +303,10 @@ export const fetchOrderProductByPriceInterval = async (startPrice, endPrice, tot
 
     const flattenedData = items.map(item => ({
       id: item.order.orderId.id,
-      product_id: item.product.productId.id,
+      product_name: item.product.productName.product_name,
       quantity: item.quantity.quantity,
       price_product: item.priceOrder.price,
+      parent: item.parent.id
     }));
 
     console.log('Flattened data:', flattenedData);
@@ -313,7 +317,6 @@ export const fetchOrderProductByPriceInterval = async (startPrice, endPrice, tot
     throw error;
   }
 };
-
 
 export const fetchDataByDateInterval = async (startDate, endDate, numberOfOrders, page) => {
   try {

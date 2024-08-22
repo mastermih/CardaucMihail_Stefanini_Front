@@ -27,8 +27,8 @@ export const COLUMNS = [
       accessor: 'id',
     },
     {
-      Header: 'ProductID',
-      accessor: 'product_id',
+      Header: 'ProductName',
+      accessor: 'product_name',
     },
     {
       Header: 'Quantity',
@@ -37,6 +37,10 @@ export const COLUMNS = [
     {
       Header: 'PriceProduct',
       accessor: 'price_product',
+    },
+    {
+      Header: 'Parent',
+      accessor: 'parent',
     },
   ];
   

@@ -61,15 +61,17 @@ const MakeOrder = () => {
     }
   }, [showInputForm]);
 
+  // Update total price whenever the products or quantity changes
   useEffect(() => {
     const total = products.reduce((total, product) => {
       const quantityer = quantity[product.id] || 1; // Default quantity to 1 if not set
-      return total + (quantityer * (product.price || 0));
+      const extraProductTotal = extraProducts[product.id]?.reduce((acc, extraProduct) => acc + extraProduct.price, 0) || 0;
+      return total + (quantityer * (product.price || 0)) + extraProductTotal;
     }, 0);
   
     setTotalPrice(total.toFixed(2));
-  }, [products, quantity]);
-  
+  }, [products, quantity, extraProducts]);
+
   const handleGetProduct = async () => {
     const productId = id === 'cart' ? 42 : id; // Use 42 if id is 'cart'
     if (inputName.length < 2) {
@@ -92,47 +94,45 @@ const MakeOrder = () => {
       console.error('Error fetching product names:', error);
       setProductOptions([]);
     }
+    
   };
 
-  const ProductDetailsCard = ({ product }) => (
-    <div className="product-cardo">
-      {product.path && (
-        <img 
-          src={product.path.path} 
-          alt={product.productName.productName} 
-          style={{ width: '50px', height: '50px' }} 
-        />
-      )}
-      {/* Nu uita sa stergi asta  */}
-      <div className="product-details">
-        <h5>{product.productName ? product.productName.productName : 'No name available'}</h5>
-        <p>{product.description ? product.description.description : 'No description available'}</p>
-        <p>Price: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
-      </div>
-    </div>
-  );
+  // Check if the product is an Elevator
+const isElevator = (product) => {
 
-  const ExtraItemForMainProdct = ({ product }) => (
+  // Check if categoryType is defined and is "Elevator"
+  if (product.categoryType === 'Elevator') {
+    return true;
+  }
+  console.log("Nuuuuuuuuuuuuu ",  product.categoryType);
+  return false;
+};
+
+  const ExtraItemForMainProdct = ({ product, onRemove }) => (
     <div className="extraItemForMain">
-
-      <img src={product.path.path} 
-      alt={product.productName.productName}
-      style={{ width: '50px', height: '50px' }}/> 
-      <div className="extra-item-details">
-       <p>Price: $ {product.price}</p>
-      <h6>{product.productName ? product.productName.productName : 'No name available'}</h6>
-      <br></br>
-          <hr></hr>
-         </div>
-      <hr></hr>
+        <img src={product.path.path} 
+             style={{ width: '50px', height: '50px' }}/> 
+        <div className="extra-item-details">
+            <button className="RemoveButton" onClick={onRemove}>Remove</button>
+            <p>Price: $ {product.price}</p>
+            <h6>{product.productName.product_name ? product.productName.product_name : 'No name available'}</h6>
+            <br/>
+            <hr/>
+        </div>
+        <hr/>
     </div>
-  )
-  
+);
 
+  const handleRemoveExtraProduct = (productId, extraProductId) => {
+    setExtraProducts(prevExtraProducts => ({
+        ...prevExtraProducts,
+        [productId]: prevExtraProducts[productId].filter(product => product.productId.id !== extraProductId)
+    }));
+  };
+  
   const handleProductSelect = (productId, selectedProduct) => {
     console.log('Selected product data:', selectedProduct);
   
-    // Ensure the price is a number, fallback to 0 if it's not a valid number
     const price = selectedProduct.price && typeof selectedProduct.price.price === 'number'
       ? parseFloat(selectedProduct.price.price)
       : 0;
@@ -141,9 +141,6 @@ const MakeOrder = () => {
       ...prevExtraProducts,
       [productId]: [...(prevExtraProducts[productId] || []), { ...selectedProduct, price }]
     }));
-    setTotalPrice(
-      (products.reduce((total, product) => total + (product.price || 0), 0)).toFixed(2)
-    );
   };
 
   const handleConfirmOrder = async () => {
@@ -178,7 +175,6 @@ const MakeOrder = () => {
           orderId: orderItem.orderId
         };
   
-        // Send the order update and email confirmation
         const result = await updateOrderStatus(orderUpdate);
         const resultEmail = await sendOrderEmail(sendOrderEmailConfirm);
   
@@ -186,17 +182,12 @@ const MakeOrder = () => {
         console.log(result);
         console.log('Order status updated:', orderUpdate);
   
-        // Post the main product order
-        // await postOrderProduct([mainOrderProduct]);
-        // console.log('Main product added:', mainOrderProduct);
-  
-        // Post each associated extra product
         if (extraProducts[product.id]) {
           for (const extraProduct of extraProducts[product.id]) {
             const extraOrderProduct = {
               order: { orderId: { id: orderItem.orderId } },
-              product: { productId: { id: extraProduct.productId.id } },
-              quantity: { quantity: 1 }, // Assuming a quantity of 1 for extra products
+              product:  { productName: extraProduct.productName },
+              quantity: { quantity: 1 },
               priceOrder: { price: extraProduct.price },
               parent: { id: product.id }
             };
@@ -218,13 +209,6 @@ const MakeOrder = () => {
       ...prevQuantities,
       [productId]: value
     }));
-  
-    // Update the total price for that product
-    setTotalPrice(
-      (products.reduce((total, product) => 
-        total + ((quantity[product.id] || 1) * (product.price || 0)), 0)
-      ).toFixed(2)
-    );
   };
   
   if (loading) return <p>Loading...</p>;
@@ -232,68 +216,76 @@ const MakeOrder = () => {
   if (!products || products.length === 0) return <p>No product found.</p>;
 
 
-  
   return (
     <>
       <Header />
       <div className="productPage-content">
-           
         <Container>
-        <Row>
-  {products
-    .filter(product => product.image_path) // Filter out products without an image_path
-    .map((product, index) => (
-      <Col key={index} md={5} className="mb-3">
-        <h3>{product.productName}</h3> 
-
-        <div className="card custom-card">
-          {product.image_path && (
-            <img 
-              className="card-img-top" 
-              src={product.image_path} 
-              alt={product.productName} 
-              style={{ width: '350px', height: '400px', objectFit: 'cover' }} 
-            />
-          )}
-          <div className="card-body">
-            <p>Price: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
-            <div className="form-group">
-            <label htmlFor={`quantity-${product.id}`}>Quantity:</label>
-              <input
-                type="number"
-                className="form-control short-input" 
-                id={`quantity-${product.id}`}
-                value={quantity[product.id] || 1}
-                onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value))}
-                min="1"
-              />
-            </div>
-            <p className="card-text">Total Price: ${(product.price ? product.price * (quantity[product.id] || 1) : 0).toFixed(2)}</p>
-            <h5>Extra options</h5>
-            <div className="FacemRama">
-            {extraProducts[product.id]?.map((extraProduct, extraIndex) => (
-              <ExtraItemForMainProdct key={extraIndex} product={extraProduct}/>
-            ))}
-            </div>
-            <button
-              className="btn btn-outline-secondary mb-3"
-              type="button"
-              onClick={() => {
-                setShowInputForm(!showInputForm);
-                setCurrentProductId(product.id);
-              }}>
-                
-              <FaPlus /> Add option
-            </button>
-          </div>
-        </div>
-      </Col>
-    ))}
-</Row>
-
+          <Row>
+            {products
+              .filter(product => product.image_path) // Filter out products without an image_path
+              .map((product, index) => (
+                <Col key={index} md={5} className="mb-3">
+                  <h3>{product.productName}</h3> 
+                  <div className="card custom-card">
+                    {product.image_path && (
+                      <img 
+                        className="card-img-top" 
+                        src={product.image_path} 
+                        alt={product.productName} 
+                        style={{ width: '350px', height: '400px', objectFit: 'cover' }} 
+                      />
+                    )}
+                    <div className="card-body">
+                      <p>Price: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
+                      <div className="form-group">
+                      <label htmlFor={`quantity-${product.id}`}>Quantity:</label>
+                        <input
+                          type="number"
+                          className="form-control short-input" 
+                          id={`quantity-${product.id}`}
+                          value={quantity[product.id] || 1}
+                          onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value))}
+                          min="1"
+                        />
+                      </div>
+                      <p className="card-text">
+                        Total Price: ${(
+                          (product.price ? product.price * (quantity[product.id] || 1) : 0) +
+                          (extraProducts[product.id]?.reduce((acc, extraProduct) => acc + extraProduct.price, 0) || 0)
+                        ).toFixed(2)}
+                      </p>
+                      {isElevator(product) && (
+                        <>
+                          <h5>Extra options</h5>
+                          <div className="FacemRama">
+                            {extraProducts[product.id]?.map((extraProduct, extraIndex) => (
+                              <ExtraItemForMainProdct 
+                                key={extraIndex} 
+                                product={extraProduct} 
+                                onRemove={() => handleRemoveExtraProduct(product.id, extraProduct.productId.id)} 
+                              />
+                            ))}
+                          </div>
+                          <button
+                            className="btn btn-outline-secondary mb-3"
+                            type="button"
+                            onClick={() => {
+                              setShowInputForm(!showInputForm);
+                              setCurrentProductId(product.id);
+                            }}>
+                            <FaPlus /> Add option
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </Col>
+              ))}
+          </Row>
 
           <div className="product-actions mt-3">
-             {showInputForm && (
+            {showInputForm && (
               <div className="input-group mb-3">
                 <input
                   type="text"
@@ -324,17 +316,23 @@ const MakeOrder = () => {
               <Dropdown.Menu>
                 {productOptions.length > 0 ? (
                   productOptions.map((option) => (
-<Dropdown.Item key={option.productId.id} onClick={() => handleProductSelect(currentProductId, option)}>
-  <img src={option.path.path} alt={option.productName.productName} className="product-option-image" />
-  <div className="product-option-details">
-    <h5>{option.productName.productName}</h5>
-    <div className="Mihailll-item-description">
-      <p>{option.description.description}</p>
-    </div>
-    <p>Price: ${typeof option.price.price === 'number' ? option.price.price.toFixed(2) : 'N/A'}</p>
-  </div>
-</Dropdown.Item>
-
+                    <Dropdown.Item 
+                      key={option.productId.id} 
+                      onClick={() => handleProductSelect(currentProductId, option)}
+                    >
+                      <img 
+                        src={option.path.path} 
+                        alt={option.productName.productName} 
+                        className="product-option-image" 
+                      />
+                      <div className="product-option-details">
+                        <h5>{option.productName.productName}</h5>
+                        <div className="Mihailll-item-description">
+                          <p>{option.description.description}</p>
+                        </div>
+                        <p>Price: ${typeof option.price.price === 'number' ? option.price.price.toFixed(2) : 'N/A'}</p>
+                      </div>
+                    </Dropdown.Item>
                   ))
                 ) : (
                   <Dropdown.Item>No products found.</Dropdown.Item>
@@ -349,17 +347,6 @@ const MakeOrder = () => {
               <button onClick={handleConfirmOrder} className="btn btn-primary mt-3">Confirm Order</button>
             </Col>
           </Row>
-
-          <div className="order_square mt-5">
-            <h3>Extra products</h3>
-            <Row>
-            {newProducts.map((product, index) => (
-                  <Col key={index} md={4}>
-                  <ProductDetailsCard product={product} />
-                </Col>
-              ))}
-            </Row>     
-          </div>
         </Container>
       </div>
       <Footer />

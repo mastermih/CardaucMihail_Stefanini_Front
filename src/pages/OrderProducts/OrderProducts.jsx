@@ -36,8 +36,10 @@ const Orders = () => {
         const result = await fetchOrderProductByPriceInterval(startPrice, endPrice, itemsPerPage, page);
         if (result && result.data) {
             setData(result.data);
-            setTotalPages(result.totalPages);
-            setCurrentPage(page);
+            console.log("Backend Response:", result);  // Log the full response
+            setTotalPages(result.totalPages || 1); // Ensure total pages are set
+            setCurrentPage(result.currentPage || page); // Set current page
+            console.log("Total Pages:", result.totalPages, "Current Page:", result.currentPage);
         } else {
             console.error('No data returned');
         }
@@ -46,7 +48,7 @@ const Orders = () => {
     } finally {
         setLoading(false);
     }
-};
+  };
 
 
   // Handle page change
@@ -56,10 +58,9 @@ const Orders = () => {
     }
 };
 
-
   return (
     <div className="container">
-      <h1>Orders</h1>
+      <h1>OrderProduct</h1>
       <div className="controls">
         <div className="form-group">
           <label>Start Price:</label>

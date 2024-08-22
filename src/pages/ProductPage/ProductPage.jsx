@@ -41,6 +41,7 @@ const ProductPage = () => {
     image_path,
     price,
     quantity,
+    categoryType,
   } = product;
 
   const handleAddOrder = async () => {
@@ -62,14 +63,15 @@ const ProductPage = () => {
             orderId: { id: result }
           },
           product: {
-            productId: { id: product.id }
+            productName: { product_name: productName }
           },
           quantity: {
             quantity: 1
           },
           priceOrder: {
             price: product.price
-          }
+          },
+          parent: { id: null }
         }
       ];
 
