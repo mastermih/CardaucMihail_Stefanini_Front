@@ -130,18 +130,42 @@ const isElevator = (product) => {
     }));
   };
   
-  const handleProductSelect = (productId, selectedProduct) => {
+  const handleProductSelect = async (productId, selectedProduct) => {
     console.log('Selected product data:', selectedProduct);
   
     const price = selectedProduct.price && typeof selectedProduct.price.price === 'number'
       ? parseFloat(selectedProduct.price.price)
       : 0;
   
-    setExtraProducts(prevExtraProducts => ({
-      ...prevExtraProducts,
-      [productId]: [...(prevExtraProducts[productId] || []), { ...selectedProduct, price }]
-    }));
+    const orderItem = cartItems.find(item => item.id === productId);
+  
+    if (!orderItem || !orderItem.orderId || orderItem.orderId === 0) {
+      console.error('Order ID is 0 or undefined, cannot update order status.');
+      return;
+    }
+    const extraOrderProduct = {
+      order: { orderId: { id: orderItem.orderId } },
+      product: {
+        productName: { product_name: selectedProduct.productName.product_name },
+        productId: { id: selectedProduct.productId.id }
+      },
+      quantity: { quantity: 1 },
+      priceOrder: { price: price },
+      parent_product_id: { id: productId }
+    };
+  
+    try {
+      await postOrderProduct(extraOrderProduct);
+      console.log('Extra product added:', extraOrderProduct);
+      setExtraProducts(prevExtraProducts => ({
+        ...prevExtraProducts,
+        [productId]: [...(prevExtraProducts[productId] || []), { ...selectedProduct, price }]
+      }));
+    } catch (error) {
+      console.error('Error adding extra product:', error);
+    }
   };
+  
 
   const handleConfirmOrder = async () => {
     try {
@@ -181,24 +205,6 @@ const isElevator = (product) => {
         console.log(resultEmail);
         console.log(result);
         console.log('Order status updated:', orderUpdate);
-  
-        if (extraProducts[product.id]) {
-          for (const extraProduct of extraProducts[product.id]) {
-            const extraOrderProduct = {
-              order: { orderId: { id: orderItem.orderId } },
-              product: {
-                productName: { product_name: extraProduct.productName.product_name},
-                productId: { id: extraProduct.productId.id }
-              },
-              quantity: { quantity: 1 },
-              priceOrder: { price: extraProduct.price },
-              parent: { id: product.id }
-
-            };
-            await postOrderProduct([extraOrderProduct]);
-            console.log('Extra product added:', extraOrderProduct);
-          }
-        }
       }
       clearCart();
       navigate('/');
@@ -323,8 +329,7 @@ const isElevator = (product) => {
                     <Dropdown.Item 
                       key={option.productId.id} 
                       onClick={() => handleProductSelect(currentProductId, option)}
-                    >
-                      {/* ,  postOrderProduct([option] */}
+                      >
                       <img 
                         src={option.path.path} 
                         alt={option.productName.productName} 

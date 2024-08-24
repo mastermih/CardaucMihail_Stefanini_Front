@@ -63,7 +63,7 @@ const Header = () => {
                   <Dropdown.Menu>
                     {cartItems.length > 0 ? (
                       cartItems.map((item) => (
-                        <Dropdown.Item key={item.id} onClick={() => navigate(`/MakeOrder/${item.id}`)}>
+                        <Dropdown.Item key={item.id} onClick={() => navigate(`/MakeOrder/${item.orderId}`)}>
                           <img className="card-img-top" src={item.image_path} style={{ width: '100px', height: '100px', marginRight: '10px' }} />
                           {item.productName} - ${item.price ? item.price.toFixed(2) : 'N/A'}
                           <br />

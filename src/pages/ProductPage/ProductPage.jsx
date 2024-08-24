@@ -44,47 +44,49 @@ const ProductPage = () => {
     categoryType,
   } = product;
 
-  const handleAddOrder = async () => {
-    const order = {
+ const handleAddOrder = async () => {
+  try {
+    const orderWithProductsDTO = {
+      order: {
         userId: { id: 2 },
         orderStatus: "INITIALISED",
         productId: product.id,
-    };
-
-    try {
-      const result = await postOrder(order);
-      console.log("Order API Response:", result);
-      const orderId = result.id;
-      console.log("Extracted Order ID:", orderId);
-
-      const orderProduct = [
+      },
+      orderProducts: [
         {
-          order: {
-            orderId: { id: result }
-          },
           product: {
-            productName: { product_name: productName },
+            productName: { product_name: product.productName },
             productId: { id: product.id }
           },
-
-          quantity: {
-            quantity: 1
-          },
-          priceOrder: {
-            price: product.price
-          },
-          parent: { id: null }
+          quantity: { quantity: 1 },
+          priceOrder: { price: product.price },
+          parentProductId: { id: null }
         }
-      ];
+      ]
+    };
 
-      console.log("OrderProduct to be sent:", orderProduct);
-      const result2 = await postOrderProduct(orderProduct);
-      console.log('OrderProduct successfully created:', result2);
-      addToCart(product, result);
-    } catch (error) {
-      console.log('Error creating order or orderProduct or both:', error);
+    // Make the API call to create the order and products
+    const response = await postOrder(orderWithProductsDTO);
+    console.log("Order with Products API Response:", response);
+
+    // Check if the response contains the orderId
+    if (response && typeof response === 'number') {
+      const orderId = response; // Assuming the response is the orderId
+      console.log("Created Order ID:", orderId);
+
+      // Now add the product to the cart with the orderId
+      addToCart(product, orderId);
+    } else {
+      console.error("Failed to get orderId from response or response format is incorrect");
     }
-  };
+
+  } catch (error) {
+    console.error("Error creating order with products:", error);
+  }
+};
+
+  
+  
 
   return (
     <>
@@ -103,7 +105,7 @@ const ProductPage = () => {
                   <button
                     className="btn btn-primary"
                     onClick={() => {
-                      addToCart(product);
+                      //addToCart(product);
                       handleAddOrder();
                     }}>
                     Add to Cart
@@ -119,7 +121,7 @@ const ProductPage = () => {
                   <button
                     className="pricol-button"
                     onClick={() => {
-                      addToCart(product);
+                      //addToCart(product);
                       handleAddOrder();
                     }}>
                       Add to Cart :/

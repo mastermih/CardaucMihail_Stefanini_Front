@@ -39,11 +39,11 @@ export const postOrderProduct = async (orderProduct) => {
     throw error;
   }
 };
-
+//Work with that 
 export const postOrder = async (order) => {
   try {
     console.log('Sending request to create order:', order);
-    const response = await axios.post(`http://localhost:8080/MakeOrder/${order.productId}`, order);
+    const response = await axios.post(`http://localhost:8080/MakeOrder`, order);
     console.log('Order created:', response.data);
     return response.data;
   } catch (error) {

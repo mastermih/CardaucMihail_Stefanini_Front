@@ -98,8 +98,8 @@ const Catalog = () => {
               <div className="row">
                 {products.map(product => {
                   const price = product.price && typeof product.price === 'number' ? product.price : 0;
-                  const productBrand = product.productBrand && typeof product.productBrand === 'string' ? product.productBrand : 'No brand available';
                   const productName = product.productName && typeof product.productName === 'string' ? product.productName : 'No name available';
+                  const productBrand = product.productBrand && typeof product.productBrand === 'string' ? product.productBrand : 'No brand available';
                   const electricityConsumption = product.electricityConsumption && typeof product.electricityConsumption === 'number' ? product.electricityConsumption : 0;
                   const imagePath = product.image_path && typeof product.image_path === 'string' ? product.image_path : '';
 

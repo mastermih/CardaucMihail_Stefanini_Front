@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
-import { updateOrderStatus } from './dataService'; // Ensure you import your updateOrderStatus function
+import { updateOrderStatus } from './dataService';
 
 export const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
@@ -8,6 +8,10 @@ export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
   const addToCart = (product, orderId) => {
+    if (!orderId) {
+      console.error("Cannot add to cart: orderId is undefined.");
+      return;
+    }
     console.log(`Adding to cart: Product ID = ${product.id}, Order ID = ${orderId}`);
     setCartItems([...cartItems, { ...product, orderId }]);
   };
