@@ -1,6 +1,36 @@
 import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 import axios from 'axios';
 
+
+export const fetchOrderProductAndExtraProduct  = async (orderId) => {
+  try {
+    const response = await axios.get(`http://localhost:8080/MakeOrder/${orderId}`);
+      
+
+    const items = response.data;
+
+    // Map through the array and create an array of flattened data
+    const flattenedData = items.map(item => ({
+      orderId: item[0],  // Assuming the first element is orderId
+      productName: item[1], // Second is product name
+      quantity: item[2], // Third is quantity
+      price: item[3], // Fourth is price
+      productId: item[4], // Fifth is productId
+      extraProductName: item[5] || null, // Sixth is extra product name (or null if it doesn't exist)
+      extraQuantity: item[6] || null, // Seventh is extra quantity (or null if it doesn't exist)
+      extraPrice: item[7] || null, // Eighth is extra price (or null if it doesn't exist)
+      extraProductId: item[8] || null // Ninth is extra productId (or null if it doesn't exist)
+    }));
+
+    console.log('Flattened data:', flattenedData);
+
+    return { data: flattenedData };
+  } catch (error) {
+    console.error('Error fetching product data:', error);
+    throw error;
+  }
+};
+
 export const fetchProductPageByProductName = async (productId = 42, name) => {
   try {
     const response = await axios.get(`http://localhost:8080/catalog/MakeOrder/${productId}`, {

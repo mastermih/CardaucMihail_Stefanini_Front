@@ -12,10 +12,17 @@ export const CartProvider = ({ children }) => {
       console.error("Cannot add to cart: orderId is undefined.");
       return;
     }
+  
+    const existingItem = cartItems.find(item => item.id === product.id && item.orderId === orderId);
+    if (existingItem) {
+      console.log("Product already in cart, updating quantity or ignoring duplicate.");
+      return; // Or you could update the quantity if needed
+    }
+  
     console.log(`Adding to cart: Product ID = ${product.id}, Order ID = ${orderId}`);
     setCartItems([...cartItems, { ...product, orderId }]);
   };
-
+  
   const removeFromCart = async (orderId) => {
     console.log(`Removing from cart: Order ID = ${orderId}`);
     setCartItems(cartItems.filter(item => item.orderId !== orderId));
