@@ -52,6 +52,24 @@ const MakeOrder = () => {
                         };
 
                         setProducts([combinedData]);
+
+                        // Check for and add any extra products
+                        const extraProductsData = orderData.slice(1); // Assuming the first item is the main product and the rest are extra products
+                        if (extraProductsData.length > 0) {
+                            const extraProductList = extraProductsData.map(extra => ({
+                                productId: { id: extra[4] }, // Assuming the last element in the array is the product ID
+                                productName: { product_name: extra[1] },
+                                price: extra[3],
+                                image_path: extra[2], // Adjust as needed based on your actual data structure
+                                path: { path: "/images/default.jpg" } // Fallback image path or fetch the correct path
+                            }));
+
+                            setExtraProducts(prevExtraProducts => ({
+                                ...prevExtraProducts,
+                                [mainProductId]: extraProductList
+                            }));
+                        }
+
                     } else {
                         setError(new Error("Main Product ID is undefined. Cannot fetch product details."));
                     }
@@ -115,12 +133,10 @@ const MakeOrder = () => {
         }
     };
 
-    // Define the `isElevator` function
     const isElevator = (product) => {
       return product?.categoryType === 'Elevator';
     };
 
-    // Define the `ExtraItemForMainProdct` component
     const ExtraItemForMainProdct = ({ product, onRemove }) => (
       <div className="extraItemForMain">
           <img src={product.path?.path || product.image_path} 
