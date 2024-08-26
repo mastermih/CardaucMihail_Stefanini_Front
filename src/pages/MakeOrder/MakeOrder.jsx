@@ -30,61 +30,89 @@ const MakeOrder = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const loadProducts = async () => {
-            try {
-                const orderResponse = await fetchOrderProductAndExtraProduct(id);
-                const orderData = orderResponse.data;
-
-                console.log('Order Data:', orderData);
-
-                if (Array.isArray(orderData) && orderData.length > 0) {
-                    const mainProductArray = orderData[0];
-                    const mainProductId = mainProductArray.productId;
-
-                    if (mainProductId) {
-                        const mainProductDetailsResponse = await fetchProductPageById(mainProductId);
-                        const mainProductDetails = mainProductDetailsResponse.data;
-
-                        const combinedData = {
-                            ...mainProductDetails,
-                            price: mainProductArray.price,
-                            quantity: mainProductArray.quantity,
-                        };
-
-                        setProducts([combinedData]);
-
-                        // Check for and add any extra products
-                        const extraProductsData = orderData.slice(1); // Assuming the first item is the main product and the rest are extra products
-                        if (extraProductsData.length > 0) {
-                            const extraProductList = extraProductsData.map(extra => ({
-                                productId: { id: extra[4] }, // Assuming the last element in the array is the product ID
-                                productName: { product_name: extra[1] },
-                                price: extra[3],
-                                image_path: extra[2], // Adjust as needed based on your actual data structure
-                                path: { path: "/images/default.jpg" } // Fallback image path or fetch the correct path
-                            }));
-
-                            setExtraProducts(prevExtraProducts => ({
-                                ...prevExtraProducts,
-                                [mainProductId]: extraProductList
-                            }));
-                        }
-
-                    } else {
-                        setError(new Error("Main Product ID is undefined. Cannot fetch product details."));
-                    }
-                } else {
-                    setError(new Error("Order data is empty or invalid."));
-                }
-            } catch (err) {
-                setError(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadProducts();
-    }, [id]);
+      const loadProducts = async () => {
+          try {
+              console.log('Fetching order and extra product details...');
+              const orderResponse = await fetchOrderProductAndExtraProduct(id);
+              const orderData = orderResponse.data;
+  
+              console.log('Order Data:', orderData);
+  
+              if (Array.isArray(orderData) && orderData.length > 0) {
+                  const mainProductArray = orderData[0];
+                  const mainProductId = mainProductArray.productId;
+  
+                  if (mainProductId) {
+                      console.log('Fetching main product details...');
+                      const mainProductDetailsResponse = await fetchProductPageById(mainProductId);
+                      const mainProductDetails = mainProductDetailsResponse.data;
+  
+                      const combinedData = {
+                          ...mainProductDetails,
+                          price: mainProductArray.price,
+                          quantity: mainProductArray.quantity,
+                      };
+  
+                      setProducts([combinedData]);
+  
+                      // Check for and add any extra products
+                      const extraProductsData = orderData.slice(1); // Assuming the first item is the main product and the rest are extra products
+                      if (extraProductsData.length > 0) {
+                          const extraProductList = await Promise.all(extraProductsData.map(async extra => {
+                              const extraProductId = extra.productId || extra[4]; // Ensure correct ID extraction
+  
+                              if (!extraProductId) {
+                                  console.error('Extra product ID is undefined:', extra);
+                                  return null; // Skip this extra product
+                              }
+  
+                              try {
+                                  console.log('Fetching details for extra product with ID:', extraProductId);
+                                  const extraProductDetailsResponse = await fetchProductPageById(extraProductId);
+                                  const extraProductDetails = extraProductDetailsResponse.data;
+  
+                                  return {
+                                      ...extraProductDetails,
+                                      productId: { id: extraProductId },
+                                      price: extra.price || extra[3], // Use the price from order data
+                                      quantity: extra.quantity || extra[2], // Assuming quantity is at the third index
+                                      productName: extra.productName || extraProductDetails.productName.product_name, // Use the productName from extra or fetched details
+                                  };
+                              } catch (fetchError) {
+                                  console.error('Error fetching extra product details:', fetchError);
+                                  return null; // Skip this extra product in case of an error
+                              }
+                          }));
+  
+                          // Filter out any null values from failed fetches
+                          const validExtraProducts = extraProductList.filter(product => product !== null);
+  
+                          setExtraProducts(prevExtraProducts => ({
+                              ...prevExtraProducts,
+                              [mainProductId]: validExtraProducts
+                          }));
+                      }
+  
+                  } else {
+                      setError(new Error("Main Product ID is undefined. Cannot fetch product details."));
+                  }
+              } else {
+                  setError(new Error("Order data is empty or invalid."));
+              }
+          } catch (err) {
+              console.error('Error occurred while loading products:', err);
+              setError(err);
+          } finally {
+              setLoading(false);
+          }
+      };
+  
+      loadProducts();
+  }, [id]);
+  
+  
+  
+  
 
     useEffect(() => {
         if (inputName.length >= 2) {
