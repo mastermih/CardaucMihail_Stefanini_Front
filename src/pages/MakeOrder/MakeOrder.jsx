@@ -26,7 +26,7 @@ const MakeOrder = () => {
     const [extraProducts, setExtraProducts] = useState({});
     const [newProducts, setNewProducts] = useState([]); 
 
-    const inputRef = useRef(null);
+   const inputRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -115,6 +115,27 @@ const MakeOrder = () => {
         }
     };
 
+    // Define the `isElevator` function
+    const isElevator = (product) => {
+      return product?.categoryType === 'Elevator';
+    };
+
+    // Define the `ExtraItemForMainProdct` component
+    const ExtraItemForMainProdct = ({ product, onRemove }) => (
+      <div className="extraItemForMain">
+          <img src={product.path?.path || product.image_path} 
+               style={{ width: '50px', height: '50px' }}/> 
+          <div className="extra-item-details">
+              <button className="RemoveButton" onClick={onRemove}>Remove</button>
+              <p>Price: $ {product.price}</p>
+              <h6>{product.productName?.product_name || 'No name available'}</h6>
+              <br/>
+              <hr/>
+          </div>
+          <hr/>
+      </div>
+    );
+
     const handleRemoveExtraProduct = (productId, extraProductId) => {
         setExtraProducts(prevExtraProducts => ({
             ...prevExtraProducts,
@@ -122,7 +143,6 @@ const MakeOrder = () => {
         }));
     };
 
-    //trebu inca de clarificat
     const handleProductSelect = async (productId, selectedProduct) => {
       console.log('Selected product data:', selectedProduct);
   
@@ -135,10 +155,7 @@ const MakeOrder = () => {
   
       const orderItem = cartItems.find(item => {
           console.log('Checking cart item:', item);
-          console.log('Checkin', item.id);
-          //asta nu e corect
-          return item.id === item.id;
-
+          return item.id === productId;
       });
   
       if (!orderItem || !orderItem.orderId || orderItem.orderId === 0) {
@@ -175,17 +192,13 @@ const MakeOrder = () => {
 
     const handleConfirmOrder = async () => {
         try {
-          console.log("EUUUUUU")
-
             for (const product of products) {
-              console.log("EUUUUUU ", product.id)
-
                 const orderItem = cartItems.find(item => item.id === product.id);
     
-                // if (!orderItem || !orderItem.orderId || orderItem.orderId === 0) {
-                //     console.error('Order ID is 0 or undefined, cannot update order status.');
-                //     continue;
-                // }
+                if (!orderItem || !orderItem.orderId || orderItem.orderId === 0) {
+                    console.error('Order ID is 0 or undefined, cannot update order status.');
+                    continue;
+                }
 
                 const orderUpdate = {
                     orderId: { id: orderItem.orderId },
@@ -231,7 +244,7 @@ const MakeOrder = () => {
     };
 
     const handleAddOptionClick = (product) => {
-        setCurrentProductId(product.productId?.id);
+        setCurrentProductId(product.id);
         setShowInputForm(true);
     };
 
@@ -253,46 +266,48 @@ const MakeOrder = () => {
                                         <img
                                             className="card-img-top"
                                             src={product.image_path}
-                                            alt={product.productName?.product_name || 'Product Image'}
+                                            alt={product.productName}
                                             style={{ width: '350px', height: '400px', objectFit: 'cover' }}
                                         />
                                     )}
                                     <div className="card-body">
                                         <p>Price: ${typeof product.price === 'number' ? product.price.toFixed(2) : 'N/A'}</p>
                                         <div className="form-group">
-                                            <label htmlFor={`quantity-${product.productId?.id || index}`}>Quantity:</label>
+                                            <label htmlFor={`quantity-${product.id}`}>Quantity:</label>                                          
                                             <input
                                                 type="number"
                                                 className="form-control short-input"
-                                                id={`quantity-${product.productId?.id || index}`}
-                                                value={quantity[product.productId?.id || ''] || 1}
-                                                onChange={(e) => handleQuantityChange(product.productId?.id, parseInt(e.target.value))}
+                                                id={`quantity-${product.id}`}
+                                                value={quantity[product.id] || 1}
+                                                onChange={(e) => handleQuantityChange(product.id, parseInt(e.target.value))}
                                                 min="1"
                                             />
                                         </div>
                                         <p className="card-text">
                                             Total Price: ${(
-                                                (product.price ? product.price * (quantity[product.productId?.id || ''] || 1) : 0) +
-                                                (extraProducts[product.productId?.id || '']?.reduce((acc, extraProduct) => acc + extraProduct.price, 0) || 0)
+                                                (product.price ? product.price * (quantity[product.id || ''] || 1) : 0) +
+                                                (extraProducts[product.id || '']?.reduce((acc, extraProduct) => acc + extraProduct.price, 0) || 0)
                                             ).toFixed(2)}
                                         </p>
                                         {isElevator(product) && (
                                             <>
                                                 <h5>Extra options</h5>
                                                 <div className="FacemRama">
-                                                    {extraProducts[product.productId?.id || '']?.map((extraProduct, extraIndex) => (
-                                                        <div key={extraIndex} className="extra-item">
-                                                            <ExtraItemForMainProdct
-                                                                product={extraProduct}
-                                                                onRemove={() => handleRemoveExtraProduct(product.productId?.id, extraProduct.productId.id)}
-                                                            />
-                                                        </div>
-                                                    ))}
+                                                {extraProducts[product.id]?.map((extraProduct, extraIndex) => (
+                              <ExtraItemForMainProdct 
+                                key={extraIndex} 
+                                product={extraProduct} 
+                                onRemove={() => handleRemoveExtraProduct(product.id, extraProduct.productId.id)} 
+                              />
+                            ))}
                                                 </div>
                                                 <button
                                                     className="btn btn-outline-secondary mb-3"
                                                     type="button"
-                                                    onClick={() => handleAddOptionClick(product)}>
+                                                    onClick={() => {
+                                                      setShowInputForm(!showInputForm);
+                                                      handleAddOptionClick(product);
+                                                    }}>
                                                     <FaPlus /> Add option
                                                 </button>
                                             </>
@@ -340,7 +355,7 @@ const MakeOrder = () => {
                                             onClick={() => handleProductSelect(currentProductId, option)}
                                         >
                                             <img
-                                                src={option.path.path}
+                                                src={option.path.path || option.image_path}
                                                 alt={option.productName?.product_name || 'Product Image'}
                                                 className="product-option-image"
                                             />
@@ -372,29 +387,5 @@ const MakeOrder = () => {
         </>
     );
 };
-
-// Define the `isElevator` function
-const isElevator = (product) => {
-    return product?.categoryType === 'Elevator';
-};
-
-// Define the `ExtraItemForMainProdct` component
-const ExtraItemForMainProdct = ({ product, onRemove }) => (
-    <div className="extraItemForMain">
-        {product?.path?.path ? (
-            <img src={product.path.path} style={{ width: '50px', height: '50px' }} alt={product?.productName?.product_name || 'Extra Product'} />
-        ) : (
-            <div style={{ width: '50px', height: '50px', backgroundColor: '#ccc' }}></div> 
-        )}
-        <div className="extra-item-details">
-            <button className="RemoveButton" onClick={onRemove}>Remove</button>
-            <p>Price: $ {product?.price}</p>
-            <h6>{product?.productName?.product_name || 'No name available'}</h6>
-            <br/>
-            <hr/>
-        </div>
-        <hr/>
-    </div>
-);
 
 export default MakeOrder;
