@@ -32,7 +32,7 @@ const Header = () => {
 
   const handleCartClick = () => {
     if (cartItems.length > 0) {
-      navigate(`/MakeOrder/cart`);
+      navigate(`/MakeOrder/42`);
     }
   };
 
