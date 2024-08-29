@@ -2,24 +2,32 @@ import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 import axios from 'axios';
 
 
-export const fetchOrderProductAndExtraProduct  = async (orderId) => {
+export const fetchOrderProductAndExtraProduct = async (orderId) => {
   try {
     const response = await axios.get(`http://localhost:8080/MakeOrder/${orderId}`);
-      
+    const data = response.data;
 
-    const items = response.data;
+    console.log('API Response:', data);
 
-    // Map through the array and create an array of flattened data
-    const flattenedData = items.map(item => ({
-      orderId: item[0],  // Assuming the first element is orderId
-      productName: item[1], // Second is product name
-      quantity: item[2], // Third is quantity
-      price: item[3], // Fourth is price
-      productId: item[4], // Fifth is productId
-      extraProductName: item[5] || null, // Sixth is extra product name (or null if it doesn't exist)
-      extraQuantity: item[6] || null, // Seventh is extra quantity (or null if it doesn't exist)
-      extraPrice: item[7] || null, // Eighth is extra price (or null if it doesn't exist)
-      extraProductId: item[8] || null // Ninth is extra productId (or null if it doesn't exist)
+    // Ensure that orderProducts is an array
+    if (!Array.isArray(data.orderProducts)) {
+      throw new Error('Expected orderProducts to be an array, but received:', typeof data.orderProducts);
+    }
+
+    // Map through the orderProducts array and create an array of flattened data
+    const flattenedData = data.orderProducts.map(product => ({
+      orderId: data.orderId.id,  // Access orderId from the data object
+      productName: product.product?.productName?.product_name || 'Unknown Product', // Access product name
+      path: product.product?.path.path,
+      quantity: product.quantity?.quantity || 0, // Access quantity
+      price: product.priceOrder?.price || 0, // Access price
+      productId: product.product?.productId?.id || 'Unknown Product ID', // Access productId
+      extraProductName: product.extraProductName || null, // Placeholder for extra product name (if it exists)
+      extraQuantity: product.extraQuantity || null, // Placeholder for extra quantity (if it exists)
+      extraPrice: product.extraPrice || null, // Placeholder for extra price (if it exists)
+      extraProductId: product.extraProductId || null, // Placeholder for extra productId (if it exists)
+      categoryType: product.product?.categoryType,
+      //extraProductCategoryType: product.extraProductCategoryType
     }));
 
     console.log('Flattened data:', flattenedData);
@@ -30,6 +38,30 @@ export const fetchOrderProductAndExtraProduct  = async (orderId) => {
     throw error;
   }
 };
+
+
+
+
+
+
+
+export const deltedTheExtraProductFromMainProduct = async (orderProduct) => {
+  try {
+      const response = await axios.delete("http://localhost:8080/MakeOrder/ProductOrder", {
+          params: {
+              id: orderProduct.orderId,  // This should be the correct order product ID
+              product_name: orderProduct.productName // This should be the correct product name
+          }
+      });
+      return response.data;
+  } catch (error) {
+      console.error("Error deleting the extra product:", error);
+      throw error; // re-throw the error so the calling function can handle it
+  }
+};
+
+
+
 
 export const fetchProductPageByProductName = async (productId = 42, name) => {
   try {
