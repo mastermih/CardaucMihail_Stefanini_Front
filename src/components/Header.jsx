@@ -30,11 +30,22 @@ const Header = () => {
     removeFromCart(orderId);
   };
 
-  const handleCartClick = () => {
-    if (cartItems.length > 0) {
-      navigate(`/MakeOrder/42`);
-    }
-  };
+// Header Component
+const handleCartClick = () => {
+  if (cartItems.length > 0) {
+      navigate(`/MakeOrder`); // Navigate to load all products
+  } else {
+      alert('Your cart is empty!');
+      navigate('/catalog');
+  }
+};
+
+
+
+
+const handleItemClick = (orderId) => {
+  navigate(`/MakeOrder/${orderId}`); // Navigate to load a specific product
+};
 
   return (
     <>
@@ -42,7 +53,7 @@ const Header = () => {
         <Container>
           <div className="brand-search-contact">
             <div className="brand">
-              <img src="/images/Logo.jpg" alt="Logo" className="logo" style={{ width: '100px', height: '100px', marginRight: '10px' }}  />
+              <img src="/images/Logo.jpg" alt="Logo" className="logo" style={{ width: '100px', height: '100px', marginRight: '10px' }} />
             </div>
             <div className="search-bar">
               <input type="text" placeholder="Search model" />
@@ -60,19 +71,19 @@ const Header = () => {
                     <i className="fas fa-shopping-cart"></i> Cart ({cartItems.length})
                   </Dropdown.Toggle>
                   
-                  <Dropdown.Menu>
+                  <Dropdown.Menu onMouseLeave={handleMouseLeave}>
                     {cartItems.length > 0 ? (
                       cartItems.map((item) => (
-                        <Dropdown.Item key={item.id} onClick={() => navigate(`/MakeOrder/${item.orderId}`)}>
-                          <img className="card-img-top" src={item.image_path} style={{ width: '100px', height: '100px', marginRight: '10px' }} />
+                        <Dropdown.Item key={item.id} onClick={() => handleItemClick(item.orderId)}>
+                          <img className="card-img-top" src={item.image_path} style={{ width: '100px', height: '100px', marginRight: '10px' }} alt="product" />
                           {item.productName} - ${item.price ? item.price.toFixed(2) : 'N/A'}
                           <br />
                           <hr />
                           <div className="cart-item-description">
-                         {item.description ? item.description : 'No description available'}
-                           </div>                          <br />
+                            {item.description ? item.description : 'No description available'}
+                          </div>
+                          <br />
                           <button onClick={(event) => handleRemoveFromCart(event, item.orderId)}>Remove</button>
-                          <button onClick={() => navigate(`/MakeOrder/${item.id}`)}>Make Orders</button>
                         </Dropdown.Item>
                       ))
                     ) : (
@@ -99,25 +110,24 @@ const Header = () => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
-            <Navbar expand="lg" className="custom-navbarZZZ">
-              
+      <Navbar expand="lg" className="custom-navbarZZZ">
         <Container>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-    <Nav className="me-auto">
-        <input type="text" placeholder="Company Name" />              
-        <input type="text" placeholder="Name" />              
-        <input type="text" placeholder="Email" />              
-        <input type="text" placeholder="Phone Number" />
-        <select>
-            <option value="" >Select Category ...</option>
-            <option value="Elevator">Elevator</option>
-            <option value="AirSystem">Air System</option>
-            <option value="EmergensySystem">Emergency System</option>
-        </select>
-        <button type="button" class="boton_message">Send</button>
-        </Nav>
-</Navbar.Collapse>
+            <Nav className="me-auto">
+              <input type="text" placeholder="Company Name" />              
+              <input type="text" placeholder="Name" />              
+              <input type="text" placeholder="Email" />              
+              <input type="text" placeholder="Phone Number" />
+              <select>
+                  <option value="">Select Category ...</option>
+                  <option value="Elevator">Elevator</option>
+                  <option value="AirSystem">Air System</option>
+                  <option value="EmergensySystem">Emergency System</option>
+              </select>
+              <button type="button" className="boton_message">Send</button>
+            </Nav>
+          </Navbar.Collapse>
         </Container>
       </Navbar>
     </>

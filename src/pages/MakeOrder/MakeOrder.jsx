@@ -17,7 +17,7 @@ import { FaPlus } from 'react-icons/fa';
 import './MakeOrder.css';
 
 const MakeOrder = () => {
-    const { id } = useParams();
+    const { id } = useParams(); // `id` represents the specific order ID if provided
     const { cartItems, clearCart } = useCart();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -35,20 +35,16 @@ const MakeOrder = () => {
 
     const transformData = (data) => {
         try {
-            console.log("Data received for transformation:", data);
-    
             const orderProductsArray = Array.isArray(data) ? data : [];
             if (orderProductsArray.length === 0) {
-                console.warn("No order products available.");
                 return null;
             }
-    
+
             const mainProduct = orderProductsArray[0];
             if (!mainProduct) {
-                console.warn("Main product is invalid or missing.");
                 return null;
             }
-    
+
             const transformedExtraProducts = orderProductsArray.slice(1).map(extraproduct => {
                 return {
                     orderId: extraproduct.orderId || null,
@@ -57,12 +53,12 @@ const MakeOrder = () => {
                     price: extraproduct.price || 0,
                     productId: extraproduct.productId || null,
                     parentProductId: extraproduct.parent_product_id || null,
-                    imagePath: extraproduct.product?.path?.path || '/default/path/to/image.jpg',  // Default image path if not found
+                    imagePath: extraproduct.product?.path?.path || '/default/path/to/image.jpg',
                     categoryType: extraproduct.categoryType || 'Unknown Category',
                 };
             });
-    
-            const transformedData = {
+
+            return {
                 orderId: mainProduct.orderId || null,
                 orderStatus: data.orderStatus || 'Unknown Status',
                 createdDate: data.createdDate || 'Unknown Date',
@@ -72,53 +68,68 @@ const MakeOrder = () => {
                 quantity: mainProduct.quantity || 0,
                 price: mainProduct.price || 0,
                 parentProductId: mainProduct.parent_product_id || null,
-                imagePath: mainProduct.path || '/default/path/to/image.jpg',  // Ensure imagePath is correctly set
+                imagePath: mainProduct.path || '/default/path/to/image.jpg',
                 categoryType: mainProduct.categoryType || 'Unknown Category',
-                extraProducts: transformedExtraProducts.length > 0 ? transformedExtraProducts : []  // Ensure extraProducts is an array
+                extraProducts: transformedExtraProducts.length > 0 ? transformedExtraProducts : []
             };
-    
-            console.log("Transformed data:", transformedData);
-            return transformedData;
         } catch (error) {
             console.error("Error during data transformation:", error.message);
             return null;
         }
     };
-    
-    useEffect(() => {
-        const loadOrders = async () => {
-            try {
-                console.log('Fetching order and extra product details...');
 
+    useEffect(() => {
+        const loadAllOrders = async () => {
+            try {
+                setLoading(true);
                 const fetchedOrders = await Promise.all(
                     cartItems.map(async (cartItem) => {
-                        try {
-                            const orderResponse = await fetchOrderProductAndExtraProduct(cartItem.orderId);
-                            console.log("API response:", orderResponse);
-
-                            // Now passing the correct structure to transformData
-                            const transformedOrder = transformData(orderResponse.data);
-                            return transformedOrder || null;
-                        } catch (innerError) {
-                            console.error(`Error fetching order data for cart item ${cartItem.orderId}:`, innerError);
-                            return null;
-                        }
+                        const orderResponse = await fetchOrderProductAndExtraProduct(cartItem.orderId);
+                        const transformedOrder = transformData(orderResponse.data);
+                        return transformedOrder || null;
                     })
                 );
-
                 const validOrders = fetchedOrders.filter(order => order !== null);
                 setOrders(validOrders);
                 setLoading(false);
-
             } catch (error) {
-                console.error('Error fetching orders:', error);
+                console.error('Error fetching all orders:', error);
                 setError(error);
                 setLoading(false);
             }
         };
 
-        loadOrders();
-    }, [cartItems]);
+        if (!id) {
+            loadAllOrders(); // Load all orders when no ID is provided in the URL
+        }
+    }, [cartItems, id]);
+
+    useEffect(() => {
+        const loadSpecificOrder = async () => {
+            try {
+                setLoading(true);
+                const orderResponse = await fetchOrderProductAndExtraProduct(id);
+                const transformedOrder = transformData(orderResponse.data);
+                if (transformedOrder) {
+                    setOrders([transformedOrder]);
+                }
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching specific order:', error);
+                setError(error);
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            loadSpecificOrder(); // Load the specific order when an ID is provided in the URL
+        }
+    }, [id]);
+
+    // The rest of your code remains the same
+
+
+    
 
     useEffect(() => {
         if (inputName.length >= 2) {
@@ -143,8 +154,6 @@ const MakeOrder = () => {
     
         setTotalPrice(total.toFixed(2));
     }, [orders]);
-    
-    
 
     const handleGetProduct = async () => {
         if (inputName.length < 2) {
@@ -169,7 +178,16 @@ const MakeOrder = () => {
             setProductOptions([]);
         }
     };
-
+    const handleCartClick = () => {
+        if (cartItems.length > 0) {
+            const firstItemId = cartItems[0].orderId; // Get the orderId of the first item in the cart
+            navigate(`/MakeOrder/${firstItemId}`);
+        } else {
+            alert('Your cart is empty!');
+            navigate('/catalog'); // Optionally navigate back to the catalog or another relevant page
+        }
+    };
+    
     const isElevator = (transformedOrder) => {
         return transformedOrder.categoryType === 'Elevator';
     };
@@ -327,10 +345,6 @@ const MakeOrder = () => {
             console.error('Error removing the extra product:', error);
         }
     };
-    
-    
-    
-    
 
     const handleQuantityChange = (mainProductId, value) => {
         setOrders(prevOrders => prevOrders.map(order => {
@@ -354,75 +368,82 @@ const MakeOrder = () => {
             <Header />
             <div className="productPage-content">
                 <Container>
-                    {orders.map((order, orderIndex) => (
-                        <Row key={orderIndex}>
-                            <Col md={5} className="mb-3">
-                                <h3>{order.productName || 'Product Name Not Available'}</h3>
-                                <div className="card custom-card">
-                                    {order.imagePath && (
-                                        <img
-                                            className="card-img-top"
-                                            src={order.imagePath}
-                                            alt={order.productName}
-                                            style={{ width: '350px', height: '400px', objectFit: 'cover' }}
-                                        />
-                                    )}
-                                    <div className="card-body">
-                                        <p>Price: ${typeof order.price === 'number' ? order.price.toFixed(2) : 'N/A'}</p>
-                                        <div className="form-group">
-                                            <label htmlFor={`quantity-${order.productId}`}>Quantity:</label>
-                                            <input
-                                                type="number"
-                                                className="form-control short-input"
-                                                id={`quantity-${order.productId}`}
-                                                value={order.quantity || 1}
-                                                onChange={(e) => handleQuantityChange(order.productId, parseInt(e.target.value))}
-                                                min="1"
+                    {loading ? (
+                        <p>Loading...</p>
+                    ) : error ? (
+                        <p>Error: {error.message}</p>
+                    ) : orders.length === 0 ? (
+                        <p>No orders available.</p>
+                    ) : (
+                        orders.map((order, orderIndex) => (
+                            <Row key={orderIndex}>
+                                <Col md={5} className="mb-3">
+                                    <h3>{order.productName || 'Product Name Not Available'}</h3>
+                                    <div className="card custom-card">
+                                        {order.imagePath && (
+                                            <img
+                                                className="card-img-top"
+                                                src={order.imagePath}
+                                                alt={order.productName}
+                                                style={{ width: '350px', height: '400px', objectFit: 'cover' }}
                                             />
-                                        </div>
-                                        <p className="card-text">
-                                            Total Price: ${(
-                                                (order.price * (order.quantity || 1)) +
-                                                (order.extraProducts.reduce((acc, extraProduct) => acc + extraProduct.price * extraProduct.quantity, 0) || 0)
-                                            ).toFixed(2)}
-                                        </p>
-                                        {isElevator(order) && (
-                                            <>
-                                                <h5>Extra options</h5>
-                                                <div className="FacemRama">
-                                                {Array.isArray(order.extraProducts) && order.extraProducts !== null && order.extraProducts.map((extraProduct, extraIndex) => {
-    if (!extraProduct || !extraProduct.productName) {
-        console.warn("Skipping invalid extra product:", extraProduct);
-        return null; // Skip rendering this invalid product
-    }
-    return (
-        <ExtraItemForMainProduct
-            key={extraIndex}
-            product={extraProduct}
-            onRemove={() => handleRemoveExtraProduct(order.productId, extraProduct.productId, extraProduct.productName)}
-        />
-    );
-})}
-
-
-
-                                                </div>
-                                                <button
-                                                    className="btn btn-outline-secondary mb-3"
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setShowInputForm(!showInputForm);
-                                                        handleAddOptionClick(order.productId);
-                                                    }}>
-                                                    <FaPlus /> Add option
-                                                </button>
-                                            </>
                                         )}
+                                        <div className="card-body">
+                                            <p>Price: ${typeof order.price === 'number' ? order.price.toFixed(2) : 'N/A'}</p>
+                                            <div className="form-group">
+                                                <label htmlFor={`quantity-${order.productId}`}>Quantity:</label>
+                                                <input
+                                                    type="number"
+                                                    className="form-control short-input"
+                                                    id={`quantity-${order.productId}`}
+                                                    value={order.quantity || 1}
+                                                    onChange={(e) => handleQuantityChange(order.productId, parseInt(e.target.value))}
+                                                    min="1"
+                                                />
+                                            </div>
+                                            <p className="card-text">
+                                                Total Price: ${(
+                                                    (order.price * (order.quantity || 1)) +
+                                                    (order.extraProducts.reduce((acc, extraProduct) => acc + extraProduct.price * extraProduct.quantity, 0) || 0)
+                                                ).toFixed(2)}
+                                            </p>
+                                            {isElevator(order) && (
+                                                <>
+                                                    <h5>Extra options</h5>
+                                                    <div className="FacemRama">
+                                                    {Array.isArray(order.extraProducts) && order.extraProducts !== null && order.extraProducts.map((extraProduct, extraIndex) => {
+            if (!extraProduct || !extraProduct.productName) {
+                console.warn("Skipping invalid extra product:", extraProduct);
+                return null; // Skip rendering this invalid product
+            }
+            return (
+                <ExtraItemForMainProduct
+                    key={extraIndex}
+                    product={extraProduct}
+                    onRemove={() => handleRemoveExtraProduct(order.productId, extraProduct.productId, extraProduct.productName)}
+                />
+            );
+        })}
+    
+    
+                                                    </div>
+                                                    <button
+                                                        className="btn btn-outline-secondary mb-3"
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setShowInputForm(!showInputForm);
+                                                            handleAddOptionClick(order.productId);
+                                                        }}>
+                                                        <FaPlus /> Add option
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            </Col>
-                        </Row>
-                    ))}
+                                </Col>
+                            </Row>
+                        ))
+                    )}
 
                     <div className="product-actions mt-3">
                         {showInputForm && (
@@ -447,7 +468,7 @@ const MakeOrder = () => {
                             </div>
                         )}
                     </div>
-                    {/* E imaginea ce apare nupa ce introduc mai mult de 2 litere */}
+
                     {fetchClicked && (
                         <Dropdown show={showDropdown} onToggle={() => setShowDropdown(!showDropdown)}>
                             <Dropdown.Toggle as={Nav.Link}>

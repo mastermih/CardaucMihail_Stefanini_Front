@@ -9,25 +9,20 @@ import OrderProducts from './pages/OrderProducts/OrderProducts';
 import ConfirmOrderEmail from './pages/ConfirmOrderEmail/ConfirmOrderEmail';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-
-
-
-
 function App() {
   return (
     <Router>
       <div className="App">
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* Va trebui sa fie scoasa*/}
           <Route path="/orders" element={<Orders />} />
           <Route path="/catalog" element={<Catalog />} />
-          <Route path="/product/:id" element={<ProductPage/>} />
-          <Route path="/MakeOrder/:id" element={<MakeOrder />} />
+          <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/MakeOrder" element={<MakeOrder />} /> {/* Handles all cart items */}
+          <Route path="/MakeOrder/:id" element={<MakeOrder />} /> {/* Handles a specific cart item */}
           <Route path="/orderProduct" element={<OrderProducts />} />
           <Route path="/sendMail/confirm/:id" element={<ConfirmOrderEmail />} />
-
-          </Routes>
+        </Routes>
       </div>
     </Router>
   );
