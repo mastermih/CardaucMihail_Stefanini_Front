@@ -420,7 +420,7 @@ const MakeOrder = () => {
                 <ExtraItemForMainProduct
                     key={extraIndex}
                     product={extraProduct}
-                    onRemove={() => handleRemoveExtraProduct(order.productId, extraProduct.productId, extraProduct.productName)}
+                    onRemove={() => handleRemoveExtraProduct(order.productId, extraProduct.orderId, extraProduct.productName)}
                 />
             );
         })}
