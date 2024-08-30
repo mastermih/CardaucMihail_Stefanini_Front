@@ -178,15 +178,6 @@ const MakeOrder = () => {
             setProductOptions([]);
         }
     };
-    const handleCartClick = () => {
-        if (cartItems.length > 0) {
-            const firstItemId = cartItems[0].orderId; // Get the orderId of the first item in the cart
-            navigate(`/MakeOrder/${firstItemId}`);
-        } else {
-            alert('Your cart is empty!');
-            navigate('/catalog'); // Optionally navigate back to the catalog or another relevant page
-        }
-    };
     
     const isElevator = (transformedOrder) => {
         return transformedOrder.categoryType === 'Elevator';
@@ -320,6 +311,7 @@ const MakeOrder = () => {
 
     const handleRemoveExtraProduct = async (mainProductId, extraProductId, productName) => {
         try {
+            // Call API to delete the extra product
             const response = await deltedTheExtraProductFromMainProduct({
                 orderId: extraProductId,
                 productName: productName
@@ -328,16 +320,30 @@ const MakeOrder = () => {
             if (response) {
                 console.log('Extra product removed:', extraProductId);
     
-                // Filter out the removed product from the existing order
+                // Immediately update the state to remove the extra product from the specific order
                 setOrders(prevOrders => prevOrders.map(order => {
                     if (order.productId === mainProductId) {
+                        const updatedExtraProducts = order.extraProducts.filter(
+                            extraProduct => extraProduct.orderId !== extraProductId
+                        );
                         return {
                             ...order,
-                            extraProducts: order.extraProducts.filter(extraProduct => extraProduct.productId !== extraProductId)
+                            extraProducts: updatedExtraProducts
                         };
                     }
                     return order;
                 }));
+    
+                // Optionally, re-fetch the specific order to ensure the latest state (if needed)
+                const updatedOrderResponse = await fetchOrderProductAndExtraProduct(mainProductId);
+                const transformedOrder = transformData(updatedOrderResponse.data);
+    
+                if (transformedOrder) {
+                    setOrders(prevOrders => prevOrders.map(order =>
+                        order.productId === mainProductId ? transformedOrder : order
+                    ));
+                }
+    
             } else {
                 console.error('Failed to remove extra product:', response.status);
             }
@@ -345,6 +351,8 @@ const MakeOrder = () => {
             console.error('Error removing the extra product:', error);
         }
     };
+    
+    
 
     const handleQuantityChange = (mainProductId, value) => {
         setOrders(prevOrders => prevOrders.map(order => {
