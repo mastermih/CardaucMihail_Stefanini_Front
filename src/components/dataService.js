@@ -16,18 +16,17 @@ export const fetchOrderProductAndExtraProduct = async (orderId) => {
 
     // Map through the orderProducts array and create an array of flattened data
     const flattenedData = data.orderProducts.map(product => ({
-      orderId: data.orderId.id,  // Access orderId from the data object
+      orderId: data.orderId.id,  
       productName: product.product?.productName?.product_name || 'Unknown Product', // Access product name
       path: product.product?.path.path,
-      quantity: product.quantity?.quantity || 0, // Access quantity
-      price: product.priceOrder?.price || 0, // Access price
-      productId: product.product?.productId?.id || 'Unknown Product ID', // Access productId
-      extraProductName: product.extraProductName || null, // Placeholder for extra product name (if it exists)
-      extraQuantity: product.extraQuantity || null, // Placeholder for extra quantity (if it exists)
-      extraPrice: product.extraPrice || null, // Placeholder for extra price (if it exists)
-      extraProductId: product.extraProductId || null, // Placeholder for extra productId (if it exists)
+      quantity: product.quantity?.quantity || 0, 
+      price: product.priceOrder?.price || 0, 
+      productId: product.product?.productId?.id || 'Unknown Product ID',
+      extraProductName: product.extraProductName || null,
+      extraQuantity: product.extraQuantity || null, 
+      extraPrice: product.extraPrice || null, 
+      extraProductId: product.extraProductId || null,
       categoryType: product.product?.categoryType,
-      //extraProductCategoryType: product.extraProductCategoryType
     }));
 
     console.log('Flattened data:', flattenedData);
@@ -38,11 +37,6 @@ export const fetchOrderProductAndExtraProduct = async (orderId) => {
     throw error;
   }
 };
-
-
-
-
-
 
 
 export const deltedTheExtraProductFromMainProduct = async (orderProduct) => {
@@ -101,7 +95,22 @@ export const postOrderProduct = async (orderProduct) => {
     throw error;
   }
 };
-//Work with that 
+
+//Create user
+export const createUser = async (user) => {
+  try{
+    console.log('Sending request to create user:', user);
+    const response = await axios.post(`http://localhost:8080/createUser/Superior`, user);
+    console.log('User created:', response.data);
+    return response.data;
+    }catch(error){
+      console.error('Error creating user:', error);  
+      throw error;
+      }
+};
+
+
+
 export const postOrder = async (order) => {
   try {
     console.log('Sending request to create order:', order);
@@ -205,6 +214,7 @@ export const filterProducts = async (params) => {
   }
 };
 
+//Treb de sters
 export const filterProductByCategory = async (params) => {
   try {
     const response = await axios.get(`http://localhost:8080/catalog/catalog/categoryType`, {
@@ -228,7 +238,7 @@ export const filterProductByCategory = async (params) => {
     throw error;
   }
 };
-
+//Treb de sters
 export const filterProductByName = async (params) => {
   try {
     const response = await axios.get(`http://localhost:8080/catalog/catalog/name`, {
@@ -302,6 +312,7 @@ export const fetchDataByLastOrderProducts = async(limit) => {
     throw error;
   }
 };
+
 
 export const fetchDataByLastOrders = async (limit) => {
   try {

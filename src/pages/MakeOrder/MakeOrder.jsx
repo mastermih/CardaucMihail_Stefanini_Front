@@ -39,12 +39,12 @@ const MakeOrder = () => {
             if (orderProductsArray.length === 0) {
                 return null;
             }
-
+    
             const mainProduct = orderProductsArray[0];
             if (!mainProduct) {
                 return null;
             }
-
+    
             const transformedExtraProducts = orderProductsArray.slice(1).map(extraproduct => {
                 return {
                     orderId: extraproduct.orderId || null,
@@ -53,11 +53,11 @@ const MakeOrder = () => {
                     price: extraproduct.price || 0,
                     productId: extraproduct.productId || null,
                     parentProductId: extraproduct.parent_product_id || null,
-                    imagePath: extraproduct.product?.path?.path || '/default/path/to/image.jpg',
+                    imagePath: extraproduct.product?.path?.path || '/default/path/to/image.jpg', // Correctly fetch image path
                     categoryType: extraproduct.categoryType || 'Unknown Category',
                 };
             });
-
+    
             return {
                 orderId: mainProduct.orderId || null,
                 orderStatus: data.orderStatus || 'Unknown Status',
@@ -77,6 +77,8 @@ const MakeOrder = () => {
             return null;
         }
     };
+    
+    
 
     useEffect(() => {
         const loadAllOrders = async () => {
@@ -188,14 +190,14 @@ const MakeOrder = () => {
             console.error("Product is null or undefined.");
             return null; // Or return some placeholder UI
         }
-
-        const imageUrl = product.imagePath || product.path?.path || null;
-
+    
+        const imageUrl = product.imagePath || '/default/path/to/image.jpg';  // Ensure the correct path
+    
         const productName = typeof product.productName === 'string' ? product.productName : 'No name available';
         const productPrice = product.price && typeof product.price === 'number'
             ? `$${product.price.toFixed(2)}`
             : '$0.00';
-
+    
         return (
             <div className="extraItemForMain">
                 {imageUrl ? (
@@ -213,6 +215,8 @@ const MakeOrder = () => {
             </div>
         );
     };
+    
+    
 
     const handleProductSelect = async (mainProductId, selectedProduct) => {
         console.log('Selected product data:', selectedProduct);
@@ -289,18 +293,8 @@ const MakeOrder = () => {
                     quantity: order.quantity,
                     priceOrder: order.price
                 };
-
-                const confirmationLink = `http://localhost:3000/sendMail/confirm/${orderItem.orderId}`;
-
-                const sendOrderEmailConfirm = {
-                    recipient: "cardaucmihai@gmail.com",
-                    msgBody: `This is a test email from Spring Boot. Please confirm your order by clicking the link below:\n\n${confirmationLink}`,
-                    subject: "Order Confirmation",
-                    orderId: orderItem.orderId
-                };
-
+    
                 await updateOrderStatus(orderUpdate);
-                await sendOrderEmail(sendOrderEmailConfirm);
             }
             clearCart();
             navigate('/');
@@ -311,7 +305,6 @@ const MakeOrder = () => {
 
     const handleRemoveExtraProduct = async (mainProductId, extraProductId, productName) => {
         try {
-            // Call API to delete the extra product
             const response = await deltedTheExtraProductFromMainProduct({
                 orderId: extraProductId,
                 productName: productName
