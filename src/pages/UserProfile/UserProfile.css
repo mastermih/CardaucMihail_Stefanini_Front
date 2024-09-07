@@ -1,0 +1,28 @@
+.user-profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fafafa;
+  }
+  
+  .image-upload-section {
+    margin-top: 20px;
+  }
+  
+  .image-preview img {
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+  }
+  
+  .message {
+    margin-top: 20px;
+    color: green;
+  }
+  
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  

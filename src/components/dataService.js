@@ -96,6 +96,33 @@ export const postOrderProduct = async (orderProduct) => {
   }
 };
 
+export const uploadImage = async (image, userId) => {
+  try {
+    // Create the formData object and append the image and userId
+    const formData = new FormData();
+    formData.append('image', image); // 'image' is the key, image is the file
+    formData.append('userId', userId); // Additional data (userId)
+
+    console.log('Uploading image for userId:', userId);
+
+    // Send the image and data to the server
+    const response = await axios.post('http://localhost:8080/uploadImage', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    console.log('Image uploaded successfully:', response.data);
+    return response.data;
+
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    throw error;
+  }
+};
+
+
+
 //Create user
 export const createUser = async (user) => {
   try{
@@ -120,6 +147,29 @@ export const postOrder = async (order) => {
   } catch (error) {
     console.error('Error creating order:', error);
     throw error;
+  }
+};
+
+export const confirmUserEmail = async (userId) => {
+  try {
+    console.log('Sending request to confirm email:', userId);
+
+    // The request payload should be a JSON object
+    const response = await axios.post(
+      `http://localhost:8080/sendMail/confirm/user/${userId}`,
+      { id: userId }, // Pass the ID in the request body as a JSON object
+      {
+        headers: {
+          'Content-Type': 'application/json' // Set Content-Type to application/json
+        }
+      }
+    );
+
+    console.log('User confirmation response:', response.data); 
+    return response.data;
+  } catch (error) {
+    console.error('Error confirming user:', error);
+    throw error; 
   }
 };
 

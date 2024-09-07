@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import Footer from '../../components/Footer';
 import './ConfirmOrderEmail.css';
 
+//The id is now the token 
 const ConfirmOrderEmail = () => {
   const { id } = useParams(); // Retrieve orderId from the URL
   const [loading, setLoading] = useState(true);
@@ -36,7 +37,7 @@ const ConfirmOrderEmail = () => {
       <div className="confirmation-content">
         <Container>
           {confirmationStatus ? (
-            <p>Your order has been confirmed successfully. Order ID: {id}</p>
+            <p>Your order has been confirmed successfully.</p>
           ) : (
             <p>There was an issue confirming your order. Please try again later.</p>
           )}
