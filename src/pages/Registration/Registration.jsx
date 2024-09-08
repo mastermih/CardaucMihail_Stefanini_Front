@@ -10,8 +10,8 @@ const Registration = () => {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const navigate = useNavigate(); // Initialize useNavigate hook
-
+  const navigate = useNavigate(); 
+  
   // Handle user registration
   const handleRegisterUser = async (e) => {
     e.preventDefault();

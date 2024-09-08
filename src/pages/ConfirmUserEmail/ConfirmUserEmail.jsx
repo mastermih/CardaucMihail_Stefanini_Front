@@ -70,7 +70,6 @@ const ConfirmUserEmail = () => {
                   <button onClick={handleImageUpload}>Upload Image</button>
                   {uploadMessage && <p>{uploadMessage}</p>}
                 </div>
-
               </>
             ) : (
               <p>There was an issue confirming the user. Please try again later.</p>

@@ -25,23 +25,23 @@ const Header = () => {
     setShowDropdown(false);
   };
 
+  const handleSignUpClick = () => {
+    navigate('/createUser');
+  };
+  
   const handleRemoveFromCart = (event, orderId) => {
     event.stopPropagation();
     removeFromCart(orderId);
   };
 
-// Header Component
-const handleCartClick = () => {
-  if (cartItems.length > 0) {
-      navigate(`/MakeOrder`); // Navigate to load all products
-  } else {
-      alert('Your cart is empty!');
-      navigate('/catalog');
-  }
+  const handleCartClick = () => {
+    if (cartItems.length > 0) {
+        navigate(`/MakeOrder`); // Navigate to load all products
+    } else {
+        alert('Your cart is empty!');
+        navigate('/catalog');
+    }
 };
-
-
-
 
 const handleItemClick = (orderId) => {
   navigate(`/MakeOrder/${orderId}`); // Navigate to load a specific product
@@ -63,9 +63,10 @@ const handleItemClick = (orderId) => {
               <p>Need Some Help<br />or mood  </p>
               <p>045-151-48-220</p>
               <Nav className="ml-auto">
-                <Nav.Link href="#sign-up"><i className="fas fa-user-plus"></i> Sign Up</Nav.Link>
+              <Nav.Link onClick={handleSignUpClick}>
+                  <i className="fas fa-user-plus"></i> Sign Up
+                </Nav.Link>              
                 <Nav.Link href="#log-in"><i className="fas fa-sign-in-alt"></i> Log In</Nav.Link>
-              
                 <Dropdown show={showDropdown} onToggle={toggleDropdown}>
                   <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter} onClick={handleCartClick}>
                     <i className="fas fa-shopping-cart"></i> Cart ({cartItems.length})

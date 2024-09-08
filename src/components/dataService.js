@@ -96,6 +96,55 @@ export const postOrderProduct = async (orderProduct) => {
   }
 };
 
+//getUserForProfieEdit
+export const getUser = async (userId) => {
+  try{
+    console.log('Sending request to get user based on userID:', userId);
+    const response = await axios.get('http://localhost:8080/uploadImage', {
+     params: { userId: userId},
+  });
+
+  const items = response.data || [];
+  const flattenedData = items.map(item => ({
+    id: item.id,
+    username: item.username,
+    email: item.email,
+    password: item.password,
+    iamge: item.image,
+    phone_number: item.phone_number
+  }));  return {data: flattenedData};
+}catch(error){
+   console.error('Error fetching user :', error);
+}
+}
+
+
+//get the image from the db
+export const getUserImage = async (userId) => {
+  try {
+    console.log('Sending request to get userImage based on userID:', userId);
+
+    // Make the request to the backend with the userId as a parameter
+    const response = await axios.get('http://localhost:8080/uploadImage', {
+      params: { userId: userId }, // Correct way to pass params in axios
+    });
+
+    // The response contains the relative image path, e.g., 'userProfileImages/110_images.jpg'
+    const relativeImagePath = response.data;
+    console.log('Image path returned from backend:', relativeImagePath);
+
+    // Construct the full image URL by appending the relative path to the base URL
+    const fullImageUrl = `http://localhost:8080/${relativeImagePath}`;
+    console.log('Full image URL constructed:', fullImageUrl);
+
+    // Return the full image URL
+    return fullImageUrl;
+  } catch (error) {
+    console.error('Error fetching user image:', error);
+    throw error; // Handle errors in your frontend as well
+  }
+};
+
 export const uploadImage = async (image, userId) => {
   try {
     // Create the formData object and append the image and userId

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createUser, uploadImage } from '../../components/dataService'; // Assuming uploadImage exists in dataService
+import { createUser, uploadImage, getUserImage } from '../../components/dataService'; 
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -14,13 +14,12 @@ const UserCreation = () => {
   const [role, setRole] = useState('USER');
   const [accountNotLocked, setAccountNotLocked] = useState(false);
   const [message, setMessage] = useState('');
-  const [userId, setUserId] = useState(null); // Store userId after creating the user
-  const [image, setImage] = useState(null); // For handling image
-  const [imagePreviewUrl, setImagePreviewUrl] = useState(''); // URL of the uploaded image
-  
-  // Handle user creation
+  const [userId, setUserId] = useState(null); 
+  const [image, setImage] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(''); 
+
   const handleCreateUser = async (e) => {
-    e.preventDefault(); // Prevent page reload on form submission
+    e.preventDefault(); 
     setLoading(true);
     setMessage('');
 
@@ -38,10 +37,10 @@ const UserCreation = () => {
     };
 
     try {
-      const response = await createUser(user); // Call the createUser function to send the data
-      setUserId(response); // Save userId for future use
+      const response = await createUser(user); 
+      setUserId(response); 
       setMessage(`User created with ID: ${response}`);
-      setUserName('');  // Clear the form fields
+      setUserName('');
       setEmail('');
       setPassword('');
       setPhoneNumber('');
@@ -53,12 +52,10 @@ const UserCreation = () => {
     }
   };
 
-  // Handle image selection
   const handleImageChange = (e) => {
-    setImage(e.target.files[0]); // Store the selected image
+    setImage(e.target.files[0]); 
   };
 
-  // Function to upload image after user creation
   const handleImageUpload = async () => {
     if (!image) {
       alert('Please select an image to upload.');
@@ -68,13 +65,24 @@ const UserCreation = () => {
       alert('Please create a user first.');
       return;
     }
+
+    const formData = new FormData();
+    formData.append('file', image); 
+    formData.append('userId', userId);
+
     try {
-      const imageUrl = await uploadImage(image, userId); // Pass image and userId
-      setImagePreviewUrl(imageUrl); // Set the image URL for preview
+      // Upload the image
+      const uploadResponse = await uploadImage(image, userId);
+      console.log('Image uploaded successfully:', uploadResponse);
       setMessage('Image uploaded successfully');
+
+      // Now, send a GET request to fetch the image URL
+      const imageUrl = await getUserImage(userId);
+      setImagePreviewUrl(imageUrl); 
+
     } catch (error) {
-      setMessage('Error uploading image.');
       console.error('Error uploading image:', error);
+      setMessage('Error uploading image.');
     }
   };
 
@@ -150,7 +158,6 @@ const UserCreation = () => {
         </Button>
       </Form>
 
-      {/* Image Upload Section */}
       {userId && (
         <div className="image-upload-section">
           <h3>Upload Profile Image</h3>
@@ -162,11 +169,10 @@ const UserCreation = () => {
       )}
 
 {imagePreviewUrl && (
-  <div className="image-preview">
-    <h4>Image Preview:</h4>
-    {/* Display the image using the correct src */}
-    <img src={imagePreviewUrl} alt="Uploaded profile" style={{ maxWidth: '100%', height: 'auto' }} />
-  </div>
+    <div className="image-preview">
+        <h4>Image Preview:</h4>
+        <img src={imagePreviewUrl} alt="Uploaded profile" className="profile-image" />
+    </div>
 )}
 
 
