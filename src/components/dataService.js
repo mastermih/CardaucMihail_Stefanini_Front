@@ -95,28 +95,44 @@ export const postOrderProduct = async (orderProduct) => {
     throw error;
   }
 };
+//updateuser
+export const updateUser = async(user) =>{
+  try{
+    const response = await axios.put(`http://localhost:8080/UserProfile`, user);
+    console.log('User edited:', response.data);
+    return response.data;
+  }catch(error){
+    console.error('Error editing the user:', error);
+    throw error;
+  }
+}
 
 //getUserForProfieEdit
 export const getUser = async (userId) => {
-  try{
-    console.log('Sending request to get user based on userID:', userId);
-    const response = await axios.get('http://localhost:8080/uploadImage', {
-     params: { userId: userId},
-  });
+  try {
+    console.log('Fetching user details and image for userId:', userId);
 
-  const items = response.data || [];
-  const flattenedData = items.map(item => ({
-    id: item.id,
-    username: item.username,
-    email: item.email,
-    password: item.password,
-    iamge: item.image,
-    phone_number: item.phone_number
-  }));  return {data: flattenedData};
-}catch(error){
-   console.error('Error fetching user :', error);
-}
-}
+    // Fetch user profile using userId as a path variable
+    const response = await axios.get(`http://localhost:8080/UserProfile/${userId}`);
+
+    const item = response.data || {};
+    const flattenedData = {
+      id: item.userId.id,
+      username: item.name.name,
+      email: item.email.email,
+      phone_number: item.phone_number,
+      image: item.image, // Include image if available
+      roles: item.roles || [],
+    };
+
+    return flattenedData;
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    throw error;
+  }
+};
+
+
 
 
 //get the image from the db

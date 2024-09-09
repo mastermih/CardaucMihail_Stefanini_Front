@@ -29,7 +29,7 @@ function App() {
           <Route path="/orderProduct" element={<OrderProducts />} />
           <Route path="/CreateUser/Superior" element={<UserCreation />} />
           <Route path="/CreateUser" element={<Registration />} />
-          <Route path="/UserProfile" element={<UserProfile />} />
+          <Route path="/UserProfile/:id" element={<UserProfile />} />
           <Route path="/sendMail/confirm/:id" element={<ConfirmOrderEmail />} />
           <Route path="/sendMail/confirm/user/:id" element={<ConfirmUserEmail />} />
 

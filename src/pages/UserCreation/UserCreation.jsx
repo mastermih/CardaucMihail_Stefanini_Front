@@ -19,10 +19,10 @@ const UserCreation = () => {
   const [imagePreviewUrl, setImagePreviewUrl] = useState(''); 
 
   const handleCreateUser = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setLoading(true);
     setMessage('');
-
+  
     const user = {
       name: {
         name: userName,
@@ -35,11 +35,18 @@ const UserCreation = () => {
       role: role,
       accountNonLocked: accountNotLocked,
     };
-
+  
     try {
-      const response = await createUser(user); 
-      setUserId(response); 
-      setMessage(`User created with ID: ${response}`);
+      // Call the backend to create a new user
+      const response = await createUser(user);
+      console.log(response); // This will log the { orderId: 125, message: "User 125 was added successfully" }
+      
+      // Extract the userId (which is the orderId in the response)
+      const userId = response.userId;  // Make sure response contains orderId
+      setUserId(userId); // Store userId for future use
+      setMessage(`User created with ID: ${userId}`);
+      
+      // Clear form fields after user creation
       setUserName('');
       setEmail('');
       setPassword('');
@@ -51,6 +58,7 @@ const UserCreation = () => {
       setLoading(false);
     }
   };
+  
 
   const handleImageChange = (e) => {
     setImage(e.target.files[0]); 
