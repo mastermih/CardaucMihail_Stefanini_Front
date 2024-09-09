@@ -4,7 +4,7 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import './UserProfile.css'; 
-
+//Phone number is not geting the values from db in the forms
 const UserProfile = () => {
     const hardcodedUserId = 115; // Hardcoded userId for testing
     const [loading, setLoading] = useState(false);
@@ -12,26 +12,33 @@ const UserProfile = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [userId, setUserId] = useState(hardcodedUserId); 
     const [image, setImage] = useState(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState('');
+    const baseURL = 'http://localhost:8080/'; // It may be not corret 
 
     // Fetch user details on component 
     useEffect(() => {
-      const fetchUserDetails = async () => {
-        try {
-          const user = await getUser(userId); 
-          setUserName(user.username);
-          setEmail(user.email);
-
-          const baseURL = 'http://localhost:8080/'; // Replace with your server base URL
-          setImagePreviewUrl(baseURL + user.image); 
-        } catch (error) {
-          console.error("Error fetching user details:", error);
-        }
-      };
-      fetchUserDetails();
-    }, [userId]);
+        const fetchUserDetails = async () => {
+          try {
+            const user = await getUser(userId); 
+            
+            setUserName(user.username);
+            setEmail(user.email);
+            
+            // Use the phoneNumber from the response or an empty string if not available
+            setPhoneNumber(user.phoneNumber || '');
+      
+         //   const baseURL = 'http://localhost:8080/';
+            setImagePreviewUrl(baseURL + user.image); 
+          } catch (error) {
+            console.error("Error fetching user details:", error);
+          }
+        };
+        fetchUserDetails();
+      }, [userId]);
+      
 
     // Handle user profile update
     const handleUpdateUser = async (e) => {
@@ -50,9 +57,10 @@ const UserProfile = () => {
             email: email,
           },
           password: password,
-        //   phoneNumber: phoneNumber,
-        //   role: role,
-        //   accountNonLocked: accountNotLocked,
+          phoneNumber: phoneNumber,
+          image: image ? image.name : imagePreviewUrl.replace(baseURL, '') // Retain current image if no new image is uploaded
+
+
         };
       
         try {
@@ -84,7 +92,6 @@ const handleImageUpload = async () => {
       const user = await getUser(userId);
       
       // Set the new image preview URL from the updated user data
-      const baseURL = 'http://localhost:8080/'; // Replace with your server base URL
       setImagePreviewUrl(baseURL + user.image); 
   
       setMessage('Image uploaded and updated successfully');
@@ -131,6 +138,16 @@ const handleImageUpload = async () => {
             />
           </Form.Group>
 
+<Form.Group controlId="phoneNumber">
+  <Form.Label>Phone Number</Form.Label>
+  <Form.Control
+    type="text"
+    placeholder="Enter Phone Number"
+    value={phoneNumber}
+    onChange={(e) => setPhoneNumber(e.target.value)}
+  />
+</Form.Group>
+
           <Button variant="primary" type="submit" disabled={loading}>
             {loading ? 'Updating...' : 'Save Changes'}
           </Button>
@@ -149,7 +166,7 @@ const handleImageUpload = async () => {
         {imagePreviewUrl && (
           <div className="image-preview">
             <h4>Profile Image:</h4>
-            <img src={imagePreviewUrl} alt="Profile" style={{ maxWidth: '100%', height: 'auto' }} />
+            <img src={imagePreviewUrl} alt="Profile" className='profile-image' />
           </div>
         )}
 
