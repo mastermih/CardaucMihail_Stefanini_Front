@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { createUser } from '../../components/dataService';
 import { useNavigate } from 'react-router-dom'; // Use useNavigate instead of useHistory
+import { Link } from 'react-router-dom';
 import './Registration.css'; // Assuming CSS for styling
 
 const Registration = () => {
@@ -11,7 +12,7 @@ const Registration = () => {
   const [message, setMessage] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const navigate = useNavigate(); 
-  
+
   // Handle user registration
   const handleRegisterUser = async (e) => {
     e.preventDefault();
@@ -105,11 +106,11 @@ const Registration = () => {
         </form>
 
         {message && <div className="message">{message}</div>}
-        <p className="login-prompt">Already registered? <a href="/login">Log in</a></p>
+        <p className="login-prompt">Already registered? <Link to="Login"></Link><a href="/login">Log in</a></p>
       </div>
 
       <div className="image-section">
-        <img src="\images\pexels-albinberlin-919073.jpg" alt="background" className="background-image" />
+        <img src="\images\MainPage.jpg" alt="background" className="background-image" />
       </div>
     </div>
   );

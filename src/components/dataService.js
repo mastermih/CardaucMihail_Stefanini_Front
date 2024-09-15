@@ -201,6 +201,15 @@ export const createUser = async (user) => {
       }
 };
 
+export const login = async (user) => {
+  try {
+    const response = await axios.post('http://localhost:8080/login', user);  // Replace with your actual login URL
+    return response;
+  } catch (error) {
+    console.error('Login request failed:', error);
+    throw error;
+  }
+};
 
 
 export const postOrder = async (order) => {

@@ -1,33 +1,57 @@
 .user-profile-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fafafa;
-  }
-  
-  .image-upload-section {
-    margin-top: 20px;
-  }
-  
-  .image-preview img {
-    border-radius: 50%;
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-  }
-  
-  .message {
-    margin-top: 20px;
-    color: green;
-  }
-  
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  .image-preview img {
-    width: 150px;       
-    height: 150px;       
-    border-radius: 50%; 
-    object-fit: cover;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  background-color: #fdfdfd;
+  border-radius: 8px;
+}
+
+.profile-settings-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.profile-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.profile-avatar {
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.profile-username {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.image-upload-section {
+  margin-top: 30px;
+}
+
+.image-preview {
+  margin-top: 20px;
+}
+
+.profile-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.message {
+  margin-top: 20px;
+  color: green;
 }
