@@ -1,4 +1,3 @@
-// axiosConfig.js
 import axios from 'axios';
 
 // Setup Axios interceptor to automatically attach token to every request
@@ -15,8 +14,6 @@ export const setupInterceptors = () => {
       return Promise.reject(error);
     }
   );
-
-
 
   axios.interceptors.response.use(
     (response) => {

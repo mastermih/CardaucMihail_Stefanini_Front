@@ -437,25 +437,26 @@ export const fetchDataByLastOrderProducts = async(limit) => {
   }
 };
 
-export const fetchOrdersByLastOnesUserRole = async (limit, id) => {
+export const fetchOrdersByLastOnesUserRole = async (userId, limit) => {
   try {
     const response = await axios.get('http://localhost:8080/userOrders/UserLastCreated', {
-      params: { limit, id }
+      params: { id: userId, limit }
     });
 
-    console.log('Raw response data:', response.data);
+    const items = response.data || []; // Ensure it's an array
+    console.log('Response data:', items);
 
-    const items = response.data || [];
-    const flattenedData = items.map(item => ({
-      id: item.orderId.id,
-      user_id: item.userId.userId.id,
-      created_date: item.createdDate.createDateTime,
-      updated_date: item.updatedDate.updateDateTime,
-      order_status: item.orderStatus,
+    // Flatten the data for each order returned
+    const flattenedData = items.map(order => ({
+      id: order.orderId.id,
+      user_id: order.userId.userId.id,
+      created_date: order.createdDate.createDateTime,
+      updated_date: order.updatedDate.updateDateTime,
+      order_status: order.orderStatus,
+      operator: order.userId.email.email || 'N/A', // Use N/A if no email is found
     }));
 
-    console.log('Flattened data:', flattenedData);
-    return flattenedData;
+    return { data: flattenedData, totalPages: 1 }; // Default to 1 page for now
   } catch (error) {
     console.error('Error fetching last created orders for user role:', error);
     throw error;

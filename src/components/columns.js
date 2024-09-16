@@ -20,14 +20,14 @@ export const COLUMNS = (handleButtonClick) => [
     accessor: 'order_status', 
   },
   {
-    Header: 'Actions',  // New column for actions
+    Header: 'Operator',  // New column for actions
     accessor: 'actions', // Dummy accessor
     Cell: ({ row }) => (
       <button
         onClick={() => handleButtonClick(row.original)}
         className="btn btn-primary"
       >
-        BOOM
+        Not Selected
       </button>
     ),
   },
