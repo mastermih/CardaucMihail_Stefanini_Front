@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './Login.css'; 
 import { setupInterceptors } from '../../axiosConfig';
 
-const Login = () => {
+const Login = ({ show, handleClose }) => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,6 +39,7 @@ const Login = () => {
         // Delay navigation until the token is stored and interceptors are ready
         setTimeout(() => {
           navigate('/catalog');
+          handleClose();  // Close modal after successful login
         }, 200);
       } else {
         console.error('Token not found in the response:', response);
@@ -53,42 +54,45 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="form-section">
-        <h1 className="title">Login</h1>
-        <form onSubmit={handleLoginUser}>
-          <div className="input-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+    show ? (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <button className="close-button" onClick={handleClose}>×</button>
+          <h1 className="title">Login</h1>
+          <form onSubmit={handleLoginUser}>
+            <div className="input-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="input-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+            <div className="input-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          <button type="submit" className="submit-button" disabled={loading}>
-            {loading ? 'Logging in...' : 'Log In'}
-          </button>
-        </form>
+            <button type="submit" className="submit-button" disabled={loading}>
+              {loading ? 'Logging in...' : 'Log In'}
+            </button>
+          </form>
 
-        {message && <div className="message">{message}</div>}
+          {message && <div className="message">{message}</div>}
+        </div>
       </div>
-    </div>
+    ) : null
   );
 };
 

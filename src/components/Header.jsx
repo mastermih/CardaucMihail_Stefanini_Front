@@ -1,19 +1,31 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
-import Dropdown from 'react-bootstrap/Dropdown'; 
+import Dropdown from 'react-bootstrap/Dropdown';
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { CartContext } from './cartContext';
 import './Header.css';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';  // Correct import for jwt-decode
+import { login } from './dataService'; // Since `dataService.js` is in the same folder as `Header.jsx`
+import { setupInterceptors } from '../axiosConfig'; // Move one directory up to reach `src` and then access `axiosConfig.js`
+
+
+
 
 const Header = () => {
   const { cartItems, removeFromCart } = useContext(CartContext);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false); // State for login modal visibility
   const navigate = useNavigate();
   const [userRoles, setUserRoles] = useState([]);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [loginMessage, setLoginMessage] = useState('');
 
   // Use the useEffect hook to get the roles on component mount
   useEffect(() => {
@@ -47,9 +59,13 @@ const Header = () => {
   };
 
   const handleLoginClick = () => {
-    navigate('/login');
+    setShowLoginModal(true); // Show login modal instead of navigating
   };
-  
+
+  const handleCloseLoginModal = () => {
+    setShowLoginModal(false); // Close the login modal
+  };
+
   const handleRemoveFromCart = (event, orderId) => {
     event.stopPropagation();
     removeFromCart(orderId);
@@ -68,7 +84,39 @@ const Header = () => {
     navigate(`/MakeOrder/${orderId}`); // Navigate to load a specific product
   };
 
-  console.log("User Roles in component:", userRoles); // Log the roles right before rendering
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setLoginMessage('');
+
+    const user = {
+      email: email,
+      password: password,
+    };
+
+    try {
+      const response = await login(user);
+
+      const token = response.data;  // Token is directly inside response.data
+      if (token) {
+        // Save the token in localStorage
+        localStorage.setItem('token', token);
+        setupInterceptors(); // Call interceptors after saving token
+
+        setTimeout(() => {
+          navigate('/catalog');
+          setShowLoginModal(false); // Close the modal on successful login
+        }, 200);
+      } else {
+        setLoginMessage('No token found in response');
+      }
+    } catch (error) {
+      setLoginMessage('Error during login');
+      console.error('Login error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -113,18 +161,6 @@ const Header = () => {
                     ) : (
                       <Dropdown.Item>No items in cart</Dropdown.Item>
                     )}
-
-                    {/* Conditionally render the "View Orders" option for ADMIN users */}
-                    {userRoles.includes('ADMIN') && (
-                    <Dropdown.Item as={NavLink} to="/orders">
-                      <i className="fas fa-list-alt"></i> View Orders
-                     </Dropdown.Item>
-                      )}
-
-                    {/* Check for 'ADMIN' role specifically for 'Options' */}
-                    {userRoles.includes('ADMIN') && (
-                      <Nav.Link href="#options">Options</Nav.Link>
-                    )}
                   </Dropdown.Menu>
                 </Dropdown>
               </Nav>
@@ -155,6 +191,51 @@ const Header = () => {
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      {/* Login Modal */}
+      <Modal show={showLoginModal} onHide={handleCloseLoginModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Login</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={handleLoginSubmit}>
+            <div className="input-group">
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <label htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            {loginMessage && <div className="alert alert-danger">{loginMessage}</div>}
+
+            <Button type="submit" variant="primary" disabled={loading}>
+              {loading ? 'Logging in...' : 'Log In'}
+            </Button>
+          </form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseLoginModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 };
