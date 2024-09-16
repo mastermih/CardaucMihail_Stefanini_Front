@@ -1,15 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { CartProvider } from './components/cartContext'; // Import CartProvider
-import { setupInterceptors } from './axiosConfig';  // Import the Axios config to set up interceptors globally
+import { CartProvider } from './components/cartContext';
+import { setupInterceptors } from './axiosConfig';
 
-// Import the Axios config to set up interceptors globally
 import './axiosConfig';
 
-setupInterceptors();  // Setup Axios interceptors globally
+setupInterceptors();
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

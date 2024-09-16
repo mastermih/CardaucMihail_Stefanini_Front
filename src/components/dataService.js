@@ -437,6 +437,31 @@ export const fetchDataByLastOrderProducts = async(limit) => {
   }
 };
 
+export const fetchOrdersByLastOnesUserRole = async (limit, id) => {
+  try {
+    const response = await axios.get('http://localhost:8080/userOrders/UserLastCreated', {
+      params: { limit, id }
+    });
+
+    console.log('Raw response data:', response.data);
+
+    const items = response.data || [];
+    const flattenedData = items.map(item => ({
+      id: item.orderId.id,
+      user_id: item.userId.userId.id,
+      created_date: item.createdDate.createDateTime,
+      updated_date: item.updatedDate.updateDateTime,
+      order_status: item.orderStatus,
+    }));
+
+    console.log('Flattened data:', flattenedData);
+    return flattenedData;
+  } catch (error) {
+    console.error('Error fetching last created orders for user role:', error);
+    throw error;
+  }
+};
+
 
 export const fetchDataByLastOrders = async (limit) => {
   try {
@@ -504,6 +529,32 @@ export const fetchOrderProductByPriceInterval = async (startPrice, endPrice, tot
       quantity: item.quantity.quantity,
       price_product: item.priceOrder.price,
       parent: item.parent.id
+    }));
+
+    console.log('Flattened data:', flattenedData);
+
+    return { data: flattenedData, totalPages: response.data.totalPages };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+};
+
+export const fetchDataByDateIntervalUserRole = async (id, startDate, endDate, numberOfOrders, page) => {
+  try{
+    const response = await axios.get('http://localhost:8080/userOrders/createDate', {
+      params: {id, startDate, endDate, numberOfOrders, page}
+    });
+    console.log('Raw response data:', response.data);
+
+    const items = response.data.items || [];
+
+    const flattenedData = items.map(item => ({
+      id: item.orderId.id,
+      user_id: item.userId.userId.id,
+      created_date: item.createdDate.createDateTime,
+      updated_date: item.updatedDate.updateDateTime,
+      order_status: item.orderStatus,
     }));
 
     console.log('Flattened data:', flattenedData);

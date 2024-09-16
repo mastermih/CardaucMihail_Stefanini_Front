@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home/Home';
 import Orders from './pages/Orders/Orders';
+import UserOrders from './pages/UserOrders/UserOrders';
 import Catalog from './pages/Catalog/Catalog';
 import ProductPage from './pages/ProductPage/ProductPage';
 import MakeOrder from './pages/MakeOrder/MakeOrder';
@@ -23,10 +24,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/userOrders/UserLastCreated" element={<UserOrders />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/MakeOrder" element={<MakeOrder />} /> {/* Handles all cart items */}
-          <Route path="/MakeOrder/:id" element={<MakeOrder />} /> {/* Handles a specific cart item */}
+          <Route path="/MakeOrder" element={<MakeOrder />} />
+          <Route path="/MakeOrder/:id" element={<MakeOrder />} />
           <Route path="/orderProduct" element={<OrderProducts />} />
           <Route path="/CreateUser/Superior" element={<UserCreation />} />
           <Route path="/CreateUser" element={<Registration />} />
@@ -34,7 +36,6 @@ function App() {
           <Route path="/UserProfile/:id" element={<UserProfile />} />
           <Route path="/sendMail/confirm/:id" element={<ConfirmOrderEmail />} />
           <Route path="/sendMail/confirm/user/:id" element={<ConfirmUserEmail />} />
-
         </Routes>
       </div>
     </Router>
