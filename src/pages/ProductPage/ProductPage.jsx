@@ -5,6 +5,7 @@ import { fetchProductPageById, postOrder } from '../../components/dataService';
 import { useParams } from 'react-router-dom';
 import { CartContext } from '../../components/cartContext';
 import Footer from '../../components/Footer';
+import {jwtDecode} from 'jwt-decode';  // Import jwt-decode
 import './ProductPage.css';
 
 const ProductPage = () => {
@@ -29,6 +30,23 @@ const ProductPage = () => {
     loadProduct();
   }, [id]);
 
+  // Extract the user ID from the token
+  const getUserIdFromToken = () => {
+    const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
+    if (!token) {
+      console.error('No token found');
+      return null;
+    }
+
+    try {
+      const decodedToken = jwtDecode(token);  // Decode the token
+      return decodedToken?.userId;  // Assuming the userId is present in the token payload
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
   if (!product) return <p>No product found.</p>;
@@ -46,9 +64,21 @@ const ProductPage = () => {
 
   const handleAddOrder = async () => {
     try {
+      // Get the token from localStorage
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error("No token found, cannot place order");
+        return;
+      }
+      
+      // Decode the token to get the user ID
+      const decodedToken = jwtDecode(token);
+      const userId = decodedToken.id;
+      
       const orderWithProductsDTO = {
         order: {
-          userId: { id: 2 },
+          userId:  userId,
           orderStatus: "INITIALISED",
           productId: product.id,
         },
@@ -64,27 +94,27 @@ const ProductPage = () => {
           }
         ]
       };
-
+  
       // Make the API call to create the order and products
       const response = await postOrder(orderWithProductsDTO);
       console.log("Order with Products API Response:", response);
-
+  
       // Check if the response contains the orderId
       if (response && response.orderId) {
         const orderId = response.orderId;
         console.log("Created Order ID:", orderId);
-
+  
         // Now add the product to the cart with the orderId
         addToCart(product, orderId);
       } else {
         console.error("Failed to get orderId from response or response format is incorrect");
       }
-
+  
     } catch (error) {
       console.error("Error creating order with products:", error);
     }
   };
-
+  
   return (
     <>
       <Header />
