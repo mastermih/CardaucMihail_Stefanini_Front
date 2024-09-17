@@ -1,35 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import BasicTable from '../../components/BasicTable';
-import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders } from '../../components/dataService';
+import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders, assigneeOperatorToOrder } from '../../components/dataService'; // Correct import
 
 const Orders = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
 
-  const handleButtonClick = (row) => {
-    console.log('Button clicked for row:', row);
-    // Implement your action here, e.g., open a modal, navigate to a page, etc.
-  };
+  // Function to handle role selection and assign the operator to the order
+  const handleRoleSelection = async (orderId, role) => {
+    if (!orderId) {
+      console.error('Order ID is missing');
+      return;
+    }
 
-  const handlePageChange = async (newPage) => {
-    setLoading(true);
     try {
-      const result = await fetchDataByDateInterval(startDate, endDate, 5, newPage);
-      setData(result.data);
-      setTotalPages(result.totalPages);
-      setCurrentPage(newPage);
+      const response = await assigneeOperatorToOrder(role, orderId); // Ensure this function is correctly imported
+      console.log(`Assigned ${role} to order ${orderId}. Response:`, response);
     } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
+      console.error('Error assigning role:', error);
     }
   };
 
+  // Function to fetch filtered data based on date and status
   const handleFetchData = async () => {
     setLoading(true);
     try {
@@ -40,9 +35,6 @@ const Orders = () => {
         result = await fetchDataByDateInterval(startDate, endDate, 5, 1);
       }
       setData(result.data);
-      setTotalPages(result.totalPages);
-      setCurrentPage(1);
-      console.log('Data received in handleFetchData:', result.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -50,6 +42,7 @@ const Orders = () => {
     }
   };
 
+  // Function to fetch the last 5 orders
   useEffect(() => {
     handleFetchDataByLastOrders();
   }, []);
@@ -59,9 +52,6 @@ const Orders = () => {
     try {
       const result = await fetchDataByLastOrders(5);
       setData(result.data);
-      setTotalPages(1); 
-      setCurrentPage(1);
-      console.log('Data received in handleFetchDataByLastOrders:', result.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -72,56 +62,71 @@ const Orders = () => {
   return (
     <div className="container">
       <h1>Orders</h1>
-      <div className="controls">
-        <div className="form-group">
-          <label>Start Date:</label>
+
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label htmlFor="startDate">Start Date:</label>
           <input
             type="date"
+            id="startDate"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="form-control"
+            style={{ width: '150px', padding: '6px', marginRight: '10px' }}
           />
         </div>
-        <div className="form-group">
-          <label>End Date:</label>
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label htmlFor="endDate">End Date:</label>
           <input
             type="date"
+            id="endDate"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="form-control"
+            style={{ width: '150px', padding: '6px', marginRight: '10px' }}
           />
         </div>
-        <div className="form-group">
-          <label>Status:</label>
-          <select value={selectedStatus} onChange={(e) => setSelectedStatus(e.target.value)} className="form-control">
+
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <label htmlFor="status">Status:</label>
+          <select
+            id="status"
+            value={selectedStatus}
+            onChange={(e) => setSelectedStatus(e.target.value)}
+            style={{ width: '150px', padding: '6px' }}
+          >
             <option value="">Select Status</option>
             <option value="CLOSED">Closed</option>
             <option value="OPEN">Open</option>
             <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
           </select>
         </div>
-        <button onClick={handleFetchData} className="btn btn-primary">Filter</button>
+
+        <button
+          onClick={handleFetchData}
+          style={{
+            backgroundColor: '#007bff',
+            color: '#fff',
+            border: 'none',
+            padding: '6px 12px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginTop: '22px'
+          }}
+        >
+          Filter
+        </button>
       </div>
+
       {loading ? (
-        <div>Loading...</div>
-      ) : (
-        <>
-          <BasicTable data={data} columnsType="COLUMNS" handleButtonClick={handleButtonClick} />
-          {totalPages > 1 && (
-            <div className="pagination">
-              <button className="btn btn-secondary" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-                Previous
-              </button>
-              <span>Page {currentPage} of {totalPages}</span>
-              <button className="btn btn-secondary" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-                Next
-              </button>
-            </div>
-          )}
-        </>
-      )}
+  <div>Loading...</div>
+) : (
+  <BasicTable data={data} handleRoleSelection={handleRoleSelection} />
+)}
+
     </div>
   );
 };
 
 export default Orders;
+

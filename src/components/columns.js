@@ -1,4 +1,7 @@
-export const COLUMNS = (handleButtonClick) => [
+// columns.js
+
+
+export const COLUMNS = (handleRoleSelection) => [
   {
     Header: 'Id',
     accessor: 'id',
@@ -17,22 +20,26 @@ export const COLUMNS = (handleButtonClick) => [
   },
   {
     Header: 'Order Status',
-    accessor: 'order_status', 
+    accessor: 'order_status',
   },
   {
-    Header: 'Operator',  // New column for actions
-    accessor: 'actions', // Dummy accessor
+    Header: 'Operator',  
+    accessor: 'actions',
     Cell: ({ row }) => (
-      <button
-        onClick={() => handleButtonClick(row.original)}
-        className="btn btn-primary"
-      >
-        Not Selected
-      </button>
+      <div>
+        <select
+          onChange={(e) => handleRoleSelection(row.original.id, e.target.value)}
+          className="form-select"
+        >
+          <option value="">Not Selected</option>
+          <option value="ADMIN">Admin</option>
+          <option value="SALESMAN">Salesman</option>
+          <option value="MANAGER">Manager</option>
+        </select>
+      </div>
     ),
   },
 ];
-
 
 export const COLUMNS2 = [
   {
@@ -40,7 +47,7 @@ export const COLUMNS2 = [
     accessor: 'id',
   },
   {
-    Header: 'ProductName',
+    Header: 'Product Name',
     accessor: 'product_name',
   },
   {
@@ -48,11 +55,7 @@ export const COLUMNS2 = [
     accessor: 'quantity',
   },
   {
-    Header: 'PriceProduct',
-    accessor: 'price_product',
-  },
-  {
-    Header: 'Parent',
-    accessor: 'parent',
+    Header: 'Price',
+    accessor: 'price',
   },
 ];

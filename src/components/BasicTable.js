@@ -1,17 +1,11 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
-import '../assets/styles/table.css';
-import { COLUMNS, COLUMNS2 } from './columns';
+import { COLUMNS } from './columns';
 
-const BasicTable = ({ data, columnsType, handleButtonClick }) => {
+const BasicTable = ({ data, columnsType, handleRoleSelection }) => {
   const columns = useMemo(() => {
-    if (columnsType === 'COLUMNS') {
-      return COLUMNS(handleButtonClick); // Pass handleButtonClick only for COLUMNS
-    } else if (columnsType === 'COLUMNS2') {
-      return COLUMNS2; // No action button for COLUMNS2
-    }
-    return [];
-  }, [columnsType, handleButtonClick]);
+    return COLUMNS(handleRoleSelection); // Only use COLUMNS
+  }, [handleRoleSelection]);
 
   const tableInstance = useTable({
     columns,

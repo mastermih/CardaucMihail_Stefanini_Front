@@ -491,6 +491,19 @@ export const fetchDataByLastOrders = async (limit) => {
   }
 };
 
+export const assigneeOperatorToOrder = async (role, id) => {
+  try {
+    const response = await axios.put(`http://localhost:8080/orders/assignation`, null, {
+      params: { role, id }  // Passing both role and id as query parameters
+    });
+    console.log('Raw response data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error assigning operator to order:', error);
+    throw error; // Rethrow the error to handle it elsewhere if necessary
+  }
+};
+
 export const fetchDataByDateAndStatus = async (startDate, endDate, status, numberOfOrders, page) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/status-createDate', {
