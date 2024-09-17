@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
@@ -9,12 +9,9 @@ import Button from 'react-bootstrap/Button';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { CartContext } from './cartContext';
 import './Header.css';
-import {jwtDecode} from 'jwt-decode';  // Correct import for jwt-decode
-import { login } from './dataService'; // Since `dataService.js` is in the same folder as `Header.jsx`
-import { setupInterceptors } from '../axiosConfig'; // Move one directory up to reach `src` and then access `axiosConfig.js`
-
-
-
+import {jwtDecode} from 'jwt-decode'; // Correct import for jwt-decode
+import { login, getUser } from './dataService'; // Fetch user API call to get user details
+import { setupInterceptors } from '../axiosConfig'; // Setup interceptors for API calls
 
 const Header = () => {
   const { cartItems, removeFromCart } = useContext(CartContext);
@@ -26,22 +23,55 @@ const Header = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userProfile, setUserProfile] = useState(null); // User profile state
+  const [userId, setUserId] = useState(null); // User ID state
 
-  // Use the useEffect hook to get the roles on component mount
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        console.log("Decoded token:", decoded);
-        setUserRoles(decoded.roles || []);  // Set the roles into state
-      } catch (error) {
-        console.error('Failed to decode token:', error);
-        setUserRoles([]);
+// Extract the user ID from the token
+useEffect(() => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      console.log('Token found:', token);  // Log the token for debugging
+      const decodedToken = jwtDecode(token); // Decode the token
+      console.log('Decoded Token:', decodedToken); // Log the decoded token
+
+      const extractedUserId = decodedToken.id; // Extract the `id` field instead of `userId`
+      if (extractedUserId) {
+        setUserId(extractedUserId); // Set the user ID in state
+        setUserRoles(decodedToken.roles || []); // Set user roles if available
+        setIsLoggedIn(true);
+        console.log('User ID extracted from token:', extractedUserId);
+      } else {
+        console.error('No id found in token');
       }
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      setIsLoggedIn(false);
     }
-  }, []);  // The empty dependency array ensures this runs only once on mount
+  } else {
+    console.error('No token found');
+  }
+}, []); // Runs only once after component mounts
 
+
+  // Fetch the user profile whenever the userId changes
+  useEffect(() => {
+    if (userId) {
+      const fetchUserProfile = async (id) => {
+        try {
+          console.log('Fetching user details for userId:', id);
+          const user = await getUser(id); // Fetch user details via API
+          setUserProfile(user); // Set user profile into state
+          console.log('User details fetched successfully:', user);
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      };
+
+      fetchUserProfile(userId); // Trigger the profile fetch
+    }
+  }, [userId]); // Trigger when userId changes
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
@@ -97,11 +127,16 @@ const Header = () => {
     try {
       const response = await login(user);
 
-      const token = response.data;  // Token is directly inside response.data
+      const token = response.data; // Token is directly inside response.data
       if (token) {
         // Save the token in localStorage
         localStorage.setItem('token', token);
         setupInterceptors(); // Call interceptors after saving token
+
+        // Decode token to extract userId and trigger profile fetch
+        const decodedToken = jwtDecode(token);
+        const extractedUserId = decodedToken.userId;
+        setUserId(extractedUserId); // Set userId to trigger profile fetching
 
         setTimeout(() => {
           navigate('/catalog');
@@ -116,6 +151,14 @@ const Header = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token'); 
+    setIsLoggedIn(false);
+    setUserProfile(null);
+    setUserId(null); // Clear userId and profile on logout
+    navigate('/');
   };
 
   return (
@@ -134,35 +177,43 @@ const Header = () => {
               <p>Need Some Help<br />or mood</p>
               <p>045-151-48-220</p>
               <Nav className="ml-auto">
-                <Nav.Link onClick={handleSignUpClick}>
-                  <i className="fas fa-user-plus"></i> Sign Up
-                </Nav.Link>              
-                <Nav.Link onClick={handleLoginClick}><i className="fas fa-sign-in-alt"></i> Log In</Nav.Link>
-                <Dropdown show={showDropdown} onToggle={toggleDropdown}>
-                  <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter} onClick={handleCartClick}>
-                    <i className="fas fa-shopping-cart"></i> Cart ({cartItems.length})
-                  </Dropdown.Toggle>
-                  
-                  <Dropdown.Menu onMouseLeave={handleMouseLeave}>
-                    {cartItems.length > 0 ? (
-                      cartItems.map((item) => (
-                        <Dropdown.Item key={item.id} onClick={() => handleItemClick(item.orderId)}>
-                          <img className="card-img-top" src={item.image_path} style={{ width: '100px', height: '100px', marginRight: '10px' }} alt="product" />
-                          {item.productName} - ${item.price ? item.price.toFixed(2) : 'N/A'}
-                          <br />
-                          <hr />
-                          <div className="cart-item-description">
-                            {item.description ? item.description : 'No description available'}
-                          </div>
-                          <br />
-                          <button onClick={(event) => handleRemoveFromCart(event, item.orderId)}>Remove</button>
-                        </Dropdown.Item>
-                      ))
-                    ) : (
-                      <Dropdown.Item>No items in cart</Dropdown.Item>
-                    )}
-                  </Dropdown.Menu>
-                </Dropdown>
+                {!isLoggedIn ? (
+                  <>
+                    <Nav.Link onClick={handleSignUpClick}>
+                      <i className="fas fa-user-plus"></i> Sign Up
+                    </Nav.Link>
+                    <Nav.Link onClick={handleLoginClick}><i className="fas fa-sign-in-alt"></i> Log In</Nav.Link>
+                  </>
+                ) : (
+                  <>
+                    <Dropdown show={showDropdown} onToggle={toggleDropdown}>
+                      <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter} onClick={handleCartClick}>
+                        <i className="fas fa-shopping-cart"></i> Cart ({cartItems.length})
+                      </Dropdown.Toggle>
+
+                      <Dropdown.Menu onMouseLeave={handleMouseLeave}>
+                        {cartItems.length > 0 ? (
+                          cartItems.map((item) => (
+                            <Dropdown.Item key={item.id} onClick={() => handleItemClick(item.orderId)}>
+                              <img className="card-img-top" src={item.image_path} style={{ width: '100px', height: '100px', marginRight: '10px' }} alt="product" />
+                              {item.productName} - ${item.price ? item.price.toFixed(2) : 'N/A'}
+                            </Dropdown.Item>
+                          ))
+                        ) : (
+                          <Dropdown.Item>No items in cart</Dropdown.Item>
+                        )}
+                      </Dropdown.Menu>
+                    </Dropdown>
+                    {/* Show profile picture */}
+                    <img
+                      src={`http://localhost:8080/${userProfile?.image}`}  // Display profile image if available
+                      alt="Profile"
+                      className="profile-image"
+                      style={{ width: '50px', height: '50px', borderRadius: '50%' }}
+                    />
+                    <Button onClick={handleLogout} variant="danger">Logout</Button>
+                  </>
+                )}
               </Nav>
             </div>
           </div>
@@ -183,8 +234,8 @@ const Header = () => {
               {userRoles.includes('ADMIN') && (
                 <Nav.Link href="orders/">ORDERS</Nav.Link>
               )}
-               {/* Conditionally render "Options" for only "USER" */}
-                {userRoles.includes('USER') && (
+              {/* Conditionally render "Options" for only "USER" */}
+              {userRoles.includes('USER') && (
                 <Nav.Link href="/userOrders/UserLastCreated">My ORDERS</Nav.Link>
               )}
             </Nav>
