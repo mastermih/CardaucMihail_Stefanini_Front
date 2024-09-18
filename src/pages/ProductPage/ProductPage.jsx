@@ -164,6 +164,7 @@ const ProductPage = () => {
                   <p className="pacanele-mici">The final price is going to include extra expenses like delivery and installation 
                   (you can get a discount if you have the premium version). </p>
                 </div>
+                
               </div>
             </div>
           </div>

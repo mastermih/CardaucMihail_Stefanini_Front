@@ -8,6 +8,8 @@ const Orders = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Function to handle role selection and assign the operator to the order
   const handleRoleSelection = async (orderId, role) => {
@@ -24,17 +26,19 @@ const Orders = () => {
     }
   };
 
-  // Function to fetch filtered data based on date and status
-  const handleFetchData = async () => {
+  // Function to fetch filtered data based on date, status, and pagination
+  const handleFetchData = async (page = 1) => {
     setLoading(true);
     try {
       let result;
       if (selectedStatus) {
-        result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, 1);
+        result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, page);
       } else {
-        result = await fetchDataByDateInterval(startDate, endDate, 5, 1);
+        result = await fetchDataByDateInterval(startDate, endDate, 5, page);
       }
       setData(result.data);
+      setCurrentPage(result.currentPage);
+      setTotalPages(result.totalPages);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -52,10 +56,18 @@ const Orders = () => {
     try {
       const result = await fetchDataByLastOrders(5);
       setData(result.data);
+      setCurrentPage(result.currentPage);
+      setTotalPages(result.totalPages);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      handleFetchData(page);
     }
   };
 
@@ -103,7 +115,7 @@ const Orders = () => {
         </div>
 
         <button
-          onClick={handleFetchData}
+          onClick={() => handleFetchData(1)}
           style={{
             backgroundColor: '#007bff',
             color: '#fff',
@@ -111,7 +123,7 @@ const Orders = () => {
             padding: '6px 12px',
             borderRadius: '4px',
             cursor: 'pointer',
-            marginTop: '22px'
+            marginTop: '22px',
           }}
         >
           Filter
@@ -119,11 +131,35 @@ const Orders = () => {
       </div>
 
       {loading ? (
-  <div>Loading...</div>
-) : (
-  <BasicTable data={data} handleRoleSelection={handleRoleSelection} />
-)}
+        <div>Loading...</div>
+      ) : (
+        <>
+          <BasicTable data={data} handleRoleSelection={handleRoleSelection} />
 
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                style={{ marginRight: '10px' }}
+              >
+                Previous
+              </button>
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                style={{ marginLeft: '10px' }}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

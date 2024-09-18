@@ -3,9 +3,10 @@ import { updateUser, getUser, uploadImage } from '../../components/dataService';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { jwtDecode } from 'jwt-decode';  // Correct import (default export)
-import { useParams } from 'react-router-dom';  // To capture userId from the URL
-import './UserProfile.css'; 
+import { jwtDecode } from 'jwt-decode';  
+import { useParams, useNavigate } from 'react-router-dom'; 
+import Header from '../../components/Header';
+import './UserProfile.css';
 
 const UserProfile = () => {
     const { id: userIdFromUrl } = useParams();  // Get the userId from the URL params
@@ -19,10 +20,10 @@ const UserProfile = () => {
     const [image, setImage] = useState(null);
     const [imagePreviewUrl, setImagePreviewUrl] = useState('');
     const baseURL = 'http://localhost:8080/';  // Adjust based on your backend URL
+    const navigate = useNavigate();  // Initialize the navigate function
 
     useEffect(() => {
         if (!userIdFromUrl) {
-            // If no userId in URL, try to extract it from the token
             const token = localStorage.getItem('token');
             if (token) {
                 const decodedToken = jwtDecode(token);  // Decode the token
@@ -54,7 +55,6 @@ const UserProfile = () => {
         }
     }, [userId]);
 
-    // Function to update the user profile
     const handleUpdateUser = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -79,12 +79,10 @@ const UserProfile = () => {
         }
     };
 
-    // Function to handle the image file change
     const handleImageChange = (e) => {
         setImage(e.target.files[0]); 
     };
 
-    // Function to upload the image and refresh the user data
     const handleImageUpload = async () => {
         if (!image) {
             alert('Please select an image to upload.');
@@ -107,7 +105,14 @@ const UserProfile = () => {
         }
     };
 
+    // Function to handle the redirect to the home page
+    const handleRedirectToHome = () => {
+        navigate('/');  // Navigate to the home page
+    };
+
     return (
+      <>
+      <Header />
         <Container className="user-profile-container">
             <div className="profile-settings-header">
                 <div className="profile-header-left">
@@ -149,16 +154,6 @@ const UserProfile = () => {
                         onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                 </Form.Group>
-                {/* The password is not neded here?   */}
-                {/* <Form.Group controlId="password">
-                    <Form.Label>Password</Form.Label>
-                    <Form.Control
-                        type="password"
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </Form.Group> */}
 
                 <Button variant="primary" type="submit" disabled={loading}>
                     {loading ? 'Updating...' : 'Save Changes'}
@@ -182,6 +177,7 @@ const UserProfile = () => {
 
             {message && <div className="message">{message}</div>}
         </Container>
+        </>
     );
 };
 
