@@ -107,13 +107,13 @@ export const updateUser = async(user) =>{
   }
 }
 
-//getUserForProfieEdit
-export const getUser = async (userId) => {
+//getUserForProfieEdit HERE isWithToken
+export const getUserByToken = async (userToken) => {
   try {
-    console.log('Fetching user details and image for userId:', userId);
+    console.log('Fetching user details and image for userId:', userToken);
 
     // Fetch user profile using userId as a path variable
-    const response = await axios.get(`http://localhost:8080/UserProfile/${userId}`);
+    const response = await axios.get(`http://localhost:8080/UserProfile${userToken}`);
 
     const item = response.data || {};
     const flattenedData = {
@@ -131,6 +131,37 @@ export const getUser = async (userId) => {
     throw error;
   }
 };
+
+
+
+
+//getUserForProfileEdit
+export const getUser = async (userId) => {
+  try {
+    console.log('Fetching user details and image for userId:', userId);
+
+    // Fetch user profile using userId as a query parameter
+    const response = await axios.get(`http://localhost:8080/UserProfile`, {
+      params: { userId: userId }
+    });
+
+    const item = response.data || {};
+    const flattenedData = {
+      id: item.userId.id,
+      username: item.name.name,
+      email: item.email.email,
+      phone_number: item.phone_number,
+      image: item.image, // Include image if available
+      roles: item.roles || [],
+    };
+
+    return flattenedData;
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    throw error;
+  }
+};
+
 
 
 

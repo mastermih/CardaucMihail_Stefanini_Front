@@ -10,6 +10,8 @@ import Footer from '../../components/Footer';
 import Pagination from 'react-bootstrap/Pagination';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import { useNavigate } from 'react-router-dom'; 
+import { setupInterceptors } from '../../axiosConfig'; // Import the interceptors
 
 const Catalog = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -23,6 +25,20 @@ const Catalog = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(6);
+  const navigate = useNavigate();
+
+  // Call interceptors with the navigate function
+  useEffect(() => {
+    setupInterceptors(navigate);
+  }, [navigate]);
+
+  // Check for the token and redirect if not found
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/", { state: { showLoginForm: true } });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -36,7 +52,6 @@ const Catalog = () => {
         setLoading(false);
       }
     };
-
     loadProducts();
   }, [pageSize]);
 
@@ -54,9 +69,9 @@ const Catalog = () => {
         electricity_consumption: electricityConsumption,
       };
       params = Object.fromEntries(Object.entries(params).filter(([key, value]) => value));
-  
+
       const result = await filterProducts(params);
-      
+
       setProducts(result.data);
       setTotalPages(result.totalPages || 1);  // Use the totalPages from the API response
       setCurrentPage(page);
@@ -67,7 +82,6 @@ const Catalog = () => {
       setLoading(false);
     }
   };
-  
 
   const handlePageChange = async (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -180,20 +194,18 @@ const Catalog = () => {
           </Row>
         </Container>
       </div>
-      {/* Isolated Pagination and Form Controls */}
-      <h1></h1>
       {totalPages > 1 && (
-  <div className="pagination-controls mt-4 d-flex justify-content-between" style={{ padding: '20px 0', textAlign: 'center' }}>
-    <Pagination>
-      <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
-      <Form.Control
-        type="number"
-        value={currentPage}
-        onChange={(e) => handlePageChange(Number(e.target.value))}
-        style={{ width: '75px', display: 'inline-block', margin: '0 10px' }}
-      />
-      <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
-    </Pagination>
+        <div className="pagination-controls mt-4 d-flex justify-content-between" style={{ padding: '20px 0', textAlign: 'center' }}>
+          <Pagination>
+            <Pagination.Prev onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} />
+            <Form.Control
+              type="number"
+              value={currentPage}
+              onChange={(e) => handlePageChange(Number(e.target.value))}
+              style={{ width: '75px', display: 'inline-block', margin: '0 10px' }}
+            />
+            <Pagination.Next onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} />
+          </Pagination>
         </div>
       )}
       <Footer />

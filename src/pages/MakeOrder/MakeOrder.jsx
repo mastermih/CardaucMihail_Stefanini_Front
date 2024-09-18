@@ -33,6 +33,13 @@ const MakeOrder = () => {
     const inputRef = useRef(null);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate("/", { state: { showLoginForm: true } });
+        }
+      }, [navigate]);
+
     const transformData = (data) => {
         try {
             const orderProductsArray = Array.isArray(data) ? data : [];

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate,useLocation } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -25,21 +25,28 @@ const Header = () => {
   const [loginMessage, setLoginMessage] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userProfile, setUserProfile] = useState(null); // User profile state
+  const location = useLocation(); 
   const [userId, setUserId] = useState(null); // User ID state
 
 // Extract the user ID from the token
 useEffect(() => {
+  if (location.state && location.state.showLoginForm) {
+    setShowLoginModal(true); // Show login modal if state is passed during navigation
+  }
+}, [location.state]);
+
+useEffect(() => {
   const token = localStorage.getItem('token');
   if (token) {
     try {
-      console.log('Token found:', token);  // Log the token for debugging
-      const decodedToken = jwtDecode(token); // Decode the token
-      console.log('Decoded Token:', decodedToken); // Log the decoded token
+      console.log('Token found:', token);  
+      const decodedToken = jwtDecode(token); 
+      console.log('Decoded Token:', decodedToken);
 
-      const extractedUserId = decodedToken.id; // Extract the `id` field instead of `userId`
+      const extractedUserId = decodedToken.id;
       if (extractedUserId) {
-        setUserId(extractedUserId); // Set the user ID in state
-        setUserRoles(decodedToken.roles || []); // Set user roles if available
+        setUserId(extractedUserId);
+        setUserRoles(decodedToken.roles || []);
         setIsLoggedIn(true);
         console.log('User ID extracted from token:', extractedUserId);
       } else {
@@ -52,17 +59,16 @@ useEffect(() => {
   } else {
     console.error('No token found');
   }
-}, []); // Runs only once after component mounts
+}, []); 
 
 
-  // Fetch the user profile whenever the userId changes
   useEffect(() => {
     if (userId) {
       const fetchUserProfile = async (id) => {
         try {
           console.log('Fetching user details for userId:', id);
-          const user = await getUser(id); // Fetch user details via API
-          setUserProfile(user); // Set user profile into state
+          const user = await getUser(id);
+          setUserProfile(user);
           console.log('User details fetched successfully:', user);
         } catch (error) {
           console.error('Error fetching user profile:', error);
@@ -89,16 +95,19 @@ useEffect(() => {
   };
 
   const handleLoginClick = () => {
-    setShowLoginModal(true); // Show login modal instead of navigating
+    setShowLoginModal(true);
   };
 
   const handleCloseLoginModal = () => {
-    setShowLoginModal(false); // Close the login modal
+    setShowLoginModal(false);
   };
 
   const handleRemoveFromCart = (event, orderId) => {
     event.stopPropagation();
     removeFromCart(orderId);
+  };
+  const handleUserProfilePictureClick = () => {
+    navigate(`/UserProfile/${userId}`);  // Navigate to the user profile page using the extracted user ID
   };
 
   const handleCartClick = () => {
@@ -186,6 +195,14 @@ useEffect(() => {
                   </>
                 ) : (
                   <>
+<img
+  src={`http://localhost:8080/${userProfile?.image}`}  // Display profile image if available
+  alt="Profile"
+  className="profile-image"
+  onClick={handleUserProfilePictureClick}  // Correct camelCase
+  style={{ width: '50px', height: '50px', borderRadius: '50%' }}
+/>
+
                     <Dropdown show={showDropdown} onToggle={toggleDropdown}>
                       <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter} onClick={handleCartClick}>
                         <i className="fas fa-shopping-cart"></i> Cart ({cartItems.length})
@@ -204,13 +221,6 @@ useEffect(() => {
                         )}
                       </Dropdown.Menu>
                     </Dropdown>
-                    {/* Show profile picture */}
-                    <img
-                      src={`http://localhost:8080/${userProfile?.image}`}  // Display profile image if available
-                      alt="Profile"
-                      className="profile-image"
-                      style={{ width: '50px', height: '50px', borderRadius: '50%' }}
-                    />
                     <Button onClick={handleLogout} variant="danger">Logout</Button>
                   </>
                 )}

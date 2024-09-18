@@ -1,12 +1,11 @@
 import axios from 'axios';
 
-// Setup Axios interceptor to automatically attach token to every request
-export const setupInterceptors = () => {
+export const setupInterceptors = (navigate) => {
   axios.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem('token');  // Get the token from localStorage
+      const token = localStorage.getItem('token');
       if (token) {
-        config.headers['Authorization'] = `Bearer ${token}`;  // Set Authorization header
+        config.headers['Authorization'] = `Bearer ${token}`;
       }
       return config;
     },
@@ -20,10 +19,10 @@ export const setupInterceptors = () => {
       return response;
     },
     (error) => {
-      if (error.response && error.response.status === 401) {
-        console.error('Unauthorized access - possibly due to an expired token');
-        localStorage.removeItem('token');  // Optionally remove expired token
-        window.location.href = '/login';  // Redirect to login page if unauthorized
+      if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+        console.error('Unauthorized or forbidden access - redirecting to login');
+        localStorage.removeItem('token');
+        navigate("/", { state: { showLoginForm: true } });
       }
       return Promise.reject(error);
     }

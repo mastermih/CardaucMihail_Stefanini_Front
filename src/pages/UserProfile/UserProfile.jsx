@@ -149,8 +149,8 @@ const UserProfile = () => {
                         onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                 </Form.Group>
-
-                <Form.Group controlId="password">
+                {/* The password is not neded here?   */}
+                {/* <Form.Group controlId="password">
                     <Form.Label>Password</Form.Label>
                     <Form.Control
                         type="password"
@@ -158,7 +158,7 @@ const UserProfile = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
-                </Form.Group>
+                </Form.Group> */}
 
                 <Button variant="primary" type="submit" disabled={loading}>
                     {loading ? 'Updating...' : 'Save Changes'}

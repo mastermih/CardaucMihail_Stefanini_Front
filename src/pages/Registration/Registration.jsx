@@ -106,7 +106,9 @@ const Registration = () => {
         </form>
 
         {message && <div className="message">{message}</div>}
-        <p className="login-prompt">Already registered? <Link to="Login"></Link><a href="/login">Log in</a></p>
+        <p className="login-prompt" onClick={() => navigate("/", { state: { showLoginForm: true } })}>
+  Already registered? Log in
+</p>
       </div>
 
       <div className="image-section">

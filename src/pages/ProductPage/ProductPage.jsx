@@ -6,6 +6,8 @@ import { useParams } from 'react-router-dom';
 import { CartContext } from '../../components/cartContext';
 import Footer from '../../components/Footer';
 import {jwtDecode} from 'jwt-decode';  // Import jwt-decode
+import {useNavigate} from  'react-router-dom'
+import { setupInterceptors } from '../../axiosConfig'; // Import the interceptors
 import './ProductPage.css';
 
 const ProductPage = () => {
@@ -14,6 +16,14 @@ const ProductPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { addToCart } = useContext(CartContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/", { state: { showLoginForm: true } });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const loadProduct = async () => {
