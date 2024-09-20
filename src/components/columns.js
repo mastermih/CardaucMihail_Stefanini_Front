@@ -23,11 +23,12 @@ export const COLUMNS = (handleRoleSelection) => [
     accessor: 'order_status',
   },
   {
-    Header: 'Operator',  
-    accessor: 'actions',
+     Header: 'Operator',  
+    accessor: 'assigned_operator',
     Cell: ({ row }) => (
       <div>
         <select
+          value={row.original.assigned_operator || ''} 
           onChange={(e) => handleRoleSelection(row.original.id, e.target.value)}
           className="form-select"
         >

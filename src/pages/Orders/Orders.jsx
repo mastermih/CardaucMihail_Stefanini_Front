@@ -14,42 +14,50 @@ const Orders = () => {
   const navigate = useNavigate();
 
   // Function to handle role selection and assign the operator to the order
-  const handleRoleSelection = async (orderId, role) => {
-    if (!orderId) {
-      console.error('Order ID is missing');
-      return;
-    }
+// Function to handle role selection and assign the operator to the order
+const handleRoleSelection = async (orderId, role) => {
+  if (!orderId) {
+    console.error('Order ID is missing');
+    return;
+  }
 
-    try {
-      const response = await assigneeOperatorToOrder(role, orderId);
-      console.log(`Assigned ${role} to order ${orderId}. Response:`, response);
-    } catch (error) {
-      console.error('Error assigning role:', error);
-    }
-  };
+  try {
+    const response = await assigneeOperatorToOrder(role, orderId);
+    console.log(`Assigned ${role} to order ${orderId}. Response:`, response);
+    
+    setData((prevData) =>
+      prevData.map((order) =>
+        order.id === orderId ? { ...order, assigned_operator: role } : order
+      )
+    );
+  } catch (error) {
+    console.error('Error assigning role:', error);
+  }
+};
+
 
   const handleRedirectToHome = () => {
     navigate("/");
   };
 
   const handleFetchData = async (page = 1) => {
-    console.log("Fetching data for page:", page); // Debugging
+    console.log("Fetching data for page:", page);
     setLoading(true);
     try {
       let result;
       if (selectedStatus) {
-        console.log("Fetching with status:", selectedStatus); // Debugging
-        result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, page); // Pass the correct page
+        console.log("Fetching with status:", selectedStatus); 
+        result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, page); 
       } else {
-        console.log("Fetching by date interval"); // Debugging
-        result = await fetchDataByDateInterval(startDate, endDate, 5, page); // Pass the correct page
+        console.log("Fetching by date interval");
+        result = await fetchDataByDateInterval(startDate, endDate, 5, page); 
       }
       
       if (result && result.data) {
-        console.log("Data fetched:", result); // Check what data is returned
-        setData(result.data); // Set fetched data
-        setCurrentPage(result.currentPage || page); // Ensure currentPage is updated correctly
-        setTotalPages(result.totalPages || 1); // Ensure totalPages is set
+        console.log("Data fetched:", result);
+        setData(result.data);
+        setCurrentPage(result.currentPage || page); 
+        setTotalPages(result.totalPages || 1);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -67,10 +75,10 @@ const Orders = () => {
     setLoading(true);
     try {
       const result = await fetchDataByLastOrders(5);
-      console.log('Last 5 orders fetched:', result);  // Debugging
+      console.log('Last 5 orders fetched:', result);
       setData(result.data);
-      setCurrentPage(result.currentPage || 1); // Ensure currentPage is a valid number
-      setTotalPages(result.totalPages || 1); // Ensure totalPages is a valid number
+      setCurrentPage(result.currentPage || 1); 
+      setTotalPages(result.totalPages || 1);
     } catch (error) {
       console.error('Error fetching last 5 orders:', error);
     } finally {
@@ -78,21 +86,20 @@ const Orders = () => {
     }
   };
 
-  // Fix handlePageChange to prevent NaN and ensure a valid page is passed
   const handlePageChange = (newPage) => {
     if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
-      console.log("Changing to page:", newPage); // Debugging
-      setCurrentPage(newPage); // Update the current page
-      handleFetchData(newPage); // Fetch data for the new page
+      console.log("Changing to page:", newPage); 
+      setCurrentPage(newPage);
+      handleFetchData(newPage);
     } else {
-      console.error("Invalid page number:", newPage); // If page is invalid
+      console.error("Invalid page number:", newPage);
     }
   };
 
   return (
     <div className="container">
       <h1>Orders</h1>
-      <button onClick={handleRedirectToHome} className="btn btn-link">← Back to Home</button>
+      <button onClick={handleRedirectToHome} className="btn btn-link"> Back to Home</button>
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label htmlFor="startDate">Start Date:</label>

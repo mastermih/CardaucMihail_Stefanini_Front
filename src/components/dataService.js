@@ -550,6 +550,7 @@ export const fetchDataByDateAndStatus = async (startDate, endDate, status, numbe
       created_date: item.createdDate.createDateTime,
       updated_date: item.updatedDate.updateDateTime,
       order_status: item.orderStatus,
+      assigned_operator: item.assignedOperator
     }));
     console.log('Flattened data:', flattenedData);
 
@@ -560,6 +561,7 @@ export const fetchDataByDateAndStatus = async (startDate, endDate, status, numbe
   }
 };
 
+//This have to be delted I think
 export const fetchOrderProductByPriceInterval = async (startPrice, endPrice, totalOrderProducts, page) => {
   try{
     const response = await axios.get('http://localhost:8080/orderProduct/price', {
@@ -573,7 +575,9 @@ export const fetchOrderProductByPriceInterval = async (startPrice, endPrice, tot
       product_name: item.product.productName.product_name,
       quantity: item.quantity.quantity,
       price_product: item.priceOrder.price,
-      parent: item.parent.id
+      parent: item.parent.id,
+      assigned_operator: item.assignedOperator
+
     }));
 
     console.log('Flattened data:', flattenedData);
@@ -600,6 +604,7 @@ export const fetchDataByDateIntervalUserRole = async (id, startDate, endDate, nu
       created_date: item.createdDate.createDateTime,
       updated_date: item.updatedDate.updateDateTime,
       order_status: item.orderStatus,
+      assigned_operator: item.assignedOperator
     }));
 
     console.log('Flattened data:', flattenedData);
@@ -627,6 +632,7 @@ export const fetchDataByDateInterval = async (startDate, endDate, numberOfOrders
       created_date: item.createdDate.createDateTime,
       updated_date: item.updatedDate.updateDateTime,
       order_status: item.orderStatus,
+      assigned_operator: item.assignedOperator
     }));
 
     console.log('Flattened data:', flattenedData);
