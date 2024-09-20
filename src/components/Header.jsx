@@ -163,6 +163,11 @@ useEffect(() => {
   };
 
   const handleLogout = () => {
+    const confirm = window.confirm("are you sure?");
+    if(!confirm){
+      return;
+    }
+
     localStorage.removeItem('token'); 
     setIsLoggedIn(false);
     setUserProfile(null);
@@ -221,7 +226,7 @@ useEffect(() => {
                         )}
                       </Dropdown.Menu>
                     </Dropdown>
-                    <Button onClick={handleLogout} variant="danger">Logout</Button>
+                    <Button onClick={handleLogout} variant="danger" className="logout-button" >Logout</Button>
                   </>
                 )}
               </Nav>
@@ -241,9 +246,9 @@ useEffect(() => {
               <Nav.Link href="#elevator-components">ELEVATOR COMPONENTS</Nav.Link>
 
               {/* Conditionally render "Options" for only "ADMIN" */}
-              {userRoles.includes('ADMIN') && (
-                <Nav.Link href="orders/">ORDERS</Nav.Link>
-              )}
+              {['ADMIN', 'MANAGER', 'SALESMAN'].some(role => userRoles.includes(role)) && (
+  <Nav.Link href="orders/">ORDERS</Nav.Link>
+)}
               {/* Conditionally render "Options" for only "USER" */}
               {userRoles.includes('USER') && (
                 <Nav.Link href="/userOrders/UserLastCreated">My ORDERS</Nav.Link>

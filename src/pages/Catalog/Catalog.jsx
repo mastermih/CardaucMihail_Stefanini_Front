@@ -33,12 +33,12 @@ const Catalog = () => {
   }, [navigate]);
 
   // Check for the token and redirect if not found
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/", { state: { showLoginForm: true } });
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     navigate("/", { state: { showLoginForm: true } });
+  //   }
+  // }, [navigate]);
 
   useEffect(() => {
     const loadProducts = async () => {

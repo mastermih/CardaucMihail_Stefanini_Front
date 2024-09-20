@@ -18,12 +18,12 @@ const ProductPage = () => {
   const { addToCart } = useContext(CartContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/", { state: { showLoginForm: true } });
-    }
-  }, [navigate]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("token");
+  //   if (!token) {
+  //     navigate("/", { state: { showLoginForm: true } });
+  //   }
+  // }, [navigate]);
 
   useEffect(() => {
     const loadProduct = async () => {
@@ -76,7 +76,9 @@ const ProductPage = () => {
     try {
       // Get the token from localStorage
       const token = localStorage.getItem('token');
-      
+     if (!token) {
+       navigate("/", { state: { showLoginForm: true } });
+     }
       if (!token) {
         console.error("No token found, cannot place order");
         return;

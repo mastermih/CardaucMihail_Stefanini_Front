@@ -135,13 +135,7 @@
     height: 40px; 
 
 }
-/* .btn-secondary{
-    margin-left: 0px;
-    margin-top: -10px;
-    margin-right: -80px;
-    padding: 0px 0px; 
-    width: 5px;
-} */
+
 .boton_message {
     margin-left: 0px;
     margin-right: -100px;
@@ -158,4 +152,17 @@
 
 .boton_message:hover {
     background-color: #3a4d66; /* Darker shade on hover */
+}
+.logout-button {
+    font-size: 14px; /* Make the text smaller */
+    padding: 5px 10px; /* Adjust padding for a smaller button */
+    background-color: #42392d; /* Softer color */
+    border: none; /* Remove borders */
+    border-radius: 5px; /* Add some rounded corners */
+    margin-left: 10px;
+    height: 40px;
+}
+
+.logout-button:hover {
+    background-color: #e06016; /* Slightly darker color on hover */
 }

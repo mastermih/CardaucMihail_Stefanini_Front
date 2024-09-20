@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import BasicTable from '../../components/BasicTable';
 import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders, assigneeOperatorToOrder } from '../../components/dataService'; // Correct import
+import { useNavigate } from 'react-router-dom'; // For navigating to the home page
 
 const Orders = () => {
   const [data, setData] = useState([]);
@@ -10,6 +11,8 @@ const Orders = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const navigate = useNavigate(); // Initialize the navigate function
+
 
   // Function to handle role selection and assign the operator to the order
   const handleRoleSelection = async (orderId, role) => {
@@ -26,6 +29,9 @@ const Orders = () => {
     }
   };
 
+  const handleRedirectToHome = () => {
+    navigate("/");
+  }
   // Function to fetch filtered data based on date, status, and pagination
   const handleFetchData = async (page = 1) => {
     setLoading(true);
@@ -74,7 +80,7 @@ const Orders = () => {
   return (
     <div className="container">
       <h1>Orders</h1>
-
+      <button onClick={handleRedirectToHome} className="btn btn-link">← Back to Home</button>
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label htmlFor="startDate">Start Date:</label>
