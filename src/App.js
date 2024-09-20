@@ -11,7 +11,6 @@ import ConfirmOrderEmail from './pages/ConfirmOrderEmail/ConfirmOrderEmail';
 import ConfirmUserEmail from './pages/ConfirmUserEmail/ConfirmUserEmail';
 import UserCreation from './pages/UserCreation/UserCreation';
 import Registration from './pages/Registration/Registration';
-import Login from './pages/Login/Login';
 import UserProfile from './pages/UserProfile/UserProfile';
 
 
@@ -32,7 +31,6 @@ function App() {
           <Route path="/orderProduct" element={<OrderProducts />} />
           <Route path="/CreateUser/Superior" element={<UserCreation />} />
           <Route path="/CreateUser" element={<Registration />} />
-          {/* <Route path="/Login" element={<Login />} /> */}
           <Route path="/UserProfile/:id" element={<UserProfile />} />
           <Route path="/sendMail/confirm/:id" element={<ConfirmOrderEmail />} />
           <Route path="/sendMail/confirm/user/:id" element={<ConfirmUserEmail />} />

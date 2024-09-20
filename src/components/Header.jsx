@@ -145,10 +145,14 @@ useEffect(() => {
         // Decode token to extract userId and trigger profile fetch
         const decodedToken = jwtDecode(token);
         const extractedUserId = decodedToken.userId;
+        const roles = decodedToken.roles || [];
         setUserId(extractedUserId); // Set userId to trigger profile fetching
-
-        setTimeout(() => {
+         if(roles.includes('ADMIN') || roles.includes('MANAGER') || roles.includes('SALESMAN')){
+          navigate("/orders");
+         }else if (roles.includes('USER')){
           navigate('/catalog');
+         }
+        setTimeout(() => {
           setShowLoginModal(false); // Close the modal on successful login
         }, 200);
       } else {

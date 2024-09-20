@@ -19,7 +19,7 @@ export const setupInterceptors = (navigate) => {
       return response;
     },
     (error) => {
-      if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+      if (error.response && (error.response.status === 401)) {
         console.error('Unauthorized or forbidden access - redirecting to login');
         localStorage.removeItem('token');
         navigate("/", { state: { showLoginForm: true } });
