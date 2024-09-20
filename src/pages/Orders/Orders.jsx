@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BasicTable from '../../components/BasicTable';
-import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders, assigneeOperatorToOrder } from '../../components/dataService'; // Correct import
+import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders, assigneeOperatorToOrder } from '../../components/dataService'; 
 import { useNavigate } from 'react-router-dom'; // For navigating to the home page
 
 const Orders = () => {
@@ -11,8 +11,7 @@ const Orders = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const navigate = useNavigate(); // Initialize the navigate function
-
+  const navigate = useNavigate();
 
   // Function to handle role selection and assign the operator to the order
   const handleRoleSelection = async (orderId, role) => {
@@ -22,7 +21,7 @@ const Orders = () => {
     }
 
     try {
-      const response = await assigneeOperatorToOrder(role, orderId); // Ensure this function is correctly imported
+      const response = await assigneeOperatorToOrder(role, orderId);
       console.log(`Assigned ${role} to order ${orderId}. Response:`, response);
     } catch (error) {
       console.error('Error assigning role:', error);
@@ -31,26 +30,33 @@ const Orders = () => {
 
   const handleRedirectToHome = () => {
     navigate("/");
-  }
-  // Function to fetch filtered data based on date, status, and pagination
+  };
+
   const handleFetchData = async (page = 1) => {
+    console.log("Fetching data for page:", page); // Debugging
     setLoading(true);
     try {
       let result;
       if (selectedStatus) {
-        result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, page);
+        console.log("Fetching with status:", selectedStatus); // Debugging
+        result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, page); // Pass the correct page
       } else {
-        result = await fetchDataByDateInterval(startDate, endDate, 5, page);
+        console.log("Fetching by date interval"); // Debugging
+        result = await fetchDataByDateInterval(startDate, endDate, 5, page); // Pass the correct page
       }
-      setData(result.data);
-      setCurrentPage(result.currentPage);
-      setTotalPages(result.totalPages);
+      
+      if (result && result.data) {
+        console.log("Data fetched:", result); // Check what data is returned
+        setData(result.data); // Set fetched data
+        setCurrentPage(result.currentPage || page); // Ensure currentPage is updated correctly
+        setTotalPages(result.totalPages || 1); // Ensure totalPages is set
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
-  };
+};
 
   // Function to fetch the last 5 orders
   useEffect(() => {
@@ -61,19 +67,25 @@ const Orders = () => {
     setLoading(true);
     try {
       const result = await fetchDataByLastOrders(5);
+      console.log('Last 5 orders fetched:', result);  // Debugging
       setData(result.data);
-      setCurrentPage(result.currentPage);
-      setTotalPages(result.totalPages);
+      setCurrentPage(result.currentPage || 1); // Ensure currentPage is a valid number
+      setTotalPages(result.totalPages || 1); // Ensure totalPages is a valid number
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching last 5 orders:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      handleFetchData(page);
+  // Fix handlePageChange to prevent NaN and ensure a valid page is passed
+  const handlePageChange = (newPage) => {
+    if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
+      console.log("Changing to page:", newPage); // Debugging
+      setCurrentPage(newPage); // Update the current page
+      handleFetchData(newPage); // Fetch data for the new page
+    } else {
+      console.error("Invalid page number:", newPage); // If page is invalid
     }
   };
 
@@ -147,7 +159,7 @@ const Orders = () => {
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
+                disabled={currentPage === 1} // Disable if on the first page
                 style={{ marginRight: '10px' }}
               >
                 Previous
@@ -157,7 +169,7 @@ const Orders = () => {
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
+                disabled={currentPage === totalPages} // Disable if on the last page
                 style={{ marginLeft: '10px' }}
               >
                 Next
@@ -171,4 +183,3 @@ const Orders = () => {
 };
 
 export default Orders;
-
