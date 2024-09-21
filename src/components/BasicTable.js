@@ -2,13 +2,14 @@ import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
 import { COLUMNS } from './columns';
 
-const BasicTable = ({ data, handleRoleSelection }) => {
-  // Ensure that data is always an array
+
+const BasicTable = ({ data, handleRoleSelection, handleOperatorSelection, operators, operatorsName }) => {
   const safeData = useMemo(() => data || [], [data]);
 
   const columns = useMemo(() => {
-    return COLUMNS(handleRoleSelection); // Only use COLUMNS
-  }, [handleRoleSelection]);
+    return COLUMNS(handleRoleSelection, handleOperatorSelection, operators, operatorsName);
+  }, [handleRoleSelection, handleOperatorSelection, operators, operatorsName]);
+  
 
   const tableInstance = useTable({
     columns,

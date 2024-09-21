@@ -1,7 +1,4 @@
-// columns.js
-
-
-export const COLUMNS = (handleRoleSelection) => [
+export const COLUMNS = (handleRoleSelection, handleOperatorSelection, operators = {}, operatorsName = {}) => [
   {
     Header: 'Id',
     accessor: 'id',
@@ -23,12 +20,12 @@ export const COLUMNS = (handleRoleSelection) => [
     accessor: 'order_status',
   },
   {
-     Header: 'Operator',  
+    Header: 'Operator',
     accessor: 'assigned_operator',
     Cell: ({ row }) => (
       <div>
         <select
-          value={row.original.assigned_operator || ''} 
+          value={row.original.assigned_operator || ''}
           onChange={(e) => handleRoleSelection(row.original.id, e.target.value)}
           className="form-select"
         >
@@ -40,8 +37,33 @@ export const COLUMNS = (handleRoleSelection) => [
       </div>
     ),
   },
+  {
+    Header: 'Operator Name',
+    accessor: 'user_name',
+    Cell: ({ row }) => (
+      <div>
+        <select
+          value={operatorsName[row.original.id] || ''}
+          onChange={(e) => handleOperatorSelection(row.original.id, e.target.value)}
+          className="form-select"
+        >
+          <option value="">Not Selected</option>
+          {operators[row.original.id]?.length > 0 ? (
+            operators[row.original.id].map((operator, index) => (
+              <option key={index} value={operator}>{operator}</option>
+            ))
+          ) : (
+            <option value="" disabled>No operators available</option>
+          )}
+        </select>
+      </div>
+    )    
+  },
 ];
 
+
+
+// COLUMNS2 (assuming this is for another table)
 export const COLUMNS2 = [
   {
     Header: 'OrderID',

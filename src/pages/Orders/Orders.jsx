@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import BasicTable from '../../components/BasicTable';
-import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders, assigneeOperatorToOrder } from '../../components/dataService'; 
+import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders, assigneeOperatorToOrder, getOperatorNameByRole, setOperatorNameToOrder  } from '../../components/dataService'; 
 import { useNavigate } from 'react-router-dom'; // For navigating to the home page
 
 const Orders = () => {
@@ -11,30 +11,59 @@ const Orders = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [selectedRoles, setSelectedRoles] = useState({});
+  const [operators, setOperators] = useState({});
+  const [operatorsName, setOperatorsNames] = useState({});
   const navigate = useNavigate();
 
-  // Function to handle role selection and assign the operator to the order
-// Function to handle role selection and assign the operator to the order
-const handleRoleSelection = async (orderId, role) => {
-  if (!orderId) {
-    console.error('Order ID is missing');
-    return;
-  }
+  const handleRoleSelection = async (orderId, role) => {
+    if (!orderId) {
+      console.error('Order ID is missing');
+      return;
+    }
+  
+    try {
+      const response = await assigneeOperatorToOrder(orderId, role);
+      console.log(`Assigned ${role} to order ${orderId}. Response:`, response);
+  
+      let operatorNames = await getOperatorNameByRole(role);
+      console.log('Fetched operator names:', operatorNames);
 
-  try {
-    const response = await assigneeOperatorToOrder(role, orderId);
-    console.log(`Assigned ${role} to order ${orderId}. Response:`, response);
     
-    setData((prevData) =>
-      prevData.map((order) =>
-        order.id === orderId ? { ...order, assigned_operator: role } : order
-      )
-    );
-  } catch (error) {
-    console.error('Error assigning role:', error);
-  }
-};
+  
+      // Update selected role and operators
+      setSelectedRoles((prev) => ({ ...prev, [orderId]: role }));
+      setOperators((prev) => ({ ...prev, [orderId]: operatorNames }));
+  
+      // Log the updated operators state
+      console.log('Updated operators state:', operators);
+    } catch (error) {
+      console.error('Error assigning role or fetching operators:', error);
+    }
+  };
+  
+  
 
+  const handleOperatorSelection = async (orderId, userName) => {
+    if (!orderId || !userName) {
+      console.error('Order ID or username is missing');
+      return;
+    }
+  
+    try {
+      await setOperatorNameToOrder(userName, orderId);
+  
+      // Update the operator names state
+      setOperatorsNames(prev => ({ ...prev, [orderId]: userName }));
+  
+      // Log the updated operator names to ensure the state is updated
+      console.log(`Set operator ${userName} for order ${orderId}`);
+      console.log('Updated operatorsName state:', operatorsName);
+    } catch (error) {
+      console.error('Error setting operator for order:', error);
+    }
+  };
+  
 
   const handleRedirectToHome = () => {
     navigate("/");
@@ -159,7 +188,13 @@ const handleRoleSelection = async (orderId, role) => {
         <div>Loading...</div>
       ) : (
         <>
-          <BasicTable data={data} handleRoleSelection={handleRoleSelection} />
+          <BasicTable 
+            data={data} 
+            handleRoleSelection={handleRoleSelection} 
+            handleOperatorSelection={handleOperatorSelection} 
+            operators={operators}
+            operatorsName={operatorsName} 
+          />
 
           {/* Pagination */}
           {totalPages > 1 && (
