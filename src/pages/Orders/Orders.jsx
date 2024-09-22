@@ -28,19 +28,22 @@ const Orders = () => {
   
       let operatorNames = await getOperatorNameByRole(role);
       console.log('Fetched operator names:', operatorNames);
-
-    
   
-      // Update selected role and operators
       setSelectedRoles((prev) => ({ ...prev, [orderId]: role }));
-      setOperators((prev) => ({ ...prev, [orderId]: operatorNames }));
+      setOperators(prev => ({ ...prev, [orderId]: operatorNames }));
   
-      // Log the updated operators state
-      console.log('Updated operators state:', operators);
+      setData(prevData =>
+        prevData.map(order =>
+          order.id === orderId
+            ? { ...order, assigned_operator: role }
+            : order
+        )
+      );
     } catch (error) {
       console.error('Error assigning role or fetching operators:', error);
     }
   };
+  
   
   
 

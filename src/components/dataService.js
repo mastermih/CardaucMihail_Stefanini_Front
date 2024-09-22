@@ -232,6 +232,24 @@ export const createUser = async (user) => {
       }
 };
 
+//Create user
+export const createUserUnauthorized = async (user, verifyPassword) => {
+  try{
+    console.log('Sending request to create user:', user);
+    const requestBody = {
+      user: user,
+      verifyPassword: verifyPassword
+    };
+    const response = await axios.post(`http://localhost:8080/createUser`, requestBody);
+    console.log('User created:', response.data);
+    return response.data;
+    }catch(error){
+      console.error('Error creating user:', error);  
+      throw error;
+      }
+};
+
+
 export const login = async (user) => {
   try {
     const response = await axios.post('http://localhost:8080/login', user);  // Replace with your actual login URL
@@ -241,6 +259,7 @@ export const login = async (user) => {
     throw error;
   }
 };
+
 
 
 export const postOrder = async (order) => {

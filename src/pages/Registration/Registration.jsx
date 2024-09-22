@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createUser } from '../../components/dataService';
+import { createUserUnauthorized } from '../../components/dataService';
 import { useNavigate } from 'react-router-dom'; // Use useNavigate instead of useHistory
 import { Link } from 'react-router-dom';
 import './Registration.css'; // Assuming CSS for styling
@@ -9,6 +9,7 @@ const Registration = () => {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [verifyPassword, setVerifyPassword] = useState('');
   const [message, setMessage] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const navigate = useNavigate(); 
@@ -31,11 +32,12 @@ const Registration = () => {
     };
 
     try {
-      const response = await createUser(user); 
+      const response = await createUserUnauthorized(user, verifyPassword); 
       setMessage(`User registered successfully with ID: ${response}`);
       setUserName('');
       setEmail('');
       setPassword('');
+      setVerifyPassword('');
       setPhoneNumber('');
       
       // Redirect to /catalog after successful registration
@@ -99,6 +101,18 @@ const Registration = () => {
               required
             />
           </div>
+
+          <div className="input-group">
+              <label htmlFor="verify password">Verify Password</label>
+              <input
+                type="password"
+                id="verifyPassword"
+                placeholder="Varify Password"
+                value={verifyPassword}
+                onChange={(e) => setVerifyPassword(e.target.value)}
+                required
+              />
+            </div>
 
           <button type="submit" className="submit-button" disabled={loading}>
             {loading ? 'Registering...' : ' Lets go big MAN '}
