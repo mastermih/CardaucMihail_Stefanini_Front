@@ -132,9 +132,6 @@ export const getUserByToken = async (userToken) => {
   }
 };
 
-
-
-
 //getUserForProfileEdit
 export const getUser = async (userId) => {
   try {
@@ -249,17 +246,15 @@ export const createUserUnauthorized = async (user, verifyPassword) => {
       }
 };
 
-
 export const login = async (user) => {
   try {
-    const response = await axios.post('http://localhost:8080/login', user);  // Replace with your actual login URL
+    const response = await axios.post('http://localhost:8080/login', user); // Adjust the URL as needed
     return response;
   } catch (error) {
     console.error('Login request failed:', error);
     throw error;
   }
 };
-
 
 
 export const postOrder = async (order) => {

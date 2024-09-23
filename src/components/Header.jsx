@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { NavLink, useNavigate,useLocation } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -9,58 +9,57 @@ import Button from 'react-bootstrap/Button';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { CartContext } from './cartContext';
 import './Header.css';
-import {jwtDecode} from 'jwt-decode'; // Correct import for jwt-decode
-import { login, getUser } from './dataService'; // Fetch user API call to get user details
-import { setupInterceptors } from '../axiosConfig'; // Setup interceptors for API calls
+import { jwtDecode } from 'jwt-decode';
+import { login, getUser } from './dataService'; // Ensure this import is correct
+import { setupInterceptors } from '../axiosConfig'; 
 
 const Header = () => {
   const { cartItems, removeFromCart } = useContext(CartContext);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false); // State for login modal visibility
+  const [showLoginModal, setShowLoginModal] = useState(false); 
   const navigate = useNavigate();
   const [userRoles, setUserRoles] = useState([]);
+  const [errors, setErrors] = useState({});
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [loginMessage, setLoginMessage] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userProfile, setUserProfile] = useState(null); // User profile state
-  const location = useLocation(); 
-  const [userId, setUserId] = useState(null); // User ID state
+  const [userProfile, setUserProfile] = useState(null);
+  const location = useLocation();
+  const [userId, setUserId] = useState(null);
 
-// Extract the user ID from the token
-useEffect(() => {
-  if (location.state && location.state.showLoginForm) {
-    setShowLoginModal(true); // Show login modal if state is passed during navigation
-  }
-}, [location.state]);
-
-useEffect(() => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    try {
-      console.log('Token found:', token);  
-      const decodedToken = jwtDecode(token); 
-      console.log('Decoded Token:', decodedToken);
-
-      const extractedUserId = decodedToken.id;
-      if (extractedUserId) {
-        setUserId(extractedUserId);
-        setUserRoles(decodedToken.roles || []);
-        setIsLoggedIn(true);
-        console.log('User ID extracted from token:', extractedUserId);
-      } else {
-        console.error('No id found in token');
-      }
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      setIsLoggedIn(false);
+  useEffect(() => {
+    if (location.state && location.state.showLoginForm) {
+      setShowLoginModal(true);
     }
-  } else {
-    console.error('No token found');
-  }
-}, []); 
+  }, [location.state]);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        console.log('Token found:', token);
+        const decodedToken = jwtDecode(token);
+        console.log('Decoded Token:', decodedToken);
+
+        const extractedUserId = decodedToken.id;
+        if (extractedUserId) {
+          setUserId(extractedUserId);
+          setUserRoles(decodedToken.roles || []);
+          setIsLoggedIn(true);
+          console.log('User ID extracted from token:', extractedUserId);
+        } else {
+          console.error('No id found in token');
+        }
+      } catch (error) {
+        console.error('Error decoding token:', error);
+        setIsLoggedIn(false);
+      }
+    } else {
+      console.error('No token found');
+    }
+  }, []);
 
   useEffect(() => {
     if (userId) {
@@ -78,6 +77,24 @@ useEffect(() => {
       fetchUserProfile(userId); // Trigger the profile fetch
     }
   }, [userId]); // Trigger when userId changes
+
+  const validateLogin = () => {
+    const newErrors = {};
+
+   
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (password.length < 5 || password.length > 30) {
+      newErrors.password = 'Password must be between 5 and 30 characters';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
@@ -106,8 +123,9 @@ useEffect(() => {
     event.stopPropagation();
     removeFromCart(orderId);
   };
+
   const handleUserProfilePictureClick = () => {
-    navigate(`/UserProfile/${userId}`);  // Navigate to the user profile page using the extracted user ID
+    navigate(`/UserProfile/${userId}`); // Navigate to the user profile page using the extracted user ID
   };
 
   const handleCartClick = () => {
@@ -128,54 +146,60 @@ useEffect(() => {
     setLoading(true);
     setLoginMessage('');
 
+    const isValid = validateLogin();  // Ensure validation happens
+    if (!isValid) {
+      setLoading(false);  // Stop loading if validation fails
+      return;
+    }
+
     const user = {
       email: email,
       password: password,
     };
-
+    
     try {
       const response = await login(user);
+      const token = response.data;
 
-      const token = response.data; // Token is directly inside response.data
       if (token) {
-        // Save the token in localStorage
         localStorage.setItem('token', token);
-        setupInterceptors(); // Call interceptors after saving token
-
-        // Decode token to extract userId and trigger profile fetch
+        setupInterceptors(navigate);
+        
         const decodedToken = jwtDecode(token);
-        const extractedUserId = decodedToken.userId;
         const roles = decodedToken.roles || [];
-        setUserId(extractedUserId); // Set userId to trigger profile fetching
-         if(roles.includes('ADMIN') || roles.includes('MANAGER') || roles.includes('SALESMAN')){
-          navigate("/orders");
-         }else if (roles.includes('USER')){
-          navigate('/catalog');
-         }
-        setTimeout(() => {
-          setShowLoginModal(false); // Close the modal on successful login
-        }, 200);
+        if (roles.includes('ADMIN')) {
+          navigate("/admin-dashboard");
+        } else {
+          navigate('/user-dashboard');
+        }
       } else {
         setLoginMessage('No token found in response');
       }
     } catch (error) {
-      setLoginMessage('Error during login');
-      console.error('Login error:', error);
+      if (error.response && error.response.data) {
+        setLoginMessage(error.response.data); // Show server response
+      } else {
+        setLoginMessage('Error during login');
+      }
     } finally {
       setLoading(false);
     }
-  };
+};
+
+  
+  
+  
 
   const handleLogout = () => {
     const confirm = window.confirm("are you sure?");
-    if(!confirm){
+    if (!confirm) {
       return;
     }
 
-    localStorage.removeItem('token'); 
+    localStorage.removeItem('token');
     setIsLoggedIn(false);
     setUserProfile(null);
-    setUserId(null); // Clear userId and profile on logout
+    setUserId(null);
     navigate('/');
   };
 
@@ -204,13 +228,13 @@ useEffect(() => {
                   </>
                 ) : (
                   <>
-<img
-  src={`http://localhost:8080/${userProfile?.image}`}  // Display profile image if available
-  alt="Profile"
-  className="profile-image"
-  onClick={handleUserProfilePictureClick}  // Correct camelCase
-  style={{ width: '50px', height: '50px', borderRadius: '50%' }}
-/>
+                    <img
+                      src={`http://localhost:8080/${userProfile?.image}`} 
+                      alt="Profile"
+                      className="profile-image"
+                      onClick={handleUserProfilePictureClick}  // Correct camelCase
+                      style={{ width: '50px', height: '50px', borderRadius: '50%' }}
+                    />
 
                     <Dropdown show={showDropdown} onToggle={toggleDropdown}>
                       <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter} onClick={handleCartClick}>
@@ -251,8 +275,8 @@ useEffect(() => {
 
               {/* Conditionally render "Options" for only "ADMIN" */}
               {['ADMIN', 'MANAGER', 'SALESMAN'].some(role => userRoles.includes(role)) && (
-  <Nav.Link href="orders/">ORDERS</Nav.Link>
-)}
+                <Nav.Link href="orders/">ORDERS</Nav.Link>
+              )}
               {/* Conditionally render "Options" for only "USER" */}
               {userRoles.includes('USER') && (
                 <Nav.Link href="/userOrders/UserLastCreated">My ORDERS</Nav.Link>
@@ -262,8 +286,7 @@ useEffect(() => {
         </Container>
       </Navbar>
 
-      {/* Login Modal */}
-      <Modal show={showLoginModal} onHide={handleCloseLoginModal}>
+      <Modal show={showLoginModal} onHide={() => setShowLoginModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Login</Modal.Title>
         </Modal.Header>
@@ -277,8 +300,8 @@ useEffect(() => {
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
               />
+              {errors.email && <div className="error">{errors.email}</div>}
             </div>
 
             <div className="input-group">
@@ -289,8 +312,8 @@ useEffect(() => {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
               />
+              {errors.password && <div className="error">{errors.password}</div>}
             </div>
 
             {loginMessage && <div className="alert alert-danger">{loginMessage}</div>}
