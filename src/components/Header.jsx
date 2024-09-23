@@ -10,7 +10,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { CartContext } from './cartContext';
 import './Header.css';
 import { jwtDecode } from 'jwt-decode';
-import { login, getUser } from './dataService'; // Ensure this import is correct
+import { login, getUser } from './dataService'; 
 import { setupInterceptors } from '../axiosConfig'; 
 
 const Header = () => {
@@ -74,9 +74,9 @@ const Header = () => {
         }
       };
 
-      fetchUserProfile(userId); // Trigger the profile fetch
+      fetchUserProfile(userId); 
     }
-  }, [userId]); // Trigger when userId changes
+  }, [userId]);
 
   const validateLogin = () => {
     const newErrors = {};
@@ -92,7 +92,7 @@ const Header = () => {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
   const toggleDropdown = () => {
@@ -125,12 +125,12 @@ const Header = () => {
   };
 
   const handleUserProfilePictureClick = () => {
-    navigate(`/UserProfile/${userId}`); // Navigate to the user profile page using the extracted user ID
+    navigate(`/UserProfile/${userId}`);
   };
 
   const handleCartClick = () => {
     if (cartItems.length > 0) {
-      navigate(`/MakeOrder`); // Navigate to load all products
+      navigate(`/MakeOrder`);
     } else {
       alert('Your cart is empty!');
       navigate('/catalog');
@@ -138,55 +138,63 @@ const Header = () => {
   };
 
   const handleItemClick = (orderId) => {
-    navigate(`/MakeOrder/${orderId}`); // Navigate to load a specific product
+    navigate(`/MakeOrder/${orderId}`); 
   };
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setLoginMessage('');
-
-    const isValid = validateLogin();  // Ensure validation happens
+  
+    const isValid = validateLogin();
     if (!isValid) {
-      setLoading(false);  // Stop loading if validation fails
+      setLoading(false);
       return;
     }
-
+  
     const user = {
       email: email,
       password: password,
     };
-    
+  
+    console.log('Login payload:', user);
+  
     try {
+      console.log('Response from login:')
       const response = await login(user);
+      console.log('Response from login:', response); 
       const token = response.data;
-
       if (token) {
+        console.log('Token received:', token);
         localStorage.setItem('token', token);
+  
         setupInterceptors(navigate);
-        
+  
         const decodedToken = jwtDecode(token);
         const roles = decodedToken.roles || [];
-        if (roles.includes('ADMIN')) {
-          navigate("/admin-dashboard");
+        if (roles.includes('ADMIN') || roles.includes('MANAGER') || roles.includes('SALESMAN')) {
+          navigate("/orders");
         } else {
-          navigate('/user-dashboard');
+          setShowDropdown(false);
+          setShowLoginModal(false);
+          setLoading(false)  
+          navigate('/');
+          window.location.reload();
         }
       } else {
         setLoginMessage('No token found in response');
       }
     } catch (error) {
       if (error.response && error.response.data) {
-        setLoginMessage(error.response.data); // Show server response
+        setLoginMessage(error.response.data.join(', '));
       } else {
         setLoginMessage('Error during login');
       }
+      console.error('Login error:', error);
     } finally {
       setLoading(false);
     }
-};
-
-  
+  };
   
   
 
@@ -232,7 +240,7 @@ const Header = () => {
                       src={`http://localhost:8080/${userProfile?.image}`} 
                       alt="Profile"
                       className="profile-image"
-                      onClick={handleUserProfilePictureClick}  // Correct camelCase
+                      onClick={handleUserProfilePictureClick}
                       style={{ width: '50px', height: '50px', borderRadius: '50%' }}
                     />
 
@@ -272,12 +280,9 @@ const Header = () => {
               <Nav.Link href="#brands">BRANDS</Nav.Link>
               <Nav.Link href="#in-stock">IN STOCK</Nav.Link>
               <Nav.Link href="#elevator-components">ELEVATOR COMPONENTS</Nav.Link>
-
-              {/* Conditionally render "Options" for only "ADMIN" */}
               {['ADMIN', 'MANAGER', 'SALESMAN'].some(role => userRoles.includes(role)) && (
                 <Nav.Link href="orders/">ORDERS</Nav.Link>
               )}
-              {/* Conditionally render "Options" for only "USER" */}
               {userRoles.includes('USER') && (
                 <Nav.Link href="/userOrders/UserLastCreated">My ORDERS</Nav.Link>
               )}
