@@ -49,7 +49,6 @@ const UserOrders = () => {
       }
 
       if (result && Array.isArray(result.data)) {
-        // Flatten the data and remove any unnecessary nested structures
         const flattenedData = result.data.map(order => ({
           id: order.id,
           user_id: order.user_id?.id || 'N/A', // Accessing nested 'user_id'

@@ -4,6 +4,7 @@ import { COLUMNS, COLUMNS_WITHOUT_OPERATOR_NAME} from './columns'; // Two differ
 
 const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role}) => {
   const safeData = useMemo(() => data || [], [data]);
+  console.log('User Role:', role);
 
   const columns = useMemo(() => {
     if (role === 'ADMIN') {
@@ -15,8 +16,7 @@ const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role}) => 
 
   const tableInstance = useTable({
     columns,
-    data: safeData, // Pass the safeData which is guaranteed to be an array
-  });
+    data: safeData,  });
 
   const {
     getTableProps,

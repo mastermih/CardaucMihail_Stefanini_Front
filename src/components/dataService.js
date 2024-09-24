@@ -491,10 +491,10 @@ export const fetchDataByLastOrders = async (limit) => {
 // };
 
 
-export const assigneeOperatorToOrder = async (orderId, role) => {
+export const assigneeOperatorToOrder = async (orderId, name) => {
   try {
     const response = await axios.post(`http://localhost:8080/orders/assignation`, null, {
-      params: { id: orderId, role }
+      params: { id: orderId, name }
     });
     console.log('Operator assigned to order:', response.data);
     return response.data;
@@ -518,17 +518,17 @@ export const getOperatorName  = async (name) => {
   }
 };
 
-export const setOperatorNameToOrder = async (orderId, name) => {
-  try {
-    const response = await axios.put(`http://localhost:8080/orders/assignation`, null, {
-      params: { orderId, name }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error setting operator to order:', error);
-    return [];
-  }
-};
+// export const setOperatorNameToOrder = async (orderId, name) => {
+//   try {
+//     const response = await axios.put(`http://localhost:8080/orders/assignation`, null, {
+//       params: { orderId, name }
+//     });
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error setting operator to order:', error);
+//     return [];
+//   }
+// };
 
 
 

@@ -6,7 +6,8 @@ import {
   fetchDataByDateAndStatus,
   fetchDataByDateInterval,
   fetchDataByLastOrders,
-  getOperatorName, // Import getOperatorName
+  assigneeOperatorToOrder,
+  getOperatorName
 } from '../../components/dataService'; // Assuming you have functions in dataService
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
@@ -89,6 +90,12 @@ const Orders = () => {
 
   const handleOperatorSelection = (orderId, operatorName) => {
     console.log(`Selected operator ${operatorName} for order ${orderId}`);
+    try {
+      const response = assigneeOperatorToOrder(orderId, operatorName);
+      console.log('Operator assigned successfully:', response);
+    } catch (error) {
+      console.error('Error assigning operator:', error);
+    }
   };
 
   return (

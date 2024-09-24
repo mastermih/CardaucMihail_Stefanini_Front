@@ -31,17 +31,17 @@ export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
       const [showDropdown, setShowDropdown] = useState(false);
       const inputRef = useRef(null);
 
+      // Debounced function to search operators by name
       const debouncedSearch = useRef(
         debounce(async (query) => {
           if (query.length >= 3) {
             try {
-              const operatorNames = await getOperatorName(query); // Fetch operators by name
+              const operatorNames = await getOperatorName(query);
               
-              // Ensure that the response is an array and contains usernames
               if (Array.isArray(operatorNames)) {
-                setFilteredOperators(operatorNames.slice(0, 5)); // Limit to 5 results
+                setFilteredOperators(operatorNames.slice(0, 5)); // Limit results to 5
               } else {
-                setFilteredOperators([]); // Clear dropdown if no results
+                setFilteredOperators([]); // No results
               }
               setShowDropdown(true);
             } catch (error) {
@@ -50,21 +50,24 @@ export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
               setShowDropdown(false);
             }
           } else {
-            setShowDropdown(false);
+            setShowDropdown(false); // Hide dropdown if search query is too short
           }
-        }, 300)
+        }, 300) // Debounce with a 300ms delay
       ).current;
 
       const handleSearchChange = (e) => {
         const query = e.target.value;
         setSearchQuery(query);
-        debouncedSearch(query); // Trigger search when the user types
+        debouncedSearch(query); // Trigger the search function as the user types
       };
 
-      const handleOperatorSelectionLocal = (operator) => {
-        setSearchQuery(operator); // Set the selected operator in the input
-        setShowDropdown(false); // Hide the dropdown after selection
-        handleOperatorSelection(row.original.id, operator); // Call the passed handler to set the operator for the row
+      // Handle when an operator is selected from the dropdown
+      const handleOperatorSelectionLocal = async (operator) => {
+        setSearchQuery(operator); // Set the selected operator in the input field
+        setShowDropdown(false); // Hide the dropdown
+
+        // Pass the selected operator to the parent via handleOperatorSelection
+        await handleOperatorSelection(row.original.id, operator); // You might want to handle the request here
       };
 
       return (
@@ -76,10 +79,10 @@ export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
             placeholder="Search for operator"
             className="form-control"
             ref={inputRef}
-            style={{ width: '200px' }} // Adjust the width to fit the table
+            style={{ width: '200px' }} // Adjust the width to fit within the table cell
           />
 
-          {/* Dropdown for showing filtered operator options */}
+          {/* Dropdown for filtered operator suggestions */}
           {showDropdown && filteredOperators.length > 0 && (
             <ul
               className="dropdown-menu"
