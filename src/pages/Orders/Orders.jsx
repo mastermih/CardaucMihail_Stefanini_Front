@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import BasicTable from '../../components/BasicTable';
-import { fetchDataByDateAndStatus, fetchDataByDateInterval, fetchDataByLastOrders, assigneeOperatorToOrder, getOperatorNameByRole, setOperatorNameToOrder  } from '../../components/dataService'; 
-import { useNavigate } from 'react-router-dom'; // For navigating to the home page
+import {
+  fetchDataByDateAndStatus,
+  fetchDataByDateInterval,
+  fetchDataByLastOrders,
+  getOperatorName, // Import getOperatorName
+} from '../../components/dataService'; // Assuming you have functions in dataService
+import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash.debounce';
 
 const Orders = () => {
   const [data, setData] = useState([]);
@@ -11,84 +17,26 @@ const Orders = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [selectedRoles, setSelectedRoles] = useState({});
-  const [operators, setOperators] = useState({});
-  const [operatorsName, setOperatorsNames] = useState({});
+
   const navigate = useNavigate();
 
-  const handleRoleSelection = async (orderId, role) => {
-    if (!orderId) {
-      console.error('Order ID is missing');
-      return;
-    }
-  
-    try {
-      const response = await assigneeOperatorToOrder(orderId, role);
-      console.log(`Assigned ${role} to order ${orderId}. Response:`, response);
-  
-      let operatorNames = await getOperatorNameByRole(role);
-      console.log('Fetched operator names:', operatorNames);
-  
-      setSelectedRoles((prev) => ({ ...prev, [orderId]: role }));
-      setOperators(prev => ({ ...prev, [orderId]: operatorNames }));
-  
-      setData(prevData =>
-        prevData.map(order =>
-          order.id === orderId
-            ? { ...order, assigned_operator: role }
-            : order
-        )
-      );
-    } catch (error) {
-      console.error('Error assigning role or fetching operators:', error);
-    }
-  };
-  
-  
-  
-
-  const handleOperatorSelection = async (orderId, userName) => {
-    if (!orderId || !userName) {
-      console.error('Order ID or username is missing');
-      return;
-    }
-  
-    try {
-      await setOperatorNameToOrder(userName, orderId);
-  
-      // Update the operator names state
-      setOperatorsNames(prev => ({ ...prev, [orderId]: userName }));
-  
-      // Log the updated operator names to ensure the state is updated
-      console.log(`Set operator ${userName} for order ${orderId}`);
-      console.log('Updated operatorsName state:', operatorsName);
-    } catch (error) {
-      console.error('Error setting operator for order:', error);
-    }
-  };
-  
-
   const handleRedirectToHome = () => {
-    navigate("/");
+    navigate('/');
   };
 
   const handleFetchData = async (page = 1) => {
-    console.log("Fetching data for page:", page);
     setLoading(true);
     try {
       let result;
       if (selectedStatus) {
-        console.log("Fetching with status:", selectedStatus); 
-        result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, page); 
+        result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, page);
       } else {
-        console.log("Fetching by date interval");
-        result = await fetchDataByDateInterval(startDate, endDate, 5, page); 
+        result = await fetchDataByDateInterval(startDate, endDate, 5, page);
       }
-      
+
       if (result && result.data) {
-        console.log("Data fetched:", result);
         setData(result.data);
-        setCurrentPage(result.currentPage || page); 
+        setCurrentPage(result.currentPage || page);
         setTotalPages(result.totalPages || 1);
       }
     } catch (error) {
@@ -96,9 +44,8 @@ const Orders = () => {
     } finally {
       setLoading(false);
     }
-};
+  };
 
-  // Function to fetch the last 5 orders
   useEffect(() => {
     handleFetchDataByLastOrders();
   }, []);
@@ -107,9 +54,8 @@ const Orders = () => {
     setLoading(true);
     try {
       const result = await fetchDataByLastOrders(5);
-      console.log('Last 5 orders fetched:', result);
       setData(result.data);
-      setCurrentPage(result.currentPage || 1); 
+      setCurrentPage(result.currentPage || 1);
       setTotalPages(result.totalPages || 1);
     } catch (error) {
       console.error('Error fetching last 5 orders:', error);
@@ -120,12 +66,15 @@ const Orders = () => {
 
   const handlePageChange = (newPage) => {
     if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
-      console.log("Changing to page:", newPage); 
       setCurrentPage(newPage);
       handleFetchData(newPage);
     } else {
-      console.error("Invalid page number:", newPage);
+      console.error('Invalid page number:', newPage);
     }
+  };
+
+  const handleOperatorSelection = (orderId, operatorName) => {
+    console.log(`Selected operator ${operatorName} for order ${orderId}`);
   };
 
   return (
@@ -191,12 +140,10 @@ const Orders = () => {
         <div>Loading...</div>
       ) : (
         <>
-          <BasicTable 
-            data={data} 
-            handleRoleSelection={handleRoleSelection} 
-            handleOperatorSelection={handleOperatorSelection} 
-            operators={operators}
-            operatorsName={operatorsName} 
+          <BasicTable
+            data={data}
+            handleOperatorSelection={handleOperatorSelection}
+            getOperatorName={getOperatorName}
           />
 
           {/* Pagination */}

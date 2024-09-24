@@ -1,15 +1,13 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
-import { COLUMNS } from './columns';
+import { COLUMNS } from './columns'; // Make sure you have the correct COLUMNS setup
 
-
-const BasicTable = ({ data, handleRoleSelection, handleOperatorSelection, operators, operatorsName }) => {
+const BasicTable = ({ data, handleOperatorSelection, getOperatorName }) => {
   const safeData = useMemo(() => data || [], [data]);
 
   const columns = useMemo(() => {
-    return COLUMNS(handleRoleSelection, handleOperatorSelection, operators, operatorsName);
-  }, [handleRoleSelection, handleOperatorSelection, operators, operatorsName]);
-  
+    return COLUMNS(handleOperatorSelection, getOperatorName); // Pass getOperatorName here
+  }, [handleOperatorSelection, getOperatorName]);
 
   const tableInstance = useTable({
     columns,

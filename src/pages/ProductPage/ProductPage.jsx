@@ -90,7 +90,9 @@ const ProductPage = () => {
       
       const orderWithProductsDTO = {
         order: {
-          userId:  userId,
+          userId: { 
+            id: userId
+          },
           orderStatus: "INITIALISED",
           productId: product.id,
         },

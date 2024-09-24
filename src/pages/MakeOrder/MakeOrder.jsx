@@ -131,14 +131,10 @@ const MakeOrder = () => {
         };
 
         if (id) {
-            loadSpecificOrder(); // Load the specific order when an ID is provided in the URL
+            loadSpecificOrder();
         }
     }, [id]);
 
-    // The rest of your code remains the same
-
-
-    
 
     useEffect(() => {
         if (inputName.length >= 2) {
@@ -195,7 +191,7 @@ const MakeOrder = () => {
     const ExtraItemForMainProduct = ({ product, onRemove }) => {
         if (!product) {
             console.error("Product is null or undefined.");
-            return null; // Or return some placeholder UI
+            return null;
         }
     
         const imageUrl = product.imagePath || '/default/path/to/image.jpg';  // Ensure the correct path
@@ -228,10 +224,9 @@ const MakeOrder = () => {
     const handleProductSelect = async (mainProductId, selectedProduct) => {
         console.log('Selected product data:', selectedProduct);
 
-        // Ensure categoryType exists and is not null or undefined
         if (!selectedProduct.categoryType) {
             console.error('Invalid or missing category type:', selectedProduct.categoryType);
-            return; // Prevent sending invalid data to the backend
+            return;
         }
 
         const price = selectedProduct.price?.price || 0;
@@ -259,11 +254,9 @@ const MakeOrder = () => {
             const response = await postOrderProduct(extraOrderProduct);
             console.log('Extra product added:', response.data);
 
-            // Fetch the updated orders again to include the newly added product
             const updatedOrders = await fetchOrderProductAndExtraProduct(orderItem.orderId);
             const transformedOrder = transformData(updatedOrders.data);
 
-            // Update the state to include the newly fetched data
             setOrders(prevOrders => prevOrders.map(order => {
                 if (order.productId === mainProductId) {
                     return {

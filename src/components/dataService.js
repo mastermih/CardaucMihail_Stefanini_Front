@@ -107,12 +107,10 @@ export const updateUser = async(user) =>{
   }
 }
 
-//getUserForProfieEdit HERE isWithToken
 export const getUserByToken = async (userToken) => {
   try {
     console.log('Fetching user details and image for userId:', userToken);
 
-    // Fetch user profile using userId as a path variable
     const response = await axios.get(`http://localhost:8080/UserProfile${userToken}`);
 
     const item = response.data || {};
@@ -132,12 +130,10 @@ export const getUserByToken = async (userToken) => {
   }
 };
 
-//getUserForProfileEdit
 export const getUser = async (userId) => {
   try {
     console.log('Fetching user details and image for userId:', userId);
 
-    // Fetch user profile using userId as a query parameter
     const response = await axios.get(`http://localhost:8080/UserProfile`, {
       params: { userId: userId }
     });
@@ -163,42 +159,35 @@ export const getUser = async (userId) => {
 
 
 
-//get the image from the db
 export const getUserImage = async (userId) => {
   try {
     console.log('Sending request to get userImage based on userID:', userId);
 
-    // Make the request to the backend with the userId as a parameter
     const response = await axios.get('http://localhost:8080/uploadImage', {
-      params: { userId: userId }, // Correct way to pass params in axios
+      params: { userId: userId },
     });
 
-    // The response contains the relative image path, e.g., 'userProfileImages/110_images.jpg'
     const relativeImagePath = response.data;
     console.log('Image path returned from backend:', relativeImagePath);
 
-    // Construct the full image URL by appending the relative path to the base URL
     const fullImageUrl = `http://localhost:8080/${relativeImagePath}`;
     console.log('Full image URL constructed:', fullImageUrl);
 
-    // Return the full image URL
     return fullImageUrl;
   } catch (error) {
     console.error('Error fetching user image:', error);
-    throw error; // Handle errors in your frontend as well
+    throw error;
   }
 };
 
 export const uploadImage = async (image, userId) => {
   try {
-    // Create the formData object and append the image and userId
     const formData = new FormData();
-    formData.append('image', image); // 'image' is the key, image is the file
-    formData.append('userId', userId); // Additional data (userId)
+    formData.append('image', image);
+    formData.append('userId', userId);
 
     console.log('Uploading image for userId:', userId);
 
-    // Send the image and data to the server
     const response = await axios.post('http://localhost:8080/uploadImage', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -516,12 +505,12 @@ export const assigneeOperatorToOrder = async (orderId, role) => {
 };
 
 
-export const getOperatorNameByRole = async (role) => {
+export const getOperatorName  = async (name) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/assignation', {
-      params: { role }
+      params: { name }
     });
-    console.log('Operator names fetched for role:', role, response.data);
+    console.log('Operator names fetched for role:', name, response.data);
     return response.data; // This should return a list of usernames.
   } catch (error) {
     console.error('Error fetching operator names:', error);
@@ -529,18 +518,19 @@ export const getOperatorNameByRole = async (role) => {
   }
 };
 
-export const setOperatorNameToOrder = async (userName, id) => {
+export const setOperatorNameToOrder = async (orderId, name) => {
   try {
     const response = await axios.put(`http://localhost:8080/orders/assignation`, null, {
-      params: { userName, id }
+      params: { orderId, name }
     });
-    console.log('Operator set for order:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error setting operator to order:', error);
-    throw error;
+    return [];
   }
 };
+
+
 
 
 export const fetchDataByDateAndStatus = async (startDate, endDate, status, numberOfOrders, page) => {

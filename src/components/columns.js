@@ -1,4 +1,7 @@
-export const COLUMNS = (handleRoleSelection, handleOperatorSelection, operators = {}, operatorsName = {}) => [
+import React, { useState, useRef } from 'react';
+import debounce from 'lodash.debounce'; // Import debounce for better API call handling
+
+export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
   {
     Header: 'Id',
     accessor: 'id',
@@ -20,50 +23,99 @@ export const COLUMNS = (handleRoleSelection, handleOperatorSelection, operators 
     accessor: 'order_status',
   },
   {
-    Header: 'Operator',
-    accessor: 'assigned_operator',
-    Cell: ({ row }) => (
-      <div>
-        <select
-          value={row.original.assigned_operator || ''}
-          onChange={(e) => handleRoleSelection(row.original.id, e.target.value)}
-          className="form-select"
-        >
-          <option value="">Not Selected</option>
-          <option value="ADMIN">Admin</option>
-          <option value="SALESMAN">Salesman</option>
-          <option value="MANAGER">Manager</option>
-        </select>
-      </div>
-    ),
-  },
-  {
     Header: 'Operator Name',
     accessor: 'user_name',
-    Cell: ({ row }) => (
-      <div>
-        <select
-          value={operatorsName[row.original.id] || ''}
-          onChange={(e) => handleOperatorSelection(row.original.id, e.target.value)}
-          className="form-select"
-        >
-          <option value="">Not Selected</option>
-          {operators[row.original.id]?.length > 0 ? (
-            operators[row.original.id].map((operator, index) => (
-              <option key={index} value={operator}>{operator}</option>
-            ))
-          ) : (
-            <option value="" disabled>No operators available</option>
+    Cell: ({ row }) => {
+      const [searchQuery, setSearchQuery] = useState('');
+      const [filteredOperators, setFilteredOperators] = useState([]);
+      const [showDropdown, setShowDropdown] = useState(false);
+      const inputRef = useRef(null);
+
+      const debouncedSearch = useRef(
+        debounce(async (query) => {
+          if (query.length >= 3) {
+            try {
+              const operatorNames = await getOperatorName(query); // Fetch operators by name
+              
+              // Ensure that the response is an array and contains usernames
+              if (Array.isArray(operatorNames)) {
+                setFilteredOperators(operatorNames.slice(0, 5)); // Limit to 5 results
+              } else {
+                setFilteredOperators([]); // Clear dropdown if no results
+              }
+              setShowDropdown(true);
+            } catch (error) {
+              console.error('Error fetching operators:', error);
+              setFilteredOperators([]);
+              setShowDropdown(false);
+            }
+          } else {
+            setShowDropdown(false);
+          }
+        }, 300)
+      ).current;
+
+      const handleSearchChange = (e) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        debouncedSearch(query); // Trigger search when the user types
+      };
+
+      const handleOperatorSelectionLocal = (operator) => {
+        setSearchQuery(operator); // Set the selected operator in the input
+        setShowDropdown(false); // Hide the dropdown after selection
+        handleOperatorSelection(row.original.id, operator); // Call the passed handler to set the operator for the row
+      };
+
+      return (
+        <div style={{ position: 'relative' }}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            placeholder="Search for operator"
+            className="form-control"
+            ref={inputRef}
+            style={{ width: '200px' }} // Adjust the width to fit the table
+          />
+
+          {/* Dropdown for showing filtered operator options */}
+          {showDropdown && filteredOperators.length > 0 && (
+            <ul
+              className="dropdown-menu"
+              style={{
+                display: 'block',
+                position: 'absolute',
+                top: '100%',
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+                backgroundColor: '#fff',
+                border: '1px solid #ccc',
+                listStyle: 'none',
+                maxHeight: '150px',
+                overflowY: 'auto',
+              }}
+            >
+              {filteredOperators.map((operator, index) => (
+                <li
+                  key={index}
+                  onClick={() => handleOperatorSelectionLocal(operator)}
+                  style={{ padding: '8px', cursor: 'pointer' }}
+                >
+                  {operator} {/* Assuming `operator` is a string */}
+                </li>
+              ))}
+            </ul>
           )}
-        </select>
-      </div>
-    )    
+        </div>
+      );
+    },
   },
 ];
 
 
 
-// COLUMNS2 (assuming this is for another table)
 export const COLUMNS2 = [
   {
     Header: 'OrderID',
