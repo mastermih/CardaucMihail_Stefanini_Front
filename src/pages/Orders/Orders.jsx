@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import BasicTable from '../../components/BasicTable';
+import {jwtDecode} from 'jwt-decode';
+
 import {
   fetchDataByDateAndStatus,
   fetchDataByDateInterval,
@@ -23,6 +25,18 @@ const Orders = () => {
   const handleRedirectToHome = () => {
     navigate('/');
   };
+
+  const getRoleFromToken = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const roles = decodedToken.roles || [];
+      return roles.includes('ADMIN') ? 'ADMIN' : 'USER';
+    }
+    return 'USER';
+  };
+
+  const role = getRoleFromToken();
 
   const handleFetchData = async (page = 1) => {
     setLoading(true);
@@ -141,7 +155,8 @@ const Orders = () => {
       ) : (
         <>
           <BasicTable
-            data={data}
+                      data={data}
+                      role={role}
             handleOperatorSelection={handleOperatorSelection}
             getOperatorName={getOperatorName}
           />

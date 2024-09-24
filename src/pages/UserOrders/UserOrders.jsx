@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import BasicTable from '../../components/BasicTable';
 import { fetchDataByDateIntervalUserRole, fetchOrdersByLastOnesUserRole } from '../../components/dataService';
-import { jwtDecode } from 'jwt-decode'; // Correct import
-import { useNavigate } from 'react-router-dom'; // For navigating to the home page
+import {jwtDecode} from 'jwt-decode'; 
+import { useNavigate } from 'react-router-dom'; 
 
 const UserOrders = () => {
   const [data, setData] = useState([]);
@@ -12,8 +12,8 @@ const UserOrders = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
-  const limit = 5; // Number of orders to fetch per page
-  const navigate = useNavigate(); // Initialize the navigate function
+  const limit = 5; 
+  const navigate = useNavigate();
 
   const getUserIdFromToken = () => {
     const token = localStorage.getItem('token'); 
@@ -24,12 +24,18 @@ const UserOrders = () => {
     return null;
   };
 
-  const userId = getUserIdFromToken();
-
-
-  const handleButtonClick = (row) => {
-    console.log('Button clicked for row:', row);
+  const getRoleFromToken = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const roles = decodedToken.roles || [];
+      return roles.includes('ADMIN') ? 'ADMIN' : 'USER';
+    }
+    return 'USER';
   };
+
+  const role = getRoleFromToken();
+  const userId = getUserIdFromToken();
 
   const handleFetchData = async (page = 1) => {
     setLoading(true);
@@ -43,14 +49,22 @@ const UserOrders = () => {
       }
 
       if (result && Array.isArray(result.data)) {
-        setData(result.data); // Set the valid data
+        // Flatten the data and remove any unnecessary nested structures
+        const flattenedData = result.data.map(order => ({
+          id: order.id,
+          user_id: order.user_id?.id || 'N/A', // Accessing nested 'user_id'
+          created_date: order.created_date,
+          updated_date: order.updated_date,
+          order_status: order.order_status,
+        }));
+        
+        setData(flattenedData); // Set the valid data
       } else {
         setData([]); 
       }
 
       setTotalPages(result.totalPages || 1);
       setCurrentPage(page);
-      console.log('Data received:', result);
     } catch (error) {
       console.error('Error fetching data:', error);
       setData([]);
@@ -76,11 +90,8 @@ const UserOrders = () => {
   return (
     <div className="container">
       <h1>Orders</h1>
-      
-      {/* Add a button to go back to the home page */}
       <button onClick={handleRedirectToHome} className="btn btn-link">← Back to Home</button>
 
-      {/* Filter form */}
       <div className="controls d-flex justify-content-between align-items-center mb-4">
         <div className="form-group">
           <label>Start Date:</label>
@@ -120,7 +131,7 @@ const UserOrders = () => {
         <div>Loading...</div>
       ) : (
         <>
-          <BasicTable data={data || []} columnsType="COLUMNS" handleButtonClick={handleButtonClick} />
+          <BasicTable data={data} role={role} />
           {totalPages > 1 && (
             <div className="pagination">
               <button

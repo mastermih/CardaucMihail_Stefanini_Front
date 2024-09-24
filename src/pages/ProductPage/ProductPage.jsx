@@ -87,11 +87,12 @@ const ProductPage = () => {
       // Decode the token to get the user ID
       const decodedToken = jwtDecode(token);
       const userId = decodedToken.id;
+      console.log("WAAAAAA" +userId)
       
       const orderWithProductsDTO = {
         order: {
-          userId: { 
-            id: userId
+          userId: {
+            userId:{id:userId}
           },
           orderStatus: "INITIALISED",
           productId: product.id,

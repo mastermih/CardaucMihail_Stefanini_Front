@@ -1,13 +1,17 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
-import { COLUMNS } from './columns'; // Make sure you have the correct COLUMNS setup
+import { COLUMNS, COLUMNS_WITHOUT_OPERATOR_NAME} from './columns'; // Two different sets of columns
 
-const BasicTable = ({ data, handleOperatorSelection, getOperatorName }) => {
+const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role}) => {
   const safeData = useMemo(() => data || [], [data]);
 
   const columns = useMemo(() => {
-    return COLUMNS(handleOperatorSelection, getOperatorName); // Pass getOperatorName here
-  }, [handleOperatorSelection, getOperatorName]);
+    if (role === 'ADMIN') {
+      return COLUMNS(handleOperatorSelection, getOperatorName); // Admins can see the Operator Name
+    } else {
+      return COLUMNS_WITHOUT_OPERATOR_NAME(); // Users do not see the Operator Name
+    }
+  }, [handleOperatorSelection, getOperatorName, role]);
 
   const tableInstance = useTable({
     columns,
