@@ -1,14 +1,29 @@
 import React, { useState, useRef } from 'react';
-import debounce from 'lodash.debounce'; // Import debounce for better API call handling
-
+import debounce from 'lodash.debounce'; 
+import { useNavigate } from 'react-router-dom';
 export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
   {
     Header: 'Id',
     accessor: 'id',
+    Cell: ({ value }) => {
+      const navigate = useNavigate();
+      return (
+        <span
+          style={{ color: 'blue', cursor: 'pointer' }}
+          onClick={() => navigate(`/DetailedOrder?orderId=${value}`)}
+        >
+          {value}
+        </span>
+      );
+    },
   },
   {
-    Header: 'User Id',
-    accessor: 'user_id',
+    Header: 'Customer Name',  
+    accessor: 'creatorUsername',
+    Cell: ({ row }) => {
+      const customerName = row.original.creatorUsername || 'N/A'; 
+      return <span>{customerName}</span>;
+    },
   },
   {
     Header: 'Created Date',
@@ -23,25 +38,23 @@ export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
     accessor: 'order_status',
   },
   {
-    Header: 'Operator Name',
-    accessor: 'user_name',
+    Header: 'Assign Operator',
+    accessor: 'assign_operator',
     Cell: ({ row }) => {
-      const [searchQuery, setSearchQuery] = useState('');
+      const [searchQuery, setSearchQuery] = useState(row.original.userName || '');  // Prepopulate with the current operator's name
       const [filteredOperators, setFilteredOperators] = useState([]);
       const [showDropdown, setShowDropdown] = useState(false);
       const inputRef = useRef(null);
 
-      // Debounced function to search operators by name
       const debouncedSearch = useRef(
         debounce(async (query) => {
           if (query.length >= 3) {
             try {
               const operatorNames = await getOperatorName(query);
-              
               if (Array.isArray(operatorNames)) {
-                setFilteredOperators(operatorNames.slice(0, 5)); // Limit results to 5
+                setFilteredOperators(operatorNames.slice(0, 5));
               } else {
-                setFilteredOperators([]); // No results
+                setFilteredOperators([]);
               }
               setShowDropdown(true);
             } catch (error) {
@@ -50,24 +63,21 @@ export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
               setShowDropdown(false);
             }
           } else {
-            setShowDropdown(false); // Hide dropdown if search query is too short
+            setShowDropdown(false);
           }
-        }, 300) // Debounce with a 300ms delay
+        }, 300)
       ).current;
 
       const handleSearchChange = (e) => {
         const query = e.target.value;
         setSearchQuery(query);
-        debouncedSearch(query); // Trigger the search function as the user types
+        debouncedSearch(query);
       };
 
-      // Handle when an operator is selected from the dropdown
       const handleOperatorSelectionLocal = async (operator) => {
-        setSearchQuery(operator); // Set the selected operator in the input field
-        setShowDropdown(false); // Hide the dropdown
-
-        // Pass the selected operator to the parent via handleOperatorSelection
-        await handleOperatorSelection(row.original.id, operator); // You might want to handle the request here
+        setSearchQuery(operator);  // Set the selected operator name in the input
+        setShowDropdown(false);
+        await handleOperatorSelection(row.original.id, operator);  // Handle operator selection (e.g., API call)
       };
 
       return (
@@ -79,10 +89,9 @@ export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
             placeholder="Search for operator"
             className="form-control"
             ref={inputRef}
-            style={{ width: '200px' }} // Adjust the width to fit within the table cell
+            style={{ width: '200px' }}
           />
 
-          {/* Dropdown for filtered operator suggestions */}
           {showDropdown && filteredOperators.length > 0 && (
             <ul
               className="dropdown-menu"
@@ -106,7 +115,7 @@ export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
                   onClick={() => handleOperatorSelectionLocal(operator)}
                   style={{ padding: '8px', cursor: 'pointer' }}
                 >
-                  {operator} {/* Assuming `operator` is a string */}
+                  {operator}
                 </li>
               ))}
             </ul>
@@ -116,6 +125,9 @@ export const COLUMNS = (handleOperatorSelection, getOperatorName) => [
     },
   },
 ];
+
+
+
 
 export const COLUMNS_WITHOUT_OPERATOR_NAME = () => [
   {

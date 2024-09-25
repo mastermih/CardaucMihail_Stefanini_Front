@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
-import { COLUMNS, COLUMNS_WITHOUT_OPERATOR_NAME} from './columns'; // Two different sets of columns
+import { COLUMNS, COLUMNS_WITHOUT_OPERATOR_NAME } from './columns'; // Two different sets of columns
 
-const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role}) => {
+const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role }) => {
   const safeData = useMemo(() => data || [], [data]);
-  console.log('User Role:', role);
 
   const columns = useMemo(() => {
     if (role === 'ADMIN') {
@@ -16,7 +15,8 @@ const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role}) => 
 
   const tableInstance = useTable({
     columns,
-    data: safeData,  });
+    data: safeData,
+  });
 
   const {
     getTableProps,
@@ -38,17 +38,20 @@ const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role}) => 
         ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-        {rows.map(row => {
-          prepareRow(row);
-          return (
-            <tr {...row.getRowProps()} key={row.id}>
-              {row.cells.map(cell => (
-                <td {...cell.getCellProps()} key={cell.column.id}>{cell.render('Cell')}</td>
-              ))}
-            </tr>
-          );
-        })}
-      </tbody>
+  {rows.map((row, rowIndex) => {
+    prepareRow(row);
+    return (
+      <tr {...row.getRowProps()} key={`${row.original.id || rowIndex}-${rowIndex}`}>
+        {row.cells.map((cell, cellIndex) => (
+          <td {...cell.getCellProps()} key={cellIndex}>
+            {cell.render('Cell')}
+          </td>
+        ))}
+      </tr>
+    );
+  })}
+</tbody>
+
     </table>
   );
 };

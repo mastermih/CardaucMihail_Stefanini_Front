@@ -9,12 +9,10 @@ export const fetchOrderProductAndExtraProduct = async (orderId) => {
 
     console.log('API Response:', data);
 
-    // Ensure that orderProducts is an array
     if (!Array.isArray(data.orderProducts)) {
       throw new Error('Expected orderProducts to be an array, but received:', typeof data.orderProducts);
     }
 
-    // Map through the orderProducts array and create an array of flattened data
     const flattenedData = data.orderProducts.map(product => ({
       orderId: data.orderId.id,  
       productName: product.product?.productName?.product_name || 'Unknown Product', // Access product name
@@ -43,20 +41,19 @@ export const deltedTheExtraProductFromMainProduct = async (orderProduct) => {
   try {
       const response = await axios.delete("http://localhost:8080/MakeOrder/ProductOrder", {
           params: {
-              id: orderProduct.orderId,  // This should be the correct order product ID
-              product_name: orderProduct.productName // This should be the correct product name
+              id: orderProduct.orderId,  
+              product_name: orderProduct.productName 
           }
       });
       return response.data;
   } catch (error) {
       console.error("Error deleting the extra product:", error);
-      throw error; // re-throw the error so the calling function can handle it
+      throw error;
   }
 };
 
 
-
-
+//This seams to be extra here
 export const fetchProductPageByProductName = async (productId = 42, name) => {
   try {
     const response = await axios.get(`http://localhost:8080/catalog/MakeOrder/${productId}`, {
@@ -461,12 +458,15 @@ export const fetchDataByLastOrders = async (limit) => {
     const items = response.data || [];
 
     const flattenedData = items.map(item => ({
-      id: item.orderId.id,
-      user_id: item.userId.userId.id,
-      created_date: item.createdDate.createDateTime,
-      updated_date: item.updatedDate.updateDateTime,
-      order_status: item.orderStatus,
+      id: item.order.orderId?.id || 'N/A',
+      userName: item.userName,
+      created_date: item.order.createdDate?.createDateTime || 'N/A',
+      updated_date: item.order.updatedDate?.updateDateTime || 'N/A',
+      order_status: item.order.orderStatus || 'Unknown',
+      operatorUserId: item.operatorUserId || 'N/A',
+      creatorUsername: item.creatorUsername || 'N/A'
     }));
+    
 
     console.log('Flattened data:', flattenedData);
 
@@ -476,7 +476,7 @@ export const fetchDataByLastOrders = async (limit) => {
     throw error;
   }
 };
-//This one was anly for role in the order table 
+//This one was only for role in the order table 
 // export const assigneeOperatorToOrder = async (role, id) => {
 //   try {
 //     const response = await axios.put(`http://localhost:8080/orders/assignation`, null, {

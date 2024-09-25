@@ -12,8 +12,7 @@ import ConfirmUserEmail from './pages/ConfirmUserEmail/ConfirmUserEmail';
 import UserCreation from './pages/UserCreation/UserCreation';
 import Registration from './pages/Registration/Registration';
 import UserProfile from './pages/UserProfile/UserProfile';
-
-
+import DetailedOrder from './pages/DetailedOrder/DetailedOrder';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -23,6 +22,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/orders" element={<Orders />} />
+          <Route path="/DetailedOrder" element={<DetailedOrder />} />
           <Route path="/userOrders/UserLastCreated" element={<UserOrders />} />
           <Route path="/catalog" element={<Catalog />} />
           <Route path="/product/:id" element={<ProductPage />} />
