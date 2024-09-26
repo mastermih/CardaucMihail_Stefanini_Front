@@ -446,6 +446,26 @@ export const fetchOrdersByLastOnesUserRole = async (userId, limit) => {
   }
 };
 
+export const getOperatorForOrder = async (orderId) => {
+  try {
+    const response = await axios.get('http://localhost:8080/DetailedOrder', {
+      params: { orderId }
+    });
+
+    const items = response.data || [];
+    console.log('Response data:', items);
+
+    const flattenedData = items;
+    console.log('Flattened operator data:', flattenedData);
+
+    return flattenedData;
+  } catch (error) {
+    console.error('Error fetching last created orders for user role:', error);
+    throw error;
+  }
+};
+
+
 
 export const fetchDataByLastOrders = async (limit) => {
   try {
@@ -476,20 +496,6 @@ export const fetchDataByLastOrders = async (limit) => {
     throw error;
   }
 };
-//This one was only for role in the order table 
-// export const assigneeOperatorToOrder = async (role, id) => {
-//   try {
-//     const response = await axios.put(`http://localhost:8080/orders/assignation`, null, {
-//       params: { role, id }  // Passing both role and id as query parameters
-//     });
-//     console.log('Raw response data:', response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error assigning operator to order:', error);
-//     throw error; // Rethrow the error to handle it elsewhere if necessary
-//   }
-// };
-
 
 export const assigneeOperatorToOrder = async (orderId, name) => {
   try {
@@ -511,25 +517,12 @@ export const getOperatorName  = async (name) => {
       params: { name }
     });
     console.log('Operator names fetched for role:', name, response.data);
-    return response.data; // This should return a list of usernames.
+    return response.data;
   } catch (error) {
     console.error('Error fetching operator names:', error);
     throw error;
   }
 };
-
-// export const setOperatorNameToOrder = async (orderId, name) => {
-//   try {
-//     const response = await axios.put(`http://localhost:8080/orders/assignation`, null, {
-//       params: { orderId, name }
-//     });
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error setting operator to order:', error);
-//     return [];
-//   }
-// };
-
 
 
 
