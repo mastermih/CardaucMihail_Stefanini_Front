@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useNavigate, useLocation } from 'react-router-dom'; // Import useLocation to read query parameters
+import { useNavigate, useLocation } from 'react-router-dom';
 import './DetailedOrder.css';
-import { fetchOrderProductAndExtraProduct, getOperatorForOrder} from '../../components/dataService';
+import { fetchOrderProductAndExtraProduct, getOperatorForOrder } from '../../components/dataService';
 
 const DetailedOrder = () => {
   const location = useLocation();
@@ -53,13 +53,8 @@ const DetailedOrder = () => {
       console.log("Fetching operator names for order:", orderId);
       try {
         const response = await getOperatorForOrder(orderId);
-        
         console.log("Operator names response:", response);
-  
         setOperatorNames(response);
-        
-        console.log("Operator names set in state:", response);
-  
       } catch (error) {
         console.error('Error fetching operator names:', error);
         setOperatorNames([]);
@@ -70,11 +65,7 @@ const DetailedOrder = () => {
       fetchOperatorName();
     }
   }, [orderId]);
-  
-  
 
-  
-  
   if (loading) {
     return <div>Loading order details...</div>;
   }
@@ -91,6 +82,12 @@ const DetailedOrder = () => {
   console.log(mainProducts);
   console.log(extraProducts);
 
+  // Function to generate a random color for each operator
+  const generateRandomColor = () => {
+    const colors = ['#FFB6C1', '#ADD8E6', '#90EE90', '#FFD700', '#FFA07A', '#9370DB', '#F4A460'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  };
+
   return (
     <>
       <div className="content-section">
@@ -98,7 +95,6 @@ const DetailedOrder = () => {
           <Row>
             <Col md={8} className="description-section">
               <h3>Order Details for Order ID: {orderId}</h3>
-              {/* <h5>Operator: {operatorName}</h5> */}
               {mainProducts.map((product, index) => (
                 <div key={index}>
                   <h4>Product Name: {product.productName}</h4>
@@ -125,11 +121,36 @@ const DetailedOrder = () => {
               )}
             </Col>
           </Row>
+
+          {/* Operator Names Section with Colored Squares */}
           <Row>
-  <Col md={12} className="total-price-section">
-    <h5>Operator(s): {operatorNames.length > 0 ? operatorNames.join(', ') : 'N/A'}</h5>
-  </Col>
-</Row>
+            <Col md={12} className="total-price-section">
+              <h5>Operator(s):</h5>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {operatorNames.length > 0 ? (
+                  operatorNames.map((name, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        backgroundColor: generateRandomColor(),
+                        padding: '10px',
+                        borderRadius: '5px',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        textAlign: 'center',
+                        width: '120px',
+                      }}
+                    >
+                      {name}
+                    </div>
+                  ))
+                ) : (
+                  <p>N/A</p>
+                )}
+              </div>
+            </Col>
+          </Row>
+
           {/* Total Price */}
           <Row>
             <Col md={12} className="total-price-section">

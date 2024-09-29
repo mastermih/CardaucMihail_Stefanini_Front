@@ -345,7 +345,6 @@ export const filterProducts = async (params) => {
       params,
     });
 
-    // Ensure that response.data is an object with the correct structure
     const data = response.data;
 
     if (data && Array.isArray(data.items)) {
@@ -426,20 +425,19 @@ export const fetchOrdersByLastOnesUserRole = async (userId, limit) => {
       params: { id: userId, limit }
     });
 
-    const items = response.data || []; // Ensure it's an array
+    const items = response.data || [];
     console.log('Response data:', items);
 
-    // Flatten the data for each order returned
     const flattenedData = items.map(order => ({
       id: order.orderId.id,
       user_id: order.userId.userId.id,
       created_date: order.createdDate.createDateTime,
       updated_date: order.updatedDate.updateDateTime,
       order_status: order.orderStatus,
-      operator: order.userId.email.email || 'N/A', // Use N/A if no email is found
+      operator: order.userId.email.email || 'N/A', 
     }));
 
-    return { data: flattenedData, totalPages: 1 }; // Default to 1 page for now
+    return { data: flattenedData, totalPages: 1 }; 
   } catch (error) {
     console.error('Error fetching last created orders for user role:', error);
     throw error;
@@ -465,8 +463,6 @@ export const getOperatorForOrder = async (orderId) => {
   }
 };
 
-
-
 export const fetchDataByLastOrders = async (limit) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/lastCreated', {
@@ -478,29 +474,29 @@ export const fetchDataByLastOrders = async (limit) => {
     const items = response.data || [];
 
     const flattenedData = items.map(item => ({
-      id: item.order.orderId?.id || 'N/A',
-      userName: item.userName,
-      created_date: item.order.createdDate?.createDateTime || 'N/A',
-      updated_date: item.order.updatedDate?.updateDateTime || 'N/A',
-      order_status: item.order.orderStatus || 'Unknown',
-      operatorUserId: item.operatorUserId || 'N/A',
-      creatorUsername: item.creatorUsername || 'N/A'
+      id: item.order?.orderId?.id,  
+      userName: item.userName, 
+      created_date: item.order?.createdDate?.createDateTime,  
+      updated_date: item.order?.updatedDate?.updateDateTime,
+      order_status: item.order?.orderStatus,  
+      operatorUserIds: item.operatorUserIds,
+      creatorUsername: item.creatorUsername
     }));
-    
 
     console.log('Flattened data:', flattenedData);
 
-    return { data: flattenedData, totalPages: 1 };
+    return { data: flattenedData, currentPage: response.data.currentPage || 1, totalPages: response.data.totalPages || 1 };
   } catch (error) {
-    console.error('Error fetching data:', error);
-    throw error;
+    console.error('Error fetching last 5 orders:', error);
+    return { data: [], currentPage: 1, totalPages: 1 }; 
   }
 };
-
-export const assigneeOperatorToOrder = async (orderId, name) => {
-  try {
-    const response = await axios.post(`http://localhost:8080/orders/assignation`, null, {
-      params: { id: orderId, name }
+export const deleteAllOperatorsFromTheOrder = async (orderId) => {
+  try{
+    const response = await axios.delete('http://localhost:8080/orders/removeAllOperators',{
+      params: {
+        orderId: orderId,
+      }
     });
     console.log('Operator assigned to order:', response.data);
     return response.data;
@@ -511,10 +507,57 @@ export const assigneeOperatorToOrder = async (orderId, name) => {
 };
 
 
-export const getOperatorName  = async (name) => {
+export const deleteOperatorFromTheOrder = async (orderId, operatorId) => {
+  try{
+    const response = await axios.delete('http://localhost:8080/orders/removeOperator',{
+      params: {
+        orderId: orderId,
+        operatorId: operatorId
+      }
+    });
+    console.log('Operator assigned to order:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error assigning operator to order:', error);
+    throw error;
+  }
+};
+export const assineOperatorToMe = async (orderId,operatorId) => {
+  try{
+    const response = await axios.post('http://localhost:8080/orders/assineOrderToMe', null,{
+      params: {
+        orderId: orderId,
+        operatorId: operatorId,
+      }
+    });
+    console.log('Operator assigned to order:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error assigning operator to order:', error);
+    throw error;
+  }
+};
+export const assignOperatorToOrder = async (orderId, name) => {
+  try {
+    const response = await axios.post('http://localhost:8080/orders/assignation', null,{
+      params: {
+        id: orderId,
+        name: name
+      }
+    });
+
+    console.log('Operator assigned to order:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error assigning operator to order:', error);
+    throw error;
+  }
+};
+
+export const getOperatorName = async (name) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/assignation', {
-      params: { name }
+      params: { name },
     });
     console.log('Operator names fetched for role:', name, response.data);
     return response.data;
@@ -523,8 +566,6 @@ export const getOperatorName  = async (name) => {
     throw error;
   }
 };
-
-
 
 export const fetchDataByDateAndStatus = async (startDate, endDate, status, numberOfOrders, page) => {
   try {

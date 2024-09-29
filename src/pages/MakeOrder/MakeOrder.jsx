@@ -17,7 +17,7 @@ import { FaPlus } from 'react-icons/fa';
 import './MakeOrder.css';
 
 const MakeOrder = () => {
-    const { id } = useParams(); // `id` represents the specific order ID if provided
+    const { id } = useParams();
     const { cartItems, clearCart } = useCart();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);

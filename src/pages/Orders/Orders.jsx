@@ -6,8 +6,11 @@ import {
   fetchDataByDateAndStatus,
   fetchDataByDateInterval,
   fetchDataByLastOrders,
-  assigneeOperatorToOrder,
-  getOperatorName
+  assignOperatorToOrder,
+  getOperatorName,
+  deleteOperatorFromTheOrder,
+  deleteAllOperatorsFromTheOrder,
+  assineOperatorToMe
 } from '../../components/dataService'; // Assuming you have functions in dataService
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
@@ -17,6 +20,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [operatorID, setOperatorId] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -26,7 +30,6 @@ const Orders = () => {
   const handleRedirectToHome = () => {
     navigate('/');
   };
-
   const getRoleFromToken = () => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -38,7 +41,21 @@ const Orders = () => {
   };
 
   const role = getRoleFromToken();
-
+  useEffect(() => {
+    const userId = getUserIdFromToken();
+    if (userId) {
+      handleFetchDataByLastOrders();
+    }
+  }, []);
+  
+  
+  const getUserIdFromToken = () => {
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
+    const userId = decodedToken.id || decodedToken.userId; 
+    setOperatorId(userId);
+    return userId;
+  };
   const handleFetchData = async (page = 1) => {
     setLoading(true);
     try {
@@ -87,16 +104,84 @@ const Orders = () => {
       console.error('Invalid page number:', newPage);
     }
   };
+  const handleDeleteOperatorFromTheOrder = async (orderId, operatorName) => {
+    try {
+        const order = data.find(orderItem => orderItem.id === orderId);
+
+        console.log('Order found:', order);
+
+        if (!order) {
+            console.error('Order not found for orderId:', orderId);
+            return;
+        }
+
+        if (!order.operatorUserIds || order.operatorUserIds === "N/A" || !order.userName) {
+            console.error('Valid OperatorUserId or userName is missing for this order:', order);
+            return;
+        }
+
+        const operatorIds = order.operatorUserIds.split(', ');
+        const operatorNames = order.userName.split(', ');
+
+        const operatorIndex = operatorNames.indexOf(operatorName);
+
+        const operatorId = operatorIds[operatorIndex];
+
+        if (!operatorId) {
+            console.error('Operator ID not found for', operatorName);
+            return;
+        }
+
+        console.log('Order ID:', orderId);
+        console.log('Operator Name:', operatorName);
+        console.log('Operator ID:', operatorId);
+
+        const response = await deleteOperatorFromTheOrder(orderId, operatorId);
+        console.log('Operator deleted successfully:', response);
+
+    } catch (error) {
+        console.error('Error deleting operator:', error);
+    }
+};
+
+
+const handleDeleteAllOperatorsFromTheOrder = async (orderId) => {
+  try {
+    const response = await deleteAllOperatorsFromTheOrder(orderId);
+    console.log('Deleted all operators for order:', response);
+  } catch (error) {
+    console.error('Error deleting all operators:', error);
+  }
+};
+
 
   const handleOperatorSelection = (orderId, operatorName) => {
     console.log(`Selected operator ${operatorName} for order ${orderId}`);
-    try {
-      const response = assigneeOperatorToOrder(orderId, operatorName);
-      console.log('Operator assigned successfully:', response);
-    } catch (error) {
-      console.error('Error assigning operator:', error);
-    }
+    assignOperatorToOrder(orderId, operatorName)
+      .then(response => {
+        console.log('Operator assigned successfully:', response);
+      })
+      .catch(error => {
+        console.error('Error assigning operator:', error);
+      });
   };
+
+  const handleAddMeAsOperatorToOrder = (orderId) => {
+    if (!operatorID) {
+      console.error("Operator ID is undefined. Please check the token or user ID.");
+      return;
+    }
+    console.log(`Set me ${operatorID} for order ${orderId}`);
+    
+    assineOperatorToMe(orderId, operatorID) // Use operatorID from state
+      .then(response => {
+        console.log('Operator assigned successfully:', response);
+      })
+      .catch(error => {
+        console.error('Error assigning operator:', error);
+      });
+  };
+  
 
   return (
     <div className="container">
@@ -166,14 +251,16 @@ const Orders = () => {
                       role={role}
             handleOperatorSelection={handleOperatorSelection}
             getOperatorName={getOperatorName}
-          />
+            handleDeleteOperatorFromTheOrder={handleDeleteOperatorFromTheOrder} 
+            handleDeleteAllOperatorsFromTheOrder={handleDeleteAllOperatorsFromTheOrder}
+            handleAddMeAsOperatorToOrder={handleAddMeAsOperatorToOrder}
+           />
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1} // Disable if on the first page
+                disabled={currentPage === 1} 
                 style={{ marginRight: '10px' }}
               >
                 Previous
@@ -183,7 +270,7 @@ const Orders = () => {
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages} // Disable if on the last page
+                disabled={currentPage === totalPages} 
                 style={{ marginLeft: '10px' }}
               >
                 Next
