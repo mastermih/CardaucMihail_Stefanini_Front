@@ -17,6 +17,7 @@ import debounce from 'lodash.debounce';
 
 const Orders = () => {
   const [data, setData] = useState([]);
+  //const [userRole, setUserRole] = useState('');
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -35,12 +36,20 @@ const Orders = () => {
     if (token) {
       const decodedToken = jwtDecode(token);
       const roles = decodedToken.roles || [];
-      return roles.includes('ADMIN') ? 'ADMIN' : 'USER';
+      if (roles.includes('ADMIN')){
+        return 'ADMIN';
+      }else if (roles.includes('MANAGER')){
+        return 'MANAGER';
+      }else if (roles.includes('SALESMAN')){
+        return 'SALESMAN'
+      }
+      return 'USER';
     }
     return 'USER';
   };
 
   const role = getRoleFromToken();
+  console.log('User role: ', role);
   useEffect(() => {
     const userId = getUserIdFromToken();
     if (userId) {
@@ -173,7 +182,7 @@ const handleDeleteAllOperatorsFromTheOrder = async (orderId) => {
     }
     console.log(`Set me ${operatorID} for order ${orderId}`);
     
-    assineOperatorToMe(orderId, operatorID) // Use operatorID from state
+    assineOperatorToMe(orderId, operatorID)
       .then(response => {
         console.log('Operator assigned successfully:', response);
       })
@@ -247,8 +256,9 @@ const handleDeleteAllOperatorsFromTheOrder = async (orderId) => {
       ) : (
         <>
           <BasicTable
-                      data={data}
-                      role={role}
+            data={data || []}
+            role={role}
+            operatorID={operatorID}
             handleOperatorSelection={handleOperatorSelection}
             getOperatorName={getOperatorName}
             handleDeleteOperatorFromTheOrder={handleDeleteOperatorFromTheOrder} 

@@ -2,17 +2,18 @@ import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
 import { COLUMNS, COLUMNS_WITHOUT_OPERATOR_NAME } from './columns';
 
-const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role,handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder,handleAddMeAsOperatorToOrder,}) => {
+const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role,handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder,handleAddMeAsOperatorToOrder,operatorID}) => {
   const safeData = useMemo(() => data || [], [data]);
 
   const columns = useMemo(() => {
-    if (role === 'ADMIN') {
-      return COLUMNS(handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder,handleAddMeAsOperatorToOrder);
+    console.log('Role passed to COLUMNS:', role);
+    if (role === 'ADMIN' || role === 'MANAGER' || role === 'SALESMAN') {
+      return COLUMNS(handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder, handleAddMeAsOperatorToOrder,role,operatorID);
     } else {
       return COLUMNS_WITHOUT_OPERATOR_NAME(); 
     }
-  }, [handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, role, handleDeleteAllOperatorsFromTheOrder,handleAddMeAsOperatorToOrder]);
-
+  }, [handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, role, handleDeleteAllOperatorsFromTheOrder, handleAddMeAsOperatorToOrder,operatorID]);
+  
   const tableInstance = useTable({
     columns,
     data: safeData,

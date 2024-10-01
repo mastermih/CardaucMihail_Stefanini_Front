@@ -255,6 +255,12 @@ const Header = () => {
                             <Dropdown.Item key={item.id} onClick={() => handleItemClick(item.orderId)}>
                               <img className="card-img-top" src={item.image_path} style={{ width: '100px', height: '100px', marginRight: '10px' }} alt="product" />
                               {item.productName} - ${item.price ? item.price.toFixed(2) : 'N/A'}
+                              <button
+          onClick={(e) => handleRemoveFromCart(e, item.orderId)} // Call remove function
+          style={{ marginLeft: '10px', color: 'red' }}
+        >
+          <i className="fas fa-trash-alt"></i> {/* FontAwesome icon */}
+        </button>
                             </Dropdown.Item>
                           ))
                         ) : (

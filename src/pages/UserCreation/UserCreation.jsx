@@ -37,16 +37,13 @@ const UserCreation = () => {
     };
   
     try {
-      // Call the backend to create a new user
       const response = await createUser(user);
-      console.log(response); // This will log the { orderId: 125, message: "User 125 was added successfully" }
+      console.log(response);
       
-      // Extract the userId (which is the orderId in the response)
-      const userId = response.userId;  // Make sure response contains orderId
-      setUserId(userId); // Store userId for future use
+      const userId = response.userId; 
+      setUserId(userId);
       setMessage(`User created with ID: ${userId}`);
       
-      // Clear form fields after user creation
       setUserName('');
       setEmail('');
       setPassword('');

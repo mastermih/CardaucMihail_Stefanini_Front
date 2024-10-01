@@ -18,8 +18,8 @@ const Registration = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (userName.length < 2 || userName.length > 10) {
-      newErrors.userName = "Name must be between 2 and 10 characters";
+    if (userName.length < 2 || userName.length > 20) {
+      newErrors.userName = "Name must be between 2 and 20 characters";
     }
     
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,7 +43,6 @@ const Registration = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle user registration
   const handleRegisterUser = async (e) => {
     e.preventDefault();
     setLoading(true);
