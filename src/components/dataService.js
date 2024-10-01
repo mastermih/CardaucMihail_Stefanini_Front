@@ -577,12 +577,13 @@ export const fetchDataByDateAndStatus = async (startDate, endDate, status, numbe
     const items = response.data.items || [];
 
     const flattenedData = items.map(item => ({
-      id: item.orderId.id,
-      user_id: item.userId.userId.id,
-      created_date: item.createdDate.createDateTime,
-      updated_date: item.updatedDate.updateDateTime,
-      order_status: item.orderStatus,
-      assigned_operator: item.assignedOperator
+      id: item.order?.orderId?.id,  // Ensure correct path to order ID
+      userName: item.userName,  // User's name is not nested inside the order
+      created_date: item.order?.createdDate?.createDateTime,  // Access nested createdDate field
+      updated_date: item.order?.updatedDate?.updateDateTime,
+      order_status: item.order?.orderStatus,  // Access nested order status
+      operatorUserIds: item.operatorUserIds,  // Operator IDs
+      creatorUsername: item.creatorUsername,  // Creator's username
     }));
     console.log('Flattened data:', flattenedData);
 
@@ -659,12 +660,13 @@ export const fetchDataByDateInterval = async (startDate, endDate, numberOfOrders
     const items = response.data.items || [];
 
     const flattenedData = items.map(item => ({
-      id: item.orderId.id,
-      user_id: item.userId.userId.id,
-      created_date: item.createdDate.createDateTime,
-      updated_date: item.updatedDate.updateDateTime,
-      order_status: item.orderStatus,
-      assigned_operator: item.assignedOperator
+      id: item.order?.orderId?.id,  // Ensure correct path to order ID
+      userName: item.userName,  // User's name is not nested inside the order
+      created_date: item.order?.createdDate?.createDateTime,  // Access nested createdDate field
+      updated_date: item.order?.updatedDate?.updateDateTime,
+      order_status: item.order?.orderStatus,  // Access nested order status
+      operatorUserIds: item.operatorUserIds,  // Operator IDs
+      creatorUsername: item.creatorUsername,  // Creator's username
     }));
 
     console.log('Flattened data:', flattenedData);

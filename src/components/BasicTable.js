@@ -2,17 +2,17 @@ import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
 import { COLUMNS, COLUMNS_WITHOUT_OPERATOR_NAME } from './columns';
 
-const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role,handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder,handleAddMeAsOperatorToOrder,operatorID}) => {
+const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role,handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder,handleAddMeAsOperatorToOrder,operatorID, currentPage, handleFetchData}) => {
   const safeData = useMemo(() => data || [], [data]);
 
   const columns = useMemo(() => {
     console.log('Role passed to COLUMNS:', role);
     if (role === 'ADMIN' || role === 'MANAGER' || role === 'SALESMAN') {
-      return COLUMNS(handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder, handleAddMeAsOperatorToOrder,role,operatorID);
+      return COLUMNS(handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder, handleAddMeAsOperatorToOrder,role,operatorID, currentPage, handleFetchData);
     } else {
       return COLUMNS_WITHOUT_OPERATOR_NAME(); 
     }
-  }, [handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, role, handleDeleteAllOperatorsFromTheOrder, handleAddMeAsOperatorToOrder,operatorID]);
+  }, [handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, role, handleDeleteAllOperatorsFromTheOrder, handleAddMeAsOperatorToOrder,operatorID, currentPage, handleFetchData]);
   
   const tableInstance = useTable({
     columns,

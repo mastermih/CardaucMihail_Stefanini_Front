@@ -63,7 +63,7 @@ export const COLUMNS = (
 
       const debouncedSearch = useRef(
         debounce(async (query) => {
-          if (query.length >= 3) {
+          if (query.length >= 2) {
             try {
               setLoading(true);
               const operatorNames = await getOperatorName(query);

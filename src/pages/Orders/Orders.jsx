@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef,useCallback  } from 'react';
 import BasicTable from '../../components/BasicTable';
 import {jwtDecode} from 'jwt-decode';
 
@@ -11,13 +11,14 @@ import {
   deleteOperatorFromTheOrder,
   deleteAllOperatorsFromTheOrder,
   assineOperatorToMe
-} from '../../components/dataService'; // Assuming you have functions in dataService
+} from '../../components/dataService';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
+import { useOperatorsQuery } from './hooks/useQueryOrders';
+import { OperatorList } from './OperatorList';
 
 const Orders = () => {
   const [data, setData] = useState([]);
-  //const [userRole, setUserRole] = useState('');
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -25,6 +26,8 @@ const Orders = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const { operators, isLoading, isError } = useOperatorsQuery();
 
   const navigate = useNavigate();
 
@@ -56,8 +59,6 @@ const Orders = () => {
       handleFetchDataByLastOrders();
     }
   }, []);
-  
-  
   const getUserIdFromToken = () => {
     const token = localStorage.getItem('token');
     const decodedToken = jwtDecode(token);
@@ -69,12 +70,20 @@ const Orders = () => {
     setLoading(true);
     try {
       let result;
-      if (selectedStatus) {
+      console.log('Selected Status:', selectedStatus);
+      console.log('Start Date:', startDate);
+      console.log('End Date:', endDate);
+  
+      // Ensure all conditions are correctly handled
+      if (selectedStatus && startDate && endDate) {
         result = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, page);
-      } else {
+      } else if (startDate && endDate) {
         result = await fetchDataByDateInterval(startDate, endDate, 5, page);
+      } else {
+        result = await fetchDataByLastOrders(5, page);
       }
-
+  
+      // Set the fetched data correctly
       if (result && result.data) {
         setData(result.data);
         setCurrentPage(result.currentPage || page);
@@ -86,12 +95,15 @@ const Orders = () => {
       setLoading(false);
     }
   };
+  
+  
+  
 
   useEffect(() => {
     handleFetchDataByLastOrders();
   }, []);
 
-  const handleFetchDataByLastOrders = async () => {
+  const handleFetchDataByLastOrders = useCallback(async () => {
     setLoading(true);
     try {
       const result = await fetchDataByLastOrders(5);
@@ -103,7 +115,8 @@ const Orders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+  
 
   const handlePageChange = (newPage) => {
     if (!isNaN(newPage) && newPage >= 1 && newPage <= totalPages) {
@@ -163,17 +176,33 @@ const handleDeleteAllOperatorsFromTheOrder = async (orderId) => {
   }
 };
 
+const handleOperatorSelection = (orderId, operatorName) => {
+  assignOperatorToOrder(orderId, operatorName)
+    .then(() => {
+      if (selectedStatus && (startDate || endDate)) {
+        return fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, currentPage);
+      } else if (startDate && endDate) {
+        return fetchDataByDateInterval(startDate, endDate, 5, currentPage);
+      } else {
+        return fetchDataByLastOrders(5, currentPage); 
+      }
+    })
+    .then((allOrdersData) => {
+      const updatedOrder = allOrdersData.find(order => order.id === orderId);
+      
+      setData(prevData => 
+        prevData.map(order => order.id === orderId ? updatedOrder : order)
+      );
+            console.log(`Updated order: ${updatedOrder}`);
+    })
+    .catch(error => {
+      console.error('Error assigning operator:', error);
+    });
+};
 
-  const handleOperatorSelection = (orderId, operatorName) => {
-    console.log(`Selected operator ${operatorName} for order ${orderId}`);
-    assignOperatorToOrder(orderId, operatorName)
-      .then(response => {
-        console.log('Operator assigned successfully:', response);
-      })
-      .catch(error => {
-        console.error('Error assigning operator:', error);
-      });
-  };
+
+
+
 
   const handleAddMeAsOperatorToOrder = (orderId) => {
     if (!operatorID) {
@@ -191,7 +220,6 @@ const handleDeleteAllOperatorsFromTheOrder = async (orderId) => {
       });
   };
   
-
   return (
     <div className="container">
       <h1>Orders</h1>
@@ -255,6 +283,9 @@ const handleDeleteAllOperatorsFromTheOrder = async (orderId) => {
         <div>Loading...</div>
       ) : (
         <>
+            {/* <OperatorList operators={operators} isLoading={isLoading} isError={isError} /> */}
+
+
           <BasicTable
             data={data || []}
             role={role}
