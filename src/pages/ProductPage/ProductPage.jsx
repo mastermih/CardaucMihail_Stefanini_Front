@@ -18,13 +18,6 @@ const ProductPage = () => {
   const { addToCart } = useContext(CartContext);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem("token");
-  //   if (!token) {
-  //     navigate("/", { state: { showLoginForm: true } });
-  //   }
-  // }, [navigate]);
-
   useEffect(() => {
     const loadProduct = async () => {
       try {
@@ -110,16 +103,13 @@ const ProductPage = () => {
         ]
       };
   
-      // Make the API call to create the order and products
       const response = await postOrder(orderWithProductsDTO);
       console.log("Order with Products API Response:", response);
   
-      // Check if the response contains the orderId
       if (response && response.orderId) {
         const orderId = response.orderId;
         console.log("Created Order ID:", orderId);
   
-        // Now add the product to the cart with the orderId
         addToCart(product, orderId);
       } else {
         console.error("Failed to get orderId from response or response format is incorrect");
@@ -138,19 +128,23 @@ const ProductPage = () => {
           <div className="row">
             <div className="col-md-4 mb-4">
               <div className="card">
-                <img className="card-img-top" src={`${image_path}`} alt={productName} style={{ width: '350px', height: '400px', objectFit: 'cover' }} />
+                <img
+                  className="card-img-top"
+                  src={`${image_path}`}
+                  alt={productName}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    objectFit: "cover",
+                  }}
+                />
                 <div className="card-body">
                   <h5 className="card-text">{productName}</h5>
                   <p className="card-text">Brand: {productBrand}</p>
-                  <p className="card-text">Electricity Consumption: {electricityConsumption} kWh</p>
+                  <p className="card-text">
+                    Electricity Consumption: {electricityConsumption} kWh
+                  </p>
                   <p className="card-text">Price: ${price.toFixed(2)}</p>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      handleAddOrder();
-                    }}>
-                    Add to Cart
-                  </button>
                 </div>
               </div>
             </div>
@@ -163,13 +157,16 @@ const ProductPage = () => {
                     className="pricol-button"
                     onClick={() => {
                       handleAddOrder();
-                    }}>
-                      Add to Cart :/
+                    }}
+                  >
+                    Add to Cart :/
                   </button>
-                  <p className="pacanele-mici">The final price is going to include extra expenses like delivery and installation 
-                  (you can get a discount if you have the premium version). </p>
+                  <p className="pacanele-mici">
+                    The final price is going to include extra expenses like
+                    delivery and installation (you can get a discount if you
+                    have the premium version).
+                  </p>
                 </div>
-                
               </div>
             </div>
           </div>
@@ -179,5 +176,6 @@ const ProductPage = () => {
     </>
   );
 };
+
 
 export default ProductPage;

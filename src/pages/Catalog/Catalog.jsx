@@ -25,6 +25,7 @@ const Catalog = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageSize, setPageSize] = useState(6);
+  const [product, setProduct] = useState(null);
   const navigate = useNavigate();
 
   // Call interceptors with the navigate function
@@ -54,18 +55,20 @@ const Catalog = () => {
         page: page,
         pageSize: pageSize,
         category_type: selectedCategory,
-        product_name: productName,
+        productName: productName,  // Use productName from the state, not from product object
         product_brand: productBrand,
         minPrice: selectedPrice.min,
         maxPrice: selectedPrice.max,
         electricity_consumption: electricityConsumption,
       };
+      
+      // Remove any empty or undefined values from the params object
       params = Object.fromEntries(Object.entries(params).filter(([key, value]) => value));
-
+  
       const result = await filterProducts(params);
-
+  
       setProducts(result.data);
-      setTotalPages(result.totalPages || 1);  // Use the totalPages from the API response
+      setTotalPages(result.totalPages || 1);
       setCurrentPage(page);
     } catch (error) {
       console.error('Error filtering products:', error);
@@ -74,6 +77,7 @@ const Catalog = () => {
       setLoading(false);
     }
   };
+  
 
   const handlePageChange = async (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -102,28 +106,30 @@ const Catalog = () => {
           <Row>
             <Col md={9}>
               <div className="row">
-                {products.map(product => {
-                  const price = product.price && typeof product.price === 'number' ? product.price : 0;
-                  const productName = product.productName && typeof product.productName === 'string' ? product.productName : 'No name available';
-                  const productBrand = product.productBrand && typeof product.productBrand === 'string' ? product.productBrand : 'No brand available';
-                  const electricityConsumption = product.electricityConsumption && typeof product.electricityConsumption === 'number' ? product.electricityConsumption : 0;
-                  const imagePath = product.image_path && typeof product.image_path === 'string' ? product.image_path : '';
+              {products.map(product => {
+  const price = product.price && typeof product.price === 'number' ? product.price : 0;
+  const productName = product.productName || 'No name available'; // Using fallback
+  console.log("WAAAAAAAAAAAAAAAAAA", productName);
+  const productBrand = product.productBrand && typeof product.productBrand === 'string' ? product.productBrand : 'No brand available';
+  const electricityConsumption = product.electricityConsumption && typeof product.electricityConsumption === 'number' ? product.electricityConsumption : 0;
+  const imagePath = product.image_path && typeof product.image_path === 'string' ? product.image_path : '';
 
-                  return (
-                    <div key={product.id} className="col-md-4 mb-4">
-                      <div className="card">
-                        <img className="card-img-top" src={imagePath} alt={productName} />
-                        <div className="card-body">
-                          <h5 className="card-text">{productName}</h5>
-                          <p className='card-text'>Brand: {productBrand}</p>
-                          <p className="card-text">Electricity Consumption: {electricityConsumption}kWh</p>
-                          <p className="card-text">Price: ${price.toFixed(2)}</p>
-                          <Link to={`/product/${product.id}`} className="btn btn-primary">View Details</Link>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+  return (
+    <div key={product.id} className="col-md-4 mb-4">
+      <div className="card">
+        <img className="card-img-top" src={imagePath} alt={productName} />
+        <div className="card-body">
+          <h5 className="card-text">{productName}</h5>
+          <p className='card-text'>Brand: {productBrand}</p>
+          <p className="card-text">Electricity Consumption: {electricityConsumption}kWh</p>
+          <p className="card-text">Price: ${price.toFixed(2)}</p>
+          <Link to={`/product/${product.id}`} className="btn btn-primary">View Details</Link>
+        </div>
+      </div>
+    </div>
+  );
+})}
+
               </div>
             </Col>
             <Col md={3}>

@@ -168,7 +168,7 @@ export const COLUMNS = (
               }}
               disabled={isAssignedToUser || isAssigned}
             >
-              {isAssignedToUser ? 'Already assigned to you' : 'Assign on me'}
+              {isAssignedToUser ? 'Already assigned on you' : 'Assign on me'}
             </Button>
           </div>
         );

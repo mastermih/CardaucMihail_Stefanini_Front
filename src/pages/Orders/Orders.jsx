@@ -14,8 +14,6 @@ import {
 } from '../../components/dataService';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
-import { useOperatorsQuery } from './hooks/useQueryOrders';
-import { OperatorList } from './OperatorList';
 
 const Orders = () => {
   const [data, setData] = useState([]);
@@ -26,8 +24,6 @@ const Orders = () => {
   const [selectedStatus, setSelectedStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  const { operators, isLoading, isError } = useOperatorsQuery();
 
   const navigate = useNavigate();
 
@@ -153,6 +149,8 @@ const Orders = () => {
             console.error('Operator ID not found for', operatorName);
             return;
         }
+        
+    
 
         console.log('Order ID:', orderId);
         console.log('Operator Name:', operatorName);
@@ -170,11 +168,29 @@ const Orders = () => {
 const handleDeleteAllOperatorsFromTheOrder = async (orderId) => {
   try {
     const response = await deleteAllOperatorsFromTheOrder(orderId);
-    console.log('Deleted all operators for order:', response);
+    console.log('Operators deleted successfully:', response);
+    let allOrdersData;
+    if (selectedStatus && (startDate || endDate)) {
+      allOrdersData = await fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, currentPage);
+    } else if (startDate && endDate) {
+      allOrdersData = await fetchDataByDateInterval(startDate, endDate, 5, currentPage);
+    } else {
+      allOrdersData = await fetchDataByLastOrders(5, currentPage);
+    }
+    const updatedOrder = allOrdersData.data.find(order => order.id === orderId);
+    if (!updatedOrder) {
+      throw new Error(`Order with ID ${orderId} not found in the fetched data`);
+    }
+    setData(prevData => 
+      prevData.map(order => order.id === orderId ? updatedOrder : order)
+    );
+
+    console.log(`Updated order: ${JSON.stringify(updatedOrder)}`);
   } catch (error) {
-    console.error('Error deleting all operators:', error);
+    console.error('Error deleting operators or fetching updated orders:', error);
   }
 };
+
 
 const handleOperatorSelection = (orderId, operatorName) => {
   assignOperatorToOrder(orderId, operatorName)
@@ -204,21 +220,43 @@ const handleOperatorSelection = (orderId, operatorName) => {
 
 
 
-  const handleAddMeAsOperatorToOrder = (orderId) => {
-    if (!operatorID) {
-      console.error("Operator ID is undefined. Please check the token or user ID.");
-      return;
-    }
-    console.log(`Set me ${operatorID} for order ${orderId}`);
-    
-    assineOperatorToMe(orderId, operatorID)
-      .then(response => {
-        console.log('Operator assigned successfully:', response);
-      })
-      .catch(error => {
-        console.error('Error assigning operator:', error);
-      });
-  };
+const handleAddMeAsOperatorToOrder = (orderId) => {
+  if (!operatorID) {
+    console.error("Operator ID is undefined. Please check the token or user ID.");
+    return;
+  }
+
+  console.log(`Set me ${operatorID} for order ${orderId}`);
+
+  assineOperatorToMe(orderId, operatorID)
+    .then(response => {
+      console.log('Operator assigned successfully:', response);
+
+      if (selectedStatus && (startDate || endDate)) {
+        return fetchDataByDateAndStatus(startDate, endDate, selectedStatus, 5, currentPage);
+      } else if (startDate && endDate) {
+        return fetchDataByDateInterval(startDate, endDate, 5, currentPage);
+      } else {
+        return fetchDataByLastOrders(5, currentPage);
+      }
+    })
+    .then((allOrdersData) => {
+      const updatedOrder = allOrdersData.data.find(order => order.id === orderId);
+
+      if (!updatedOrder) {
+        throw new Error(`Order with ID ${orderId} not found in the fetched data`);
+      }
+      setData(prevData => 
+        prevData.map(order => order.id === orderId ? updatedOrder : order)
+      );
+
+      console.log(`Updated order: ${JSON.stringify(updatedOrder)}`);
+    })
+    .catch(error => {
+      console.error('Error assigning operator or fetching updated orders:', error);
+    });
+};
+
   
   return (
     <div className="container">

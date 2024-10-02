@@ -379,7 +379,7 @@ export const fetchProductByCategory = async (limit, categoryType) => {
   const items = response.data || [];
     const flattenedData = items.map(item => ({
       id: item.productId.id,
-      productName: item.productName.productName,
+      productName: item.productName?.product_name,
       image_path: item.path.path, 
       description: item.description.description,
       electricityConsumption: item.electricityConsumption.kWh,
@@ -577,13 +577,13 @@ export const fetchDataByDateAndStatus = async (startDate, endDate, status, numbe
     const items = response.data.items || [];
 
     const flattenedData = items.map(item => ({
-      id: item.order?.orderId?.id,  // Ensure correct path to order ID
-      userName: item.userName,  // User's name is not nested inside the order
-      created_date: item.order?.createdDate?.createDateTime,  // Access nested createdDate field
+      id: item.order?.orderId?.id,  
+      userName: item.userName, 
+      created_date: item.order?.createdDate?.createDateTime,  
       updated_date: item.order?.updatedDate?.updateDateTime,
-      order_status: item.order?.orderStatus,  // Access nested order status
-      operatorUserIds: item.operatorUserIds,  // Operator IDs
-      creatorUsername: item.creatorUsername,  // Creator's username
+      order_status: item.order?.orderStatus,  
+      operatorUserIds: item.operatorUserIds,
+      creatorUsername: item.creatorUsername
     }));
     console.log('Flattened data:', flattenedData);
 
@@ -660,13 +660,13 @@ export const fetchDataByDateInterval = async (startDate, endDate, numberOfOrders
     const items = response.data.items || [];
 
     const flattenedData = items.map(item => ({
-      id: item.order?.orderId?.id,  // Ensure correct path to order ID
-      userName: item.userName,  // User's name is not nested inside the order
-      created_date: item.order?.createdDate?.createDateTime,  // Access nested createdDate field
+      id: item.order?.orderId?.id,  
+      userName: item.userName, 
+      created_date: item.order?.createdDate?.createDateTime,  
       updated_date: item.order?.updatedDate?.updateDateTime,
-      order_status: item.order?.orderStatus,  // Access nested order status
-      operatorUserIds: item.operatorUserIds,  // Operator IDs
-      creatorUsername: item.creatorUsername,  // Creator's username
+      order_status: item.order?.orderStatus,  
+      operatorUserIds: item.operatorUserIds,
+      creatorUsername: item.creatorUsername
     }));
 
     console.log('Flattened data:', flattenedData);
