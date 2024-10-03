@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef,useCallback  } from 'react';
 import BasicTable from '../../components/BasicTable';
 import {jwtDecode} from 'jwt-decode';
-
+import SidebarManagement from '../../components/SidebarManagement';
 import {
   fetchDataByDateAndStatus,
   fetchDataByDateInterval,
@@ -191,7 +191,6 @@ const handleDeleteAllOperatorsFromTheOrder = async (orderId) => {
   }
 };
 
-
 const handleOperatorSelection = (orderId, operatorName) => {
   assignOperatorToOrder(orderId, operatorName)
     .then(() => {
@@ -215,9 +214,6 @@ const handleOperatorSelection = (orderId, operatorName) => {
       console.error('Error assigning operator:', error);
     });
 };
-
-
-
 
 
 const handleAddMeAsOperatorToOrder = (orderId) => {
@@ -258,10 +254,11 @@ const handleAddMeAsOperatorToOrder = (orderId) => {
 };
 
   
-  return (
-    <div className="container">
+return (
+  <div style={{ display: 'flex' }}>
+    <SidebarManagement /> 
+    <div className="container" style={{ marginLeft: '10px', padding: '20px', flexGrow: 1 }}>
       <h1>Orders</h1>
-      <button onClick={handleRedirectToHome} className="btn btn-link"> Back to Home</button>
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label htmlFor="startDate">Start Date:</label>
@@ -273,7 +270,6 @@ const handleAddMeAsOperatorToOrder = (orderId) => {
             style={{ width: '150px', padding: '6px', marginRight: '10px' }}
           />
         </div>
-
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label htmlFor="endDate">End Date:</label>
           <input
@@ -321,25 +317,22 @@ const handleAddMeAsOperatorToOrder = (orderId) => {
         <div>Loading...</div>
       ) : (
         <>
-            {/* <OperatorList operators={operators} isLoading={isLoading} isError={isError} /> */}
-
-
           <BasicTable
             data={data || []}
             role={role}
             operatorID={operatorID}
             handleOperatorSelection={handleOperatorSelection}
             getOperatorName={getOperatorName}
-            handleDeleteOperatorFromTheOrder={handleDeleteOperatorFromTheOrder} 
+            handleDeleteOperatorFromTheOrder={handleDeleteOperatorFromTheOrder}
             handleDeleteAllOperatorsFromTheOrder={handleDeleteAllOperatorsFromTheOrder}
             handleAddMeAsOperatorToOrder={handleAddMeAsOperatorToOrder}
-           />
+          />
 
           {totalPages > 1 && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1} 
+                disabled={currentPage === 1}
                 style={{ marginRight: '10px' }}
               >
                 Previous
@@ -349,7 +342,7 @@ const handleAddMeAsOperatorToOrder = (orderId) => {
               </span>
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages} 
+                disabled={currentPage === totalPages}
                 style={{ marginLeft: '10px' }}
               >
                 Next
@@ -359,7 +352,8 @@ const handleAddMeAsOperatorToOrder = (orderId) => {
         </>
       )}
     </div>
-  );
+  </div>
+);
 };
 
 export default Orders;

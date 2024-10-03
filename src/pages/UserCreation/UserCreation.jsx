@@ -4,6 +4,7 @@ import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import './UserCreation.css';
+import SidebarManagement from '../../components/SidebarManagement';
 
 const UserCreation = () => {
   const [loading, setLoading] = useState(false);
@@ -92,8 +93,9 @@ const UserCreation = () => {
   };
 
   return (
-    <Container className="user-creation-container">
-      <h1>Create New User</h1>
+    <div style={{ display: 'flex' }}>
+    <SidebarManagement /> 
+    <div className="container" style={{ marginLeft: '10px', padding: '20px', flexGrow: 1 }}>      <h1>Create New User</h1>
       <Form onSubmit={handleCreateUser}>
         <Form.Group controlId="userName">
           <Form.Label>Username</Form.Label>
@@ -182,7 +184,8 @@ const UserCreation = () => {
 
 
       {message && <div className="message">{message}</div>}
-    </Container>
+      </div>
+      </div>
   );
 };
 
