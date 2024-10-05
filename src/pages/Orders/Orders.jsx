@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef,useCallback  } from 'react';
 import BasicTable from '../../components/BasicTable';
 import {jwtDecode} from 'jwt-decode';
 import SidebarManagement from '../../components/SidebarManagement';
+import { FaBell } from 'react-icons/fa';
 import {
   fetchDataByDateAndStatus,
   fetchDataByDateInterval,
@@ -259,6 +260,23 @@ return (
     <SidebarManagement /> 
     <div className="container" style={{ marginLeft: '10px', padding: '20px', flexGrow: 1 }}>
       <h1>Orders</h1>
+      <div style={{ position: 'absolute', top: '20px', right: '20px', cursor: 'pointer' }}>
+  <FaBell size={24} color="#36485a" />
+  {/* Notification Badge */}
+  <span style={{
+    position: 'absolute',
+    top: '-5px',
+    right: '-10px',
+    backgroundColor: 'red',
+    color: 'white',
+    borderRadius: '50%',
+    padding: '4px 7px',
+    fontSize: '12px'
+  }}>
+    42
+  </span>
+</div>
+
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <label htmlFor="startDate">Start Date:</label>
@@ -300,7 +318,7 @@ return (
         <button
           onClick={() => handleFetchData(1)}
           style={{
-            backgroundColor: '#007bff',
+            backgroundColor: '#46586b',
             color: '#fff',
             border: 'none',
             padding: '6px 12px',

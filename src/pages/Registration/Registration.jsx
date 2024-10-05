@@ -30,7 +30,7 @@ const Registration = () => {
     if (password.length < 5 || password.length > 30) {
       newErrors.password = "Password must be between 5 and 30 characters";
     }
-
+    // Do not forget to uncoment this 
     if (password !== verifyPassword) {
       newErrors.verifyPassword = "Passwords do not match";
     }

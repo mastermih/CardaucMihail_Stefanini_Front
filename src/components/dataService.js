@@ -234,14 +234,19 @@ export const createUserUnauthorized = async (user, verifyPassword) => {
 
 export const login = async (user) => {
   try {
-    const response = await axios.post('http://localhost:8080/login', user); // Adjust the URL as needed
+    const response = await axios.post('http://localhost:8080/login', user);
     return response;
   } catch (error) {
-    console.error('Login request failed:', error);
-    throw error;
+    if (error.response && error.response.data) {
+      const errorMessage = error.response.data.message || 'Login failed';
+      console.error('Login request failed:', errorMessage);
+      throw new Error(errorMessage);
+    } else {
+      console.error('An unexpected error occurred during login:', error);
+      throw new Error('An unexpected error occurred. Please try again.');
+    }
   }
 };
-
 
 export const postOrder = async (order) => {
   try {
