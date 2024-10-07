@@ -3,6 +3,9 @@ import BasicTable from '../../components/BasicTable';
 import {jwtDecode} from 'jwt-decode';
 import SidebarManagement from '../../components/SidebarManagement';
 import { FaBell } from 'react-icons/fa';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
+
 import {
   fetchDataByDateAndStatus,
   fetchDataByDateInterval,
@@ -20,13 +23,52 @@ const Orders = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
+  const [notifications, setNotifications] = useState([]);
   const [endDate, setEndDate] = useState('');
   const [operatorID, setOperatorId] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isNotificationOpen, setNotificationOpen] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
+    setNotifications(savedNotifications);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('notifications', JSON.stringify(notifications));
+  }, [notifications]);
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
+    const userId = decodedToken.id;
+
+    const socket = new SockJS('http://localhost:8080/ws');
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, (frame) => {
+      console.log('Connected: ' + frame);
+      stompClient.subscribe(`/user/${userId}/notification`, (message) => {
+        const notification = JSON.parse(message.body);
+        setNotifications((prevNotifications) => [...prevNotifications, notification]); 
+      });
+    });
+
+    return () => stompClient.disconnect();
+  }, []);
+ 
+  const handleBellClick = () => {
+    setNotificationOpen(!isNotificationOpen);
+  };
+
+  const handleRemoveNotification = (index) => {
+    const updatedNotifications = notifications.filter((_, i) => i !== index);
+    setNotifications(updatedNotifications);
+  };
 
   const handleRedirectToHome = () => {
     navigate('/');
@@ -256,12 +298,13 @@ const handleAddMeAsOperatorToOrder = (orderId) => {
 
   
 return (
+  
   <div style={{ display: 'flex' }}>
     <SidebarManagement /> 
     <div className="container" style={{ marginLeft: '10px', padding: '20px', flexGrow: 1 }}>
       <h1>Orders</h1>
       <div style={{ position: 'absolute', top: '20px', right: '20px', cursor: 'pointer' }}>
-  <FaBell size={24} color="#36485a" />
+  <FaBell size={24} color="#36485a" onClick={handleBellClick} />
   {/* Notification Badge */}
   <span style={{
     position: 'absolute',
@@ -273,9 +316,52 @@ return (
     padding: '4px 7px',
     fontSize: '12px'
   }}>
-    42
+    {notifications.length}
   </span>
-</div>
+
+  {/* Notification Dropdown */}
+  {isNotificationOpen && (
+    <div style={{
+      position: 'absolute',
+      top: '30px',
+      right: '0',
+      backgroundColor: '#fff',
+      border: '1px solid #ccc',
+      boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+      borderRadius: '4px',
+      width: '300px',
+      padding: '10px',
+      zIndex: 1000
+    }}>
+      <h3>Notifications</h3>
+      {notifications.length === 0 ? (
+        <p>No notifications yet</p>
+      ) : (
+        <ul>
+          {notifications.map((notification, index) => (
+            <li key={index} style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
+              {notification.message}
+              <button
+                        onClick={() => handleRemoveNotification(index)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'red',
+                          marginLeft: '10px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
+
+
 
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
