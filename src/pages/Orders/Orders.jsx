@@ -34,37 +34,6 @@ const Orders = () => {
 
   const navigate = useNavigate();
 
-// This is related with the web soket svaeNotification 
-  // useEffect(() => {
-  //   const savedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
-  //   setNotifications(savedNotifications);
-  // }, []);
-
-  // useEffect(() => {
-  //   localStorage.setItem('notifications', JSON.stringify(notifications));
-  // }, [notifications]);
-  
-  // useEffect(() => {
-  //   const token = localStorage.getItem('token');
-  //   const decodedToken = jwtDecode(token);
-  //   const userId = decodedToken.id;
-
-    // This is related with the web soket svaeNotification 
-
-    // const socket = new SockJS('http://localhost:8080/ws');
-    // const stompClient = Stomp.over(socket);
-
-    // stompClient.connect({}, (frame) => {
-    //   console.log('Connected: ' + frame);
-    //   stompClient.subscribe(`/user/${userId}/notification`, (message) => {
-    //     const notification = JSON.parse(message.body);
-    //     setNotifications((prevNotifications) => [...prevNotifications, notification]); 
-    //   });
-    // });
-
-  //   return () => stompClient.disconnect();
-  // }, []);
-
  
   const handleBellClick = () => {
     setNotificationOpen(!isNotificationOpen);
