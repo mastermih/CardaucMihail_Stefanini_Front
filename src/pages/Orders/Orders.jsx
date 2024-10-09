@@ -14,7 +14,8 @@ import {
   getOperatorName,
   deleteOperatorFromTheOrder,
   deleteAllOperatorsFromTheOrder,
-  assineOperatorToMe
+  assineOperatorToMe,
+  fetchNotificationsOfCustomerCreateOrder
 } from '../../components/dataService';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
@@ -33,33 +34,37 @@ const Orders = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const savedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
-    setNotifications(savedNotifications);
-  }, []);
+// This is related with the web soket svaeNotification 
+  // useEffect(() => {
+  //   const savedNotifications = JSON.parse(localStorage.getItem('notifications')) || [];
+  //   setNotifications(savedNotifications);
+  // }, []);
 
-  useEffect(() => {
-    localStorage.setItem('notifications', JSON.stringify(notifications));
-  }, [notifications]);
+  // useEffect(() => {
+  //   localStorage.setItem('notifications', JSON.stringify(notifications));
+  // }, [notifications]);
   
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const decodedToken = jwtDecode(token);
-    const userId = decodedToken.id;
+  // useEffect(() => {
+  //   const token = localStorage.getItem('token');
+  //   const decodedToken = jwtDecode(token);
+  //   const userId = decodedToken.id;
 
-    const socket = new SockJS('http://localhost:8080/ws');
-    const stompClient = Stomp.over(socket);
+    // This is related with the web soket svaeNotification 
 
-    stompClient.connect({}, (frame) => {
-      console.log('Connected: ' + frame);
-      stompClient.subscribe(`/user/${userId}/notification`, (message) => {
-        const notification = JSON.parse(message.body);
-        setNotifications((prevNotifications) => [...prevNotifications, notification]); 
-      });
-    });
+    // const socket = new SockJS('http://localhost:8080/ws');
+    // const stompClient = Stomp.over(socket);
 
-    return () => stompClient.disconnect();
-  }, []);
+    // stompClient.connect({}, (frame) => {
+    //   console.log('Connected: ' + frame);
+    //   stompClient.subscribe(`/user/${userId}/notification`, (message) => {
+    //     const notification = JSON.parse(message.body);
+    //     setNotifications((prevNotifications) => [...prevNotifications, notification]); 
+    //   });
+    // });
+
+  //   return () => stompClient.disconnect();
+  // }, []);
+
  
   const handleBellClick = () => {
     setNotificationOpen(!isNotificationOpen);
@@ -136,11 +141,30 @@ const Orders = () => {
   };
   
   
-  
-
   useEffect(() => {
-    handleFetchDataByLastOrders();
+    const userId = getUserIdFromToken();
+    if (userId) {
+      handleFetchDataByLastOrders();  // Fetch last orders after the userId is set
+    }
   }, []);
+  
+  useEffect(() => {
+    if (operatorID) {
+      const fetchNotifications = async () => {
+        try {
+          const data = await fetchNotificationsOfCustomerCreateOrder(operatorID);  // Fetch notifications with userId
+          setNotifications((prevNotifications) => [...prevNotifications, ...data]);
+        } catch (error) {
+          console.error('Error fetching notifications:', error);
+        }
+      };
+  
+      fetchNotifications();
+    } else {
+      console.log('operatorID is null or undefined');
+    }
+  }, [operatorID]);  // Dependency on operatorID
+  
 
   const handleFetchDataByLastOrders = useCallback(async () => {
     setLoading(true);

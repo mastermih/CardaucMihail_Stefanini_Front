@@ -468,6 +468,19 @@ export const getOperatorForOrder = async (orderId) => {
   }
 };
 
+export const fetchNotificationsOfCustomerCreateOrder = async (userId) => {
+  try{
+    const response = await axios.get('http://localhost:8080/ws/notifications', {
+    params: { userId }
+    });
+    console.log('Waht we got here:', response.data);
+    return response.data;
+  }catch (error){
+    console.error('Error fetching NotificationsOfCustomerCreateOrder');
+    throw error;
+  }
+}
+
 export const fetchDataByLastOrders = async (limit) => {
   try {
     const response = await axios.get('http://localhost:8080/orders/lastCreated', {
