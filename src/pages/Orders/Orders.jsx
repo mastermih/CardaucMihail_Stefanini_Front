@@ -328,49 +328,50 @@ return (
     {notifications.length}
   </span>
 
-  {/* Notification Dropdown */}
-  {isNotificationOpen && (
-    <div style={{
-      position: 'absolute',
-      top: '30px',
-      right: '0',
-      backgroundColor: '#fff',
-      border: '1px solid #ccc',
-      boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
-      borderRadius: '4px',
-      width: '300px',
-      padding: '10px',
-      zIndex: 1000
-    }}>
-      <h3>Notifications</h3>
-      {notifications.length === 0 ? (
-        <p>No notifications yet</p>
-      ) : (
-        <ul>
-          {notifications.map((notification, index) => (
-            <li key={index} style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
-              {notification.message}
-              <button
-                        onClick={() => handleRemoveNotification(index)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'red',
-                          marginLeft: '10px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Remove
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
+{/* Notification Dropdown */}
+{isNotificationOpen && (
+  <div style={{
+    position: 'absolute',
+    top: '30px',
+    right: '0',
+    backgroundColor: '#fff',
+    border: '1px solid #ccc',
+    boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+    borderRadius: '4px',
+    width: '300px',
+    padding: '10px',
+    zIndex: 1000,
+    maxHeight: '400px',   // Set a height where scrolling starts after exceeding this height
+    overflowY: 'auto'     // Enable scrolling when notifications exceed maxHeight
+  }}>
+    <h3>Notifications</h3>
+    {notifications.length === 0 ? (
+      <p>No notifications yet</p>
+    ) : (
+      <ul>
+        {notifications.map((notification, index) => (
+          <li key={index} style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
+            {notification.message}
+            <button
+              onClick={() => handleRemoveNotification(index)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'red',
+                marginLeft: '10px',
+                cursor: 'pointer'
+              }}
+            >
+              Remove
+            </button>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+)}
+
         </div>
-
-
 
       <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
