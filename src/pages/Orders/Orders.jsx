@@ -15,7 +15,8 @@ import {
   deleteOperatorFromTheOrder,
   deleteAllOperatorsFromTheOrder,
   assineOperatorToMe,
-  fetchNotificationsOfCustomerCreateOrder
+  fetchNotificationsOfCustomerCreateOrder,
+  notificationIsRead
 } from '../../components/dataService';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
@@ -35,18 +36,33 @@ const Orders = () => {
   const navigate = useNavigate();
 
  
-  const handleBellClick = () => {
-    setNotificationOpen(!isNotificationOpen);
+  const handleBellClick = async () => {
+    try {
+      if (operatorID) {
+        console.log("Is read", operatorID)
+
+        await notificationIsRead(operatorID);
+        console.log("Is read", operatorID)
+
+        const updatedNotifications = await fetchNotificationsOfCustomerCreateOrder(operatorID);
+        
+        console.log("Is read", operatorID)
+
+        setNotifications(updatedNotifications);
+      }
+  
+      setNotificationOpen(!isNotificationOpen);
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
   };
+  
 
   const handleRemoveNotification = (index) => {
     const updatedNotifications = notifications.filter((_, i) => i !== index);
     setNotifications(updatedNotifications);
   };
 
-  const handleRedirectToHome = () => {
-    navigate('/');
-  };
   const getRoleFromToken = () => {
     const token = localStorage.getItem('token');
     if (token) {

@@ -83,6 +83,11 @@ const UserOrders = () => {
     }
   };
 
+  const handleRemoveNotification = (index) => {
+    const updatedNotifications = notifications.filter((_, i) => i !== index);
+    setNotifications(updatedNotifications);
+  };
+
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -105,16 +110,12 @@ const UserOrders = () => {
     handleFetchData();
   }, []);
 
-  const handleRedirectToHome = () => {
-    navigate('/'); 
-  };
   return (
     <>
       <Header />
       <div className="container">
         <h1>Orders</h1>
-        <button onClick={handleRedirectToHome} className="btn btn-link">← Back to Home</button>
-  
+
         {/* Controls Section */}
         <div className="controls d-flex justify-content-between align-items-center mb-4" style={{ gap: '20px' }}>
           <div style={{ display: 'flex', gap: '20px' }}>
@@ -129,7 +130,7 @@ const UserOrders = () => {
                 style={{ width: '150px', padding: '6px' }}
               />
             </div>
-  
+
             {/* End Date Filter */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label htmlFor="endDate">End Date:</label>
@@ -141,7 +142,7 @@ const UserOrders = () => {
                 style={{ width: '150px', padding: '6px' }}
               />
             </div>
-  
+
             {/* Status Filter */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <label htmlFor="status">Status:</label>
@@ -157,16 +158,17 @@ const UserOrders = () => {
                 <option value="PENDING">Pending</option>
               </select>
             </div>
-  
+
             {/* Filter Button */}
             <button onClick={() => handleFetchData(1)} className="btn btn-primary" style={{ padding: '6px 12px' }}>
               Filter
             </button>
           </div>
-  
+
           {/* Bell Icon for Notifications */}
           <div className="bell-container" style={{ position: 'relative' }}>
-            <FaBell size={24} onClick={handleBellClick} className="notification-bell" />
+            <FaBell size={24} color="#36485a" onClick={handleBellClick} />
+            {/* Notification Badge */}
             {notifications.length > 0 && (
               <span style={{
                 position: 'absolute',
@@ -181,7 +183,7 @@ const UserOrders = () => {
                 {notifications.length}
               </span>
             )}
-  
+
             {/* Notification Dropdown */}
             {isNotificationOpen && (
               <div style={{
@@ -197,16 +199,34 @@ const UserOrders = () => {
                 zIndex: 1000
               }}>
                 <h4>Notifications</h4>
-                {notifications.map((notification, index) => (
-                  <div key={index} className="notification-item">
-                    {notification.message}
-                  </div>
-                ))}
+                {notifications.length === 0 ? (
+                  <p>No notifications yet</p>
+                ) : (
+                  <ul>
+                    {notifications.map((notification, index) => (
+                      <li key={index} style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
+                        {notification.message}
+                        <button
+                          onClick={() => handleRemoveNotification(index)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'red',
+                            marginLeft: '10px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             )}
           </div>
         </div>
-  
+
         {/* Table and pagination */}
         {loading ? (
           <div>Loading...</div>
@@ -238,8 +258,6 @@ const UserOrders = () => {
       <Footer />
     </>
   );
-  
-  
 };
 
 export default UserOrders;

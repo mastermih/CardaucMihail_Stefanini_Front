@@ -467,6 +467,19 @@ export const getOperatorForOrder = async (orderId) => {
     throw error;
   }
 };
+export const notificationIsRead = async (userId)  => {
+  try{
+    const response = await axios.post(`http://localhost:8080/ws/notifications/read`, null,{
+      params: {
+        userId: userId,
+      }
+    })
+    return response.data;
+}catch(error){
+  console.error('Error updateing the notification is read status');
+  throw error;
+}
+}
 
 export const fetchNotificationsOfCustomerCreateOrder = async (userId) => {
   try{
