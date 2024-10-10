@@ -186,10 +186,6 @@ export const COLUMNS_WITHOUT_OPERATOR_NAME = () => [
     accessor: 'id',
   },
   {
-    Header: 'User Id',
-    accessor: 'user_id',
-  },
-  {
     Header: 'Created Date',
     accessor: 'created_date',
   },

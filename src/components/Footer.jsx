@@ -4,35 +4,41 @@ import './Footer.css';
 const Footer = () => {
   return (
     <footer className="footer">
-      <div className="footer-content">
-        <div className="left-section">
-          <h4>WAAAAAA go for elevators or lifts who cares</h4>
-        </div>
-        <div className="right-section">
-          <div className="logo-section">
+      <div className="container">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <h4>Imperior Lifts</h4>
+            <p>Reliable Elevators and Lifts for Your Business</p>
           </div>
-          <div className="contact-section">
-            <div className="contact-info">
-              <h4>Need Some Help or mood</h4>
-              <p>045-151-48-220</p>
-            </div>
-            <div className="social-media">
-              <i className="fab fa-facebook"></i>
-              <i className="fab fa-instagram"></i>
-              <i className="fab fa-twitter"></i>
+          <div className="footer-links">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Services</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">FAQ</a></li>
+            </ul>
+          </div>
+          <div className="footer-contact">
+            <h4>Contact Us</h4>
+            <p>045-151-48-220</p>
+            <p>info@imperiorlifts.com</p>
+          </div>
+          <div className="footer-social">
+            <h4>Follow Us</h4>
+            <div className="social-icons">
+              <a href="#" aria-label="Facebook"><i className="fab fa-facebook"></i></a>
+              <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
+              <a href="#" aria-label="Twitter"><i className="fab fa-twitter"></i></a>
             </div>
           </div>
         </div>
-      </div>
-      <div className="bottom-footer">
-        <div className="links">
-          <div>About Us</div>
-          <div>Quality</div>
-          <div>Contact Us</div>
-        </div>
-        <div className="terms">
-          <p>Terms of Service</p>
-          <p>Privacy</p>
+        <div className="footer-bottom">
+          <p>&copy; 2024 Imperior Lifts. All Rights Reserved.</p>
+          <ul>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+          </ul>
         </div>
       </div>
     </footer>

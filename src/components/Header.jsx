@@ -10,8 +10,10 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { CartContext } from './cartContext';
 import './Header.css';
 import { jwtDecode } from 'jwt-decode';
-import { login, getUser } from './dataService'; 
+import { login, getUser,fetchNotificationsOfCustomerCreateOrder} from './dataService'; 
 import { setupInterceptors } from '../axiosConfig'; 
+import { FaBell } from 'react-icons/fa';
+
 
 const Header = () => {
   const { cartItems, removeFromCart } = useContext(CartContext);
@@ -28,6 +30,8 @@ const Header = () => {
   const [userProfile, setUserProfile] = useState(null);
   const location = useLocation();
   const [userId, setUserId] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+const [isNotificationOpen, setNotificationOpen] = useState(false);
 
   useEffect(() => {
     if (location.state && location.state.showLoginForm) {
@@ -78,6 +82,7 @@ const Header = () => {
     }
   }, [userId]);
 
+
   const validateLogin = () => {
     const newErrors = {};
 
@@ -94,6 +99,39 @@ const Header = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  useEffect(() => {
+  
+    if (userId) {
+      const interval = setInterval(async () => {
+        const newNotifications = await fetchNotificationsOfCustomerCreateOrder(userId);
+        setNotifications(newNotifications);
+      }, 60000);
+  
+      return () => clearInterval(interval); 
+    }
+  }, [userId]);  
+  
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const userId = localStorage.getItem('token') ? jwtDecode(localStorage.getItem('token')).id : null;
+        if (userId) {
+          const data = await fetchNotificationsOfCustomerCreateOrder(userId);
+          setNotifications(data);
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+  
+    fetchNotifications();
+  }, []);
+  
+  const handleBellClick = () => {
+    setNotificationOpen(!isNotificationOpen);
+  };
+  
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
@@ -139,6 +177,11 @@ const Header = () => {
 
   const handleItemClick = (orderId) => {
     navigate(`/MakeOrder/${orderId}`); 
+  };
+
+  const handleRemoveNotification = (index) => {
+    const updatedNotifications = notifications.filter((_, i) => i !== index);
+    setNotifications(updatedNotifications);
   };
 
   const handleLoginSubmit = async (e) => {
@@ -213,6 +256,7 @@ const Header = () => {
 
   return (
     <>
+    
       <header className="top-header">
         <Container>
           <div className="brand-search-contact">
@@ -243,6 +287,75 @@ const Header = () => {
                       onClick={handleUserProfilePictureClick}
                       style={{ width: '50px', height: '50px', borderRadius: '50%' }}
                     />
+{userRoles.includes('USER') && (
+  <div className="bell-container" style={{ position: 'relative' }}>
+    <FaBell size={24} color="#cfd8e0" onClick={handleBellClick} />
+    {/* Notification Badge */}
+    {notifications.length > 0 && (
+      <span style={{
+        position: 'absolute',
+        top: '-5px',
+        right: '-10px',
+        backgroundColor: 'red',
+        color: 'white',
+        borderRadius: '50%',
+        padding: '4px 7px',
+        fontSize: '12px'
+      }}>
+        {notifications.length}
+      </span>
+    )}
+
+    {/* Notification Dropdown */}
+    {isNotificationOpen && (
+      <div style={{
+        position: 'absolute',
+        top: '30px',
+        left: '0',  // Positioning the dropdown to the left
+        backgroundColor: '#fff',
+        border: '1px solid #ccc',
+        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+        borderRadius: '4px',
+        width: '300px',
+        padding: '10px',
+        zIndex: 1000,
+        maxHeight: '400px',
+        overflowY: 'auto'
+      }}>
+        {/* Title with Black Color */}
+        <h3 style={{ color: '#000000', textAlign: 'left' }}>Notifications</h3>
+        {notifications.length === 0 ? (
+          <p style={{ textAlign: 'left' }}>No notifications yet</p>
+        ) : (
+          <ul style={{ paddingLeft: '20px', listStyleType: 'disc' }}> {/* Added bullets */}
+            {notifications.map((notification, index) => (
+              <li key={index} style={{ padding: '10px 0', borderBottom: '1px solid #eee', textAlign: 'left' }}> {/* Align text to the left */}
+                <span style={{ color: '#000000', display: 'block' }}> {/* Block display for full width */}
+                  {notification.message}
+                </span>
+                <button
+                  onClick={() => handleRemoveNotification(index)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'red',
+                    marginLeft: '10px',
+                    cursor: 'pointer',
+                    textAlign: 'left' // Ensure button aligns with text
+                  }}
+                >
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )}
+  </div>
+)}
+
+
 
                     <Dropdown show={showDropdown} onToggle={toggleDropdown}>
                       <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter} onClick={handleCartClick}>
@@ -259,6 +372,7 @@ const Header = () => {
           onClick={(e) => handleRemoveFromCart(e, item.orderId)} // Call remove function
           style={{ marginLeft: '10px', color: 'red' }}
         >
+          
           <i className="fas fa-trash-alt"></i> {/* FontAwesome icon */}
         </button>
                             </Dropdown.Item>
@@ -275,6 +389,7 @@ const Header = () => {
             </div>
           </div>
         </Container>
+
       </header>
       <Navbar expand="lg" className="custom-navbar">
         <Container>
@@ -302,6 +417,7 @@ const Header = () => {
           <Modal.Title>Login</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          
           <form onSubmit={handleLoginSubmit}>
             <div className="input-group">
               <label htmlFor="email">Email</label>
@@ -333,6 +449,7 @@ const Header = () => {
               {loading ? 'Logging in...' : 'Log In'}
             </Button>
           </form>
+          
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseLoginModal}>

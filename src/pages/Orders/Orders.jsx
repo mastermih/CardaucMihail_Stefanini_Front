@@ -125,11 +125,23 @@ const Orders = () => {
     }
   };
   
+  useEffect(() => {
+    const userId = getUserIdFromToken();
   
+    if (userId) {
+      const interval = setInterval(async () => {
+        const newNotifications = await fetchNotificationsOfCustomerCreateOrder(userId);
+        setNotifications(newNotifications);
+      }, 60000);
+  
+      return () => clearInterval(interval); 
+    }
+  }, [operatorID]);  
+
   useEffect(() => {
     const userId = getUserIdFromToken();
     if (userId) {
-      handleFetchDataByLastOrders();  // Fetch last orders after the userId is set
+      handleFetchDataByLastOrders();
     }
   }, []);
   
@@ -316,17 +328,18 @@ return (
   <FaBell size={24} color="#36485a" onClick={handleBellClick} />
   {/* Notification Badge */}
   <span style={{
-    position: 'absolute',
-    top: '-5px',
-    right: '-10px',
-    backgroundColor: 'red',
-    color: 'white',
-    borderRadius: '50%',
-    padding: '4px 7px',
-    fontSize: '12px'
-  }}>
-    {notifications.length}
-  </span>
+  position: 'absolute',
+  top: '-5px',
+  right: '-10px',
+  backgroundColor: 'red',
+  color: 'white',
+  borderRadius: '50%',
+  padding: '4px 7px',
+  fontSize: '12px'
+}}>
+  {notifications.length}
+</span>
+
 
 {/* Notification Dropdown */}
 {isNotificationOpen && (
@@ -341,8 +354,8 @@ return (
     width: '300px',
     padding: '10px',
     zIndex: 1000,
-    maxHeight: '400px',   // Set a height where scrolling starts after exceeding this height
-    overflowY: 'auto'     // Enable scrolling when notifications exceed maxHeight
+    maxHeight: '400px',   
+    overflowY: 'auto' 
   }}>
     <h3>Notifications</h3>
     {notifications.length === 0 ? (

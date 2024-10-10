@@ -13,6 +13,7 @@ const UserOrders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [startDate, setStartDate] = useState('');
+  const [operatorID, setOperatorId] = useState('');
   const [endDate, setEndDate] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [notifications, setNotifications] = useState([]);
@@ -100,6 +101,21 @@ const UserOrders = () => {
 
     fetchNotifications();
   }, [userId]);
+
+
+  useEffect(() => {
+    const userId = getUserIdFromToken();
+  
+    if (userId) {
+      const interval = setInterval(async () => {
+        const newNotifications = await fetchNotificationsOfCustomerCreateOrder(userId);
+        setNotifications(newNotifications);
+      }, 60000);
+  
+      return () => clearInterval(interval); 
+    }
+  }, [operatorID]);  
+
 
   const handleBellClick = () => {
     setNotificationOpen(!isNotificationOpen);
