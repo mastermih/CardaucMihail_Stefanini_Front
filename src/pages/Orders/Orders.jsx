@@ -16,7 +16,8 @@ import {
   deleteAllOperatorsFromTheOrder,
   assineOperatorToMe,
   fetchNotificationsOfCustomerCreateOrder,
-  notificationIsRead
+  notificationIsRead,
+  notificationDisable
 } from '../../components/dataService';
 import { useNavigate } from 'react-router-dom';
 import debounce from 'lodash.debounce';
@@ -58,10 +59,19 @@ const Orders = () => {
   };
   
 
-  const handleRemoveNotification = (index) => {
-    const updatedNotifications = notifications.filter((_, i) => i !== index);
-    setNotifications(updatedNotifications);
+  const handleRemoveNotification = async (notificationId) => {
+    try {
+      await notificationDisable(notificationId, operatorID);
+  
+      const updatedNotifications = notifications.filter(notification => notification.notificationId !== notificationId);
+      setNotifications(updatedNotifications);
+    } catch (error) {
+      console.error('Error disabling the notification:', error);
+    }
   };
+  
+  
+  
 
   const getRoleFromToken = () => {
     const token = localStorage.getItem('token');
@@ -149,7 +159,7 @@ const Orders = () => {
     if (operatorID) {
       const fetchNotifications = async () => {
         try {
-          const data = await fetchNotificationsOfCustomerCreateOrder(operatorID);  // Fetch notifications with userId
+          const data = await fetchNotificationsOfCustomerCreateOrder(operatorID);
           setNotifications((prevNotifications) => [...prevNotifications, ...data]);
         } catch (error) {
           console.error('Error fetching notifications:', error);
@@ -160,7 +170,7 @@ const Orders = () => {
     } else {
       console.log('operatorID is null or undefined');
     }
-  }, [operatorID]);  // Dependency on operatorID
+  }, [operatorID]); 
   
 
   const handleFetchDataByLastOrders = useCallback(async () => {
@@ -365,9 +375,12 @@ return (
         {notifications.map((notification, index) => (
           <li key={index} style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
             {notification.message}
+            <span style={{ fontSize: '12px', color: 'gray' }}>
+                      {new Date(notification.createdDate).toLocaleDateString()} - {new Date(notification.createdDate).toLocaleTimeString()}
+                    </span>
             <button
-              onClick={() => handleRemoveNotification(index)}
-              style={{
+                        onClick={() => handleRemoveNotification(notification.notificationId)}
+                        style={{
                 background: 'none',
                 border: 'none',
                 color: 'red',

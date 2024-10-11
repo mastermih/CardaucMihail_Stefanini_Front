@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import BasicTable from '../../components/BasicTable';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { fetchDataByDateIntervalUserRole, fetchOrdersByLastOnesUserRole, fetchNotificationsOfCustomerCreateOrder  } from '../../components/dataService';
+import { fetchDataByDateIntervalUserRole, fetchOrdersByLastOnesUserRole, fetchNotificationsOfCustomerCreateOrder,notificationIsRead,notificationDisable } from '../../components/dataService';
 import {jwtDecode} from 'jwt-decode'; 
 import { useNavigate } from 'react-router-dom'; 
 import { FaBell } from 'react-icons/fa';
@@ -84,11 +84,6 @@ const UserOrders = () => {
     }
   };
 
-  const handleRemoveNotification = (index) => {
-    const updatedNotifications = notifications.filter((_, i) => i !== index);
-    setNotifications(updatedNotifications);
-  };
-
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
@@ -117,9 +112,38 @@ const UserOrders = () => {
   }, [operatorID]);  
 
 
-  const handleBellClick = () => {
-    setNotificationOpen(!isNotificationOpen);
+  const handleBellClick = async () => {
+    try {
+      if (userId) {
+        console.log("Is read", userId)
+
+        await notificationIsRead(userId);
+        console.log("Is read", userId)
+
+        const updatedNotifications = await fetchNotificationsOfCustomerCreateOrder(userId);
+        
+        console.log("Is read", userId)
+
+        setNotifications(updatedNotifications);
+      }
+  
+      setNotificationOpen(!isNotificationOpen);
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
   };
+
+  const handleRemoveNotification = async (notificationId) => {
+    try {
+      await notificationDisable(notificationId, userId);
+  
+      const updatedNotifications = notifications.filter(notification => notification.notificationId !== notificationId);
+      setNotifications(updatedNotifications);
+    } catch (error) {
+      console.error('Error disabling the notification:', error);
+    }
+  };
+  
 
 
   useEffect(() => {
@@ -214,8 +238,8 @@ const UserOrders = () => {
     width: '300px',
     padding: '10px',
     zIndex: 1000,
-    maxHeight: '400px',   // Set a height where scrolling starts after exceeding this height
-    overflowY: 'auto'     // Enable scrolling when notifications exceed maxHeight
+    maxHeight: '400px', 
+    overflowY: 'auto'  
   }}>
     <h3>Notifications</h3>
     {notifications.length === 0 ? (
@@ -225,9 +249,12 @@ const UserOrders = () => {
         {notifications.map((notification, index) => (
           <li key={index} style={{ padding: '10px 0', borderBottom: '1px solid #eee' }}>
             {notification.message}
+            <span style={{ fontSize: '12px', color: 'gray' }}>
+                      {new Date(notification.createdDate).toLocaleDateString()} - {new Date(notification.createdDate).toLocaleTimeString()}
+                    </span>
             <button
-              onClick={() => handleRemoveNotification(index)}
-              style={{
+                        onClick={() => handleRemoveNotification(notification.notificationId)}
+                        style={{
                 background: 'none',
                 border: 'none',
                 color: 'red',

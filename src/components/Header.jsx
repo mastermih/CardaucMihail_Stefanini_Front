@@ -10,7 +10,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { CartContext } from './cartContext';
 import './Header.css';
 import { jwtDecode } from 'jwt-decode';
-import { login, getUser,fetchNotificationsOfCustomerCreateOrder} from './dataService'; 
+import { login, getUser,fetchNotificationsOfCustomerCreateOrder,notificationIsRead,notificationDisable} from './dataService'; 
 import { setupInterceptors } from '../axiosConfig'; 
 import { FaBell } from 'react-icons/fa';
 
@@ -128,7 +128,9 @@ const [isNotificationOpen, setNotificationOpen] = useState(false);
     fetchNotifications();
   }, []);
   
-  const handleBellClick = () => {
+  const handleBellClick = async () => {
+    await notificationIsRead(userId);
+    console.log("Is read", userId)
     setNotificationOpen(!isNotificationOpen);
   };
   
@@ -179,10 +181,17 @@ const [isNotificationOpen, setNotificationOpen] = useState(false);
     navigate(`/MakeOrder/${orderId}`); 
   };
 
-  const handleRemoveNotification = (index) => {
-    const updatedNotifications = notifications.filter((_, i) => i !== index);
-    setNotifications(updatedNotifications);
+  const handleRemoveNotification = async (notificationId) => {
+    try {
+      await notificationDisable(notificationId, userId);
+  
+      const updatedNotifications = notifications.filter(notification => notification.notificationId !== notificationId);
+      setNotifications(updatedNotifications);
+    } catch (error) {
+      console.error('Error disabling the notification:', error);
+    }
   };
+  
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -332,10 +341,13 @@ const [isNotificationOpen, setNotificationOpen] = useState(false);
               <li key={index} style={{ padding: '10px 0', borderBottom: '1px solid #eee', textAlign: 'left' }}> {/* Align text to the left */}
                 <span style={{ color: '#000000', display: 'block' }}> {/* Block display for full width */}
                   {notification.message}
+                  <span style={{ fontSize: '12px', color: 'gray' }}>
+                      {new Date(notification.createdDate).toLocaleDateString()} - {new Date(notification.createdDate).toLocaleTimeString()}
+                    </span>
                 </span>
                 <button
-                  onClick={() => handleRemoveNotification(index)}
-                  style={{
+                        onClick={() => handleRemoveNotification(notification.notificationId)}
+                        style={{
                     background: 'none',
                     border: 'none',
                     color: 'red',

@@ -467,6 +467,22 @@ export const getOperatorForOrder = async (orderId) => {
     throw error;
   }
 };
+
+export const notificationDisable = async (notificationId, userId) => {
+  try{
+    const response = await axios.post(`http://localhost:8080/ws/notifications/disable`, null,{
+      params:{
+        notificationId: notificationId,
+        userId : userId,
+      }
+    })
+    return response.data;
+  }catch(error){
+    console.error('Error seting the notification to disable');
+    throw error;
+  }
+}
+
 export const notificationIsRead = async (userId)  => {
   try{
     const response = await axios.post(`http://localhost:8080/ws/notifications/read`, null,{
