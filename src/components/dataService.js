@@ -502,7 +502,7 @@ export const fetchNotificationsOfCustomerCreateOrder = async (userId) => {
     const response = await axios.get('http://localhost:8080/ws/notifications', {
     params: { userId }
     });
-    console.log('Waht we got here:', response.data);
+    console.log('What we got here:', response.data);
     return response.data;
   }catch (error){
     console.error('Error fetching NotificationsOfCustomerCreateOrder');

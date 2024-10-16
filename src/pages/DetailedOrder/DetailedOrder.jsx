@@ -8,11 +8,11 @@ import { fetchOrderProductAndExtraProduct, fetchProductPageById, getOperatorForO
 
 const DetailedOrder = () => {
   const location = useLocation();
-  const [orderDetails, setOrderDetails] = useState(null);  
-  const [productDetails, setProductDetails] = useState(null);
+  const [orderDetails, setOrderDetails] = useState([]);  
+  const [productDetails, setProductDetails] = useState({});
   const [loadingOrder, setLoadingOrder] = useState(true);  
   const [loadingProduct, setLoadingProduct] = useState(false);
-  const [operatorNames, setOperatorNames] = useState([]);  
+  const [operatorNames, setOperatorNames] = useState([]);
   const [error, setError] = useState(null);  
   const navigate = useNavigate();
 
@@ -41,14 +41,15 @@ const DetailedOrder = () => {
 
         setOrderDetails(orderData);
 
-        const productId = orderData[0]?.productId;
-        if (productId) {
-          console.log("Product ID found:", productId);
-          fetchProductDetails(productId);
-        } else {
-          console.error("Product ID is missing in the order details.");
-          setError('Product ID is missing in the order details.');
-        }
+        // Loop through all products and fetch details for each one
+        orderData.forEach(async (product) => {
+          const productId = product.productId;
+          if (productId) {
+            fetchProductDetails(productId);
+          } else {
+            console.error("Product ID is missing in the order details.");
+          }
+        });
 
         setLoadingOrder(false);
       } catch (err) {
@@ -67,7 +68,13 @@ const DetailedOrder = () => {
       const productResponse = await fetchProductPageById(productId);
       const productData = productResponse.data;
       console.log('Product details:', productData);
-      setProductDetails(productData);
+      
+      // Save product details using product ID as the key
+      setProductDetails(prevDetails => ({
+        ...prevDetails,
+        [productId]: productData
+      }));
+      
       setLoadingProduct(false);
     } catch (err) {
       console.error('Error fetching product details:', err);
@@ -100,87 +107,74 @@ const DetailedOrder = () => {
     return <div>{error}</div>;
   }
 
-  const totalPrice = orderDetails?.orderProducts?.length > 0
-    ? orderDetails.orderProducts.reduce((sum, product) => sum + product.priceOrder.price, 0)
-    : 0;
+  const totalPrice = orderDetails?.reduce((sum, product) => sum + product.price, 0) || 0;
 
   return (
-    <>
-  <div className="content-section">
-    <Container>
-      <Row>
-        {/* Order Details */}
-        <Col md={8} className="order-details">
-          <h3>Order Details for Order ID: {orderId}</h3>
-          {orderDetails?.length > 0 ? (
-            orderDetails.map((product, index) => (
-              <div key={index} className="order-product">
-                <h4>Product Name: {product.productName}</h4>
-                <p>Quantity: {product.quantity}</p>
-                <p>Price: ${product.price}</p>
-              </div>
-            ))
-          ) : (
-            <p>No products found in this order.</p>
-          )}
-        </Col>
+    <div className="content-section">
+      <Container>
+        <Row>
+          {/* Order Details */}
+          <Col md={8} className="order-details">
+            <h3>Order Details for Order ID: {orderId}</h3>
+            {orderDetails?.length > 0 ? (
+              orderDetails.map((product, index) => (
+                <div key={index} className="order-product">
+                  <h4>Product Name: {product.productName}</h4>
+                  <p>Quantity: {product.quantity}</p>
+                  <p>Price: ${product.price}</p>
 
-        {/* Operator Names */}
-        <Col md={4} className="operator-details">
-          <h5>Operator(s):</h5>
-          {operatorNames.length > 0 ? (
-            operatorNames.map((name, index) => (
-              <div key={index} className="operator-badge">
-                {name}
-              </div>
-            ))
-          ) : (
-            <p>No operators assigned</p>
-          )}
-        </Col>
-      </Row>
+                  {/* Product Details for Each Product */}
+                  {productDetails[product.productId] ? (
+                    <div className="product-details-section">
+                      <div className="product-image">
+                        <img
+                          src={productDetails[product.productId]?.image_path || '/images/default.jpg'}  // Dynamically use the product image path from the database
+                          alt={productDetails[product.productId]?.productName || 'No name'}
+                          style={{ width: '100%', maxWidth: '400px' }}
+                        />
+                      </div>
 
-      {/* Product Details Section */}
-      {loadingProduct ? (
-        <div>Loading product details...</div>
-      ) : productDetails ? (
-        <Row className="product-details-section">
-        <Col md={12} className="product-details">
-          <h3>Product Details</h3>
-          <div className="product-image">
-            <img
-              src={`/images/TornadoS.jpg`}  // Direct path from the public folder
-              alt={productDetails.productName}
-              style={{ width: '100%', maxWidth: '400px' }}
-            />
-          </div>
-          <div className="product-info">
-            <h4>{productDetails.productName}</h4>
-            <p>Brand: {productDetails.productBrand || 'N/A'}</p>
-            <p>Electricity Consumption: {productDetails.electricityConsumption || 'N/A'} kWh</p>
-            <p>Price: ${productDetails.price || 'N/A'}</p>
-            <p>Description: {productDetails.description || 'No description available'}</p>
-          </div>
-        </Col>
-      </Row>
-      
-      ) : (
-        <div>No product details available</div>
-      )}
+                      <div className="product-info">
+                        <h4>{productDetails[product.productId]?.productName}</h4>
+                        <p>Brand: {productDetails[product.productId]?.productBrand || 'N/A'}</p>
+                        <p>Electricity Consumption: {productDetails[product.productId]?.electricityConsumption || 'N/A'} kWh</p>
+                        <p>Price: ${productDetails[product.productId]?.price || 'N/A'}</p>
+                        <p>Description: {productDetails[product.productId]?.description || 'No description available'}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <p>Loading product details...</p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>No products found in this order.</p>
+            )}
+          </Col>
 
-      {/* Total Price */}
-      <Row>
-        <Col md={12}>
-          <h3 className="total-price">
-            Total Price: $
-            {orderDetails?.reduce((sum, product) => sum + product.price, 0)}
-          </h3>
-        </Col>
-      </Row>
-    </Container>
-  </div>
-</>
+          {/* Operator Names */}
+          <Col md={4} className="operator-details">
+            <h5>Operator(s):</h5>
+            {operatorNames.length > 0 ? (
+              operatorNames.map((name, index) => (
+                <div key={index} className="operator-badge">
+                  {name}
+                </div>
+              ))
+            ) : (
+              <p>No operators assigned</p>
+            )}
+          </Col>
+        </Row>
 
+        {/* Total Price */}
+        <Row>
+          <Col md={12}>
+            <h3 className="total-price">Total Price: ${totalPrice}</h3>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
 };
 

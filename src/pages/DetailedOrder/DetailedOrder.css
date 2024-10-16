@@ -1,89 +1,104 @@
 /* Basic Layout */
 .content-section {
-    padding: 20px;
-    background-color: #f9f9f9;
-  }
-  
-  .order-details, .operator-details, .product-details-section {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Order Product Styling */
-  .order-product h4 {
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .order-product p {
-    font-size: 16px;
-    color: #555;
-  }
-  
-  /* Operator Styling */
-  .operator-details h5 {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .operator-badge {
-    background-color: #9370DB;
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    display: inline-block;
-    margin: 5px 0;
-  }
-  
-  .operator-badge:hover {
-    background-color: #6a5acd;
-  }
-  
-  /* Product Details Styling */
-  .product-details h3 {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  
-  .product-image img {
-    border-radius: 8px;
-    width: 100%;
-    max-width: 400px;
-  }
-  
-  .product-info h4 {
-    color: #333;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  
-  .product-info p {
-    font-size: 16px;
-    color: #555;
-  }
-  
-  .extra-products {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
-  
-  .extra-products h5 {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .total-price {
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
-    margin-top: 20px;
-  }
-  
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.order-details, .operator-details, .product-details-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Order Product Styling */
+.order-product h4 {
+  font-weight: bold;
+  color: #333;
+}
+
+.order-product p {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Operator Styling */
+.operator-details {
+  width: 250px;  /* Fix width */
+  height: 250px;  /* Fix height to make it square */
+  padding: 10px;  /* Reduce padding to make it more compact */
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;  /* Center the operator names */
+  margin: 0 auto;  /* Center align on the page */
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  justify-content: center; /* Center items vertically */
+}
+
+.operator-details h5 {
+  font-size: 16px;  /* Keep font size small */
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.operator-badge {
+  background-color: #9370DB;
+  color: white;
+  padding: 5px 10px;  /* Smaller padding to reduce badge size */
+  border-radius: 5px;
+  font-weight: bold;
+  display: inline-block;
+  margin: 5px 0;
+  font-size: 14px;  /* Smaller font size */
+}
+
+.operator-badge:hover {
+  background-color: #6a5acd;
+}
+
+/* Product Details Styling */
+.product-details h3 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.product-image img {
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.product-info h4 {
+  color: #333;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.product-info p {
+  font-size: 16px;
+  color: #555;
+}
+
+.extra-products {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.extra-products h5 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.total-price {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-top: 20px;
+}
