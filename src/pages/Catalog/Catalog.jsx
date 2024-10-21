@@ -109,7 +109,6 @@ const Catalog = () => {
               {products.map(product => {
   const price = product.price && typeof product.price === 'number' ? product.price : 0;
   const productName = product.productName || 'No name available'; // Using fallback
-  console.log("WAAAAAAAAAAAAAAAAAA", productName);
   const productBrand = product.productBrand && typeof product.productBrand === 'string' ? product.productBrand : 'No brand available';
   const electricityConsumption = product.electricityConsumption && typeof product.electricityConsumption === 'number' ? product.electricityConsumption : 0;
   const imagePath = product.image_path && typeof product.image_path === 'string' ? product.image_path : '';

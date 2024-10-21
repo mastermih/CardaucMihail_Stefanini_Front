@@ -217,3 +217,27 @@ export const COLUMNS2 = [
     accessor: 'price',
   },
 ];
+
+export const UserCOLUMNS = [
+  {
+    Header: 'UserId',
+    accessor: 'id',
+  },
+  {
+    Header: 'User Name',
+    accessor: 'username',
+  },
+  {
+    Header: 'Email',
+    accessor: 'email',
+  },
+  {
+    Header: 'Is account locked',
+    accessor: 'account_not_locked',
+  },
+
+  {
+    Header: 'Phone number',
+    accessor: 'phone_number',
+  },
+];

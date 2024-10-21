@@ -1,22 +1,63 @@
 import React, { useMemo } from 'react';
 import { useTable } from 'react-table';
-import { COLUMNS, COLUMNS_WITHOUT_OPERATOR_NAME } from './columns';
+import { COLUMNS, COLUMNS_WITHOUT_OPERATOR_NAME, UserCOLUMNS } from './columns';
 
-const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role,handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder,handleAddMeAsOperatorToOrder,operatorID, currentPage, handleFetchData}) => {
+const BasicTable = ({ 
+  data, 
+  handleOperatorSelection, 
+  getOperatorName, 
+  role, 
+  handleDeleteOperatorFromTheOrder, 
+  handleDeleteAllOperatorsFromTheOrder, 
+  handleAddMeAsOperatorToOrder, 
+  operatorID, 
+  currentPage, 
+  handleFetchData, 
+  tableType // Added tableType prop
+}) => {
+
   const safeData = useMemo(() => data || [], [data]);
 
   const columns = useMemo(() => {
-    console.log('Role passed to COLUMNS:', role);
-    if (role === 'ADMIN' || role === 'MANAGER' || role === 'SALESMAN') {
-      return COLUMNS(handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, handleDeleteAllOperatorsFromTheOrder, handleAddMeAsOperatorToOrder,role,operatorID, currentPage, handleFetchData);
-    } else {
-      return COLUMNS_WITHOUT_OPERATOR_NAME(); 
+    if (tableType === 'user') {
+      // If tableType is 'user', use the UserCOLUMNS
+      return UserCOLUMNS;
     }
-  }, [handleOperatorSelection, getOperatorName, handleDeleteOperatorFromTheOrder, role, handleDeleteAllOperatorsFromTheOrder, handleAddMeAsOperatorToOrder,operatorID, currentPage, handleFetchData]);
-  
+
+    if (tableType === 'order') {
+      // For order-related tables, dynamically choose columns based on role
+      if (role === 'ADMIN' || role === 'MANAGER' || role === 'SALESMAN') {
+        return COLUMNS(
+          handleOperatorSelection, 
+          getOperatorName, 
+          handleDeleteOperatorFromTheOrder, 
+          handleDeleteAllOperatorsFromTheOrder, 
+          handleAddMeAsOperatorToOrder, 
+          role, 
+          operatorID, 
+          currentPage, 
+          handleFetchData
+        );
+      } else {
+        return COLUMNS_WITHOUT_OPERATOR_NAME(); 
+      }
+    }
+  }, [
+    handleOperatorSelection, 
+    getOperatorName, 
+    handleDeleteOperatorFromTheOrder, 
+    role, 
+    handleDeleteAllOperatorsFromTheOrder, 
+    handleAddMeAsOperatorToOrder, 
+    operatorID, 
+    currentPage, 
+    handleFetchData, 
+    tableType // Included tableType as dependency
+  ]);
+
   const tableInstance = useTable({
-    columns,
-    data: safeData,
+    columns, 
+    data: safeData
   });
 
   const {
@@ -39,20 +80,19 @@ const BasicTable = ({ data, handleOperatorSelection, getOperatorName, role,handl
         ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-  {rows.map((row, rowIndex) => {
-    prepareRow(row);
-    return (
-      <tr {...row.getRowProps()} key={`${row.original.id || rowIndex}-${rowIndex}`}>
-        {row.cells.map((cell, cellIndex) => (
-          <td {...cell.getCellProps()} key={cellIndex}>
-            {cell.render('Cell')}
-          </td>
-        ))}
-      </tr>
-    );
-  })}
-</tbody>
-
+        {rows.map((row, rowIndex) => {
+          prepareRow(row);
+          return (
+            <tr {...row.getRowProps()} key={`${row.original.id || rowIndex}-${rowIndex}`}>
+              {row.cells.map((cell, cellIndex) => (
+                <td {...cell.getCellProps()} key={cellIndex}>
+                  {cell.render('Cell')}
+                </td>
+              ))}
+            </tr>
+          );
+        })}
+      </tbody>
     </table>
   );
 };

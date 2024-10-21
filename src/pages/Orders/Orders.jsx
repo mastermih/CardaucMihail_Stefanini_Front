@@ -466,6 +466,7 @@ return (
             handleDeleteOperatorFromTheOrder={handleDeleteOperatorFromTheOrder}
             handleDeleteAllOperatorsFromTheOrder={handleDeleteAllOperatorsFromTheOrder}
             handleAddMeAsOperatorToOrder={handleAddMeAsOperatorToOrder}
+            tableType="order"
           />
 
           {totalPages > 1 && (

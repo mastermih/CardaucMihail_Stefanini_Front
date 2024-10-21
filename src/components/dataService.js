@@ -1,5 +1,6 @@
 import { error } from 'ajv/dist/vocabularies/applicator/dependencies';
 import axios from 'axios';
+import { WiMoonAltWaxingGibbous1 } from 'react-icons/wi';
 
 
 export const fetchOrderProductAndExtraProduct = async (orderId) => {
@@ -613,6 +614,32 @@ export const getOperatorName = async (name) => {
     throw error;
   }
 };
+
+export const fetchAllUsersForAdmin = async () => {
+  try {
+    const response = await axios.get('http://localhost:8080/ViewUsers/allUsers');
+    console.log('Raw response data:', response.data);
+
+    // Flatten the user data structure to match what the table expects
+    const flattenedData = response.data.map(item => ({
+      id: item.userId?.id, // Flattened userId
+      username: item.name?.name, // Flattened name
+      email: item.email?.email, // Flattened email
+      phone_number: item.phoneNumber,
+      roles: item.roles ? item.roles.join(', ') : '', // Join roles into a string
+      account_not_locked: item.accountNonLocked ? 'No' : 'Yes' // Convert boolean to "Yes" or "No"
+    }));
+
+    console.log('Flattened data:', flattenedData);
+
+    return flattenedData;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    throw error;
+  }
+};
+
+
 
 export const fetchDataByDateAndStatus = async (startDate, endDate, status, numberOfOrders, page) => {
   try {

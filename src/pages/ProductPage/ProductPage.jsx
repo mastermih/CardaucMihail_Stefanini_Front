@@ -33,9 +33,8 @@ const ProductPage = () => {
     loadProduct();
   }, [id]);
 
-  // Extract the user ID from the token
   const getUserIdFromToken = () => {
-    const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
+    const token = localStorage.getItem('token');
     if (!token) {
       console.error('No token found');
       return null;

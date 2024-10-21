@@ -13,6 +13,8 @@ import UserCreation from './pages/UserCreation/UserCreation';
 import Registration from './pages/Registration/Registration';
 import UserProfile from './pages/UserProfile/UserProfile';
 import DetailedOrder from './pages/DetailedOrder/DetailedOrder';
+import UserList from './pages/UserList/UserList';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
@@ -34,6 +36,8 @@ function App() {
           <Route path="/UserProfile/:id" element={<UserProfile />} />
           <Route path="/sendMail/confirm/:id" element={<ConfirmOrderEmail />} />
           <Route path="/sendMail/confirm/user/:id" element={<ConfirmUserEmail />} />
+          <Route path="/ViewUsers" element={<UserList />} />
+
         </Routes>
       </div>
     </Router>
