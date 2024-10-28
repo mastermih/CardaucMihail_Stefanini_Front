@@ -47,27 +47,30 @@ const UserOrders = () => {
     setLoading(true);
     try {
       let result;
-
+  
       if (!startDate && !endDate && !selectedStatus) {
         result = await fetchOrdersByLastOnesUserRole(userId, limit); 
       } else {
         result = await fetchDataByDateIntervalUserRole(userId, startDate, endDate, limit, page);
       }
-
-      if (result && Array.isArray(result.data)) {
-        const flattenedData = result.data.map(order => ({
-          id: order.id,
-          user_id: order.user_id?.id || 'N/A', // Accessing nested 'user_id'
-          created_date: order.created_date,
-          updated_date: order.updated_date,
-          order_status: order.order_status,
+  
+      if (result && Array.isArray(result)) {
+        // Flatten the result to extract the necessary properties
+        const flattenedData = result.map(order => ({
+          id: order?.orderId?.id || 'N/A',
+          user_id: order?.userId?.userId?.id || 'N/A',
+          created_date: order?.createdDate?.createDateTime || 'N/A',
+          updated_date: order?.updatedDate?.updateDateTime || 'N/A',
+          order_status: order?.orderStatus || 'N/A',
+          operator: order?.userId?.email?.email || 'N/A',
         }));
+        
         
         setData(flattenedData); // Set the valid data
       } else {
         setData([]); 
       }
-
+  
       setTotalPages(result.totalPages || 1);
       setCurrentPage(page);
     } catch (error) {
@@ -77,7 +80,7 @@ const UserOrders = () => {
       setLoading(false);
     }
   };
-
+  
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       handleFetchData(newPage);
@@ -279,7 +282,10 @@ const UserOrders = () => {
           <div>Loading...</div>
         ) : (
           <>
-            <BasicTable data={data} role={role} />
+           <BasicTable 
+  data={data} 
+  role={role} 
+  tableType="order" />
             {totalPages > 1 && (
               <div className="pagination">
                 <button

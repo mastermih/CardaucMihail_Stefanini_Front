@@ -21,9 +21,9 @@ const BasicTable = ({
   const columns = useMemo(() => {
     if (tableType === 'user') {
       // If tableType is 'user', use the UserCOLUMNS
-      return UserCOLUMNS;
+      return UserCOLUMNS || [];
     }
-
+  
     if (tableType === 'order') {
       // For order-related tables, dynamically choose columns based on role
       if (role === 'ADMIN' || role === 'MANAGER' || role === 'SALESMAN') {
@@ -42,6 +42,7 @@ const BasicTable = ({
         return COLUMNS_WITHOUT_OPERATOR_NAME(); 
       }
     }
+    return [];
   }, [
     handleOperatorSelection, 
     getOperatorName, 
@@ -54,10 +55,11 @@ const BasicTable = ({
     handleFetchData, 
     tableType // Included tableType as dependency
   ]);
+  
 
   const tableInstance = useTable({
-    columns, 
-    data: safeData
+    columns: columns || [],  // Provide default empty array
+    data: safeData || [] 
   });
 
   const {

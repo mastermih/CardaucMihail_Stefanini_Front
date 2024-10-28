@@ -353,7 +353,7 @@ const [isNotificationOpen, setNotificationOpen] = useState(false);
                     color: 'red',
                     marginLeft: '10px',
                     cursor: 'pointer',
-                    textAlign: 'left' // Ensure button aligns with text
+                    textAlign: 'left'
                   }}
                 >
                   Remove
@@ -366,8 +366,6 @@ const [isNotificationOpen, setNotificationOpen] = useState(false);
     )}
   </div>
 )}
-
-
 
                     <Dropdown show={showDropdown} onToggle={toggleDropdown}>
                       <Dropdown.Toggle as={Nav.Link} onMouseEnter={handleMouseEnter} onClick={handleCartClick}>
