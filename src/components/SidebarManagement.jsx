@@ -113,7 +113,7 @@ const SidebarManagement = () => {
                         {userProfile && (
                             <div style={{ display: 'flex', alignItems: 'center' }}>
                                 <img
-                                    src={`http://localhost:8080/${userProfile?.image}`}
+                                    src={`http://cdn-server-host:9090/cdn/static/${userProfile?.image}`}
                                     alt="Profile"
                                     style={{
                                         width: '60px',

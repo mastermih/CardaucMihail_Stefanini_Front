@@ -3,7 +3,7 @@
     background-color: #1b3a58;
     padding: 30px 0;
     border-bottom: 1px solid #dee2e6;
-    background-image: url('/public/images/Stars.jpg'); 
+    background-image: url('http://localhost:9090/staticFiles/Stars.jpg'); 
 }
 
 .brand-search-contact {

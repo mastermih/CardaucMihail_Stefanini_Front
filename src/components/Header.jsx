@@ -71,16 +71,28 @@ const [isNotificationOpen, setNotificationOpen] = useState(false);
         try {
           console.log('Fetching user details for userId:', id);
           const user = await getUser(id);
-          setUserProfile(user);
+  
+          // Use the correct URL for the user profile image
+          let imageUrl;
+          if (user.image.startsWith('http://')) {
+            // If the backend returns the full URL, replace it with the proxied URL
+            imageUrl = user.image.replace('http://cdn-service', 'http://localhost:9090/cdn-service');
+          } else {
+            // If backend returns only the path, construct the full URL
+            imageUrl = `http://localhost:9090/cdn-service${user.image}`;
+          }
+  
+          setUserProfile({ ...user, image: imageUrl });
           console.log('User details fetched successfully:', user);
         } catch (error) {
           console.error('Error fetching user profile:', error);
         }
       };
-
-      fetchUserProfile(userId); 
+  
+      fetchUserProfile(userId);
     }
   }, [userId]);
+  
 
 
   const validateLogin = () => {
@@ -270,7 +282,9 @@ const [isNotificationOpen, setNotificationOpen] = useState(false);
         <Container>
           <div className="brand-search-contact">
             <div className="brand">
-              <img src="/images/Logo.jpg" alt="Logo" className="logo" style={{ width: '100px', height: '100px', marginRight: '10px' }} />
+            <img src="http://localhost:9090/staticFiles/Logo.jpg" alt="Logo" className="logo" style={{ width: '100px', height: '100px', marginRight: '10px' }} /> 
+              {/* This one was coll but is beter for static to use just the full url for CDN server */}
+            {/* <img src="http://localhost/cdn/static/Logo.jpg" alt="Logo" className="logo" style={{ width: '100px', height: '100px', marginRight: '10px' }} /> */}
             </div>
             <div className="search-bar">
               <input type="text" placeholder="Search model" />
@@ -289,13 +303,16 @@ const [isNotificationOpen, setNotificationOpen] = useState(false);
                   </>
                 ) : (
                   <>
-                    <img
-                      src={`http://localhost:8080/${userProfile?.image}`} 
-                      alt="Profile"
-                      className="profile-image"
-                      onClick={handleUserProfilePictureClick}
-                      style={{ width: '50px', height: '50px', borderRadius: '50%' }}
-                    />
+{isLoggedIn && userProfile && (
+  <img
+    src={userProfile.image} 
+    alt="Profile"
+    className="profile-image"
+    onClick={handleUserProfilePictureClick}
+    style={{ width: '50px', height: '50px', borderRadius: '50%' }}
+  />
+)}
+
 {userRoles.includes('USER') && (
   <div className="bell-container" style={{ position: 'relative' }}>
     <FaBell size={24} color="#cfd8e0" onClick={handleBellClick} />

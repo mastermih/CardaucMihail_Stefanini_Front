@@ -30,9 +30,9 @@ Components: A comprehensive selection of high-quality elevator components includ
               </dir>
               <br></br>
               <div className="partners-logos">
-                <img src="\partnerImages\McNally-Elevator.png" alt="Partner 1" className="partner-logo" />
-                <img src="\partnerImages\e9_AEG_Logo__Square_MASTER_MAIN_LOGO_Logo.jpg" alt="Partner 2" className="partner-logo" />
-                <img src="\partnerImages\pincus-logo.png" alt="Partner 3" className="partner-logo" />
+                <img src="http://localhost:9090/staticFiles/McNally-Elevator.png" alt="Partner 1" className="partner-logo" />
+                <img src="http://localhost:9090/staticFiles/e9_AEG_Logo__Square_MASTER_MAIN_LOGO_Logo.jpg" alt="Partner 2" className="partner-logo" />
+                <img src="http://localhost:9090/staticFiles/pincus-logo.png" alt="Partner 3" className="partner-logo" />
                 {/* Add more logos as needed */}
               </div>
             </Col>
